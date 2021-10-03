@@ -1,0 +1,229 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1454933709040086636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aee7d1408c0b43df914d5f1e7bc2d69, type: 3}
+  m_Name: Story Option Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  - id: 1
+  internal_guid: b612c28e-75be-41a4-9bf9-d714d4c61293
+  editor_ActiveNode: 0
+  position: {x: 1207.45, y: -82.99998}
+  narrativeGraph: {fileID: 0}
+  once: 0
+  eventConfig: {fileID: 0}
+  optionText: "\u8D77\u8EAB"
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: a305fd09-dad8-4aa5-8220-313b6dee5de9
+        Connections:
+        - node_guid: 5d761704-5983-4d5e-bf62-caca55eb16af
+          port_guid: 1767e0df-d51d-4ea8-9c95-13c7cfbf9935
+        conditionConfig: {fileID: 0}
+    00000001:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 0
+        guid: 01404232-9ac3-4409-9516-feef217f464f
+        Connections:
+        - node_guid: 2b0756e0-c9fb-4529-98e3-91385fc62e94
+          port_guid: 82612261-314b-46bb-838f-e2473b22ba88
+        conditionConfig: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cac613c2c69d574a8f136683f8f0de0, type: 3}
+  m_Name: "\u5F00\u59CB\u5267\u60C5"
+  m_EditorClassIdentifier: 
+  StartingNode: {fileID: 249247814500374444}
+  Nodes:
+  - {fileID: 249247814500374444}
+  - {fileID: 4439727150917275947}
+  - {fileID: 6085699274713208275}
+  - {fileID: -1454933709040086636}
+  - {fileID: 8061627975941756482}
+  Groups: []
+  BlackboardProperties: []
+  StickyNotes: []
+--- !u!114 &249247814500374444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed165b12bb8f4c948932f8ee28821eca, type: 3}
+  m_Name: Start
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  internal_guid: ee250052-e004-4d2a-b536-e56266adecbe
+  editor_ActiveNode: 0
+  position: {x: 270, y: 30}
+  references:
+    version: 1
+    00000000:
+      type: {class: VisualGraphPort, ns: VisualGraphRuntime, asm: VisualGraphRuntime}
+      data:
+        Name: Next
+        Direction: 1
+        CanBeRemoved: 0
+        guid: 7fe5378b-1951-43ac-9c31-408bb0d90422
+        Connections:
+        - node_guid: e3890180-b01c-46c5-8297-282bc5f1adc9
+          port_guid: 5f22063c-28f6-4a96-a71a-af4477d1a79c
+--- !u!114 &4439727150917275947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34f560181cec407e9a0fc5a6afbfaba, type: 3}
+  m_Name: Story Display Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  - id: 1
+  internal_guid: 5d761704-5983-4d5e-bf62-caca55eb16af
+  editor_ActiveNode: 0
+  position: {x: 816, y: -83}
+  narrativeGraph: {fileID: 0}
+  eventConfig: {fileID: 0}
+  storyTexts:
+  - conditionConfig: {fileID: 0}
+    storyText: "\u73B0\u5728\u662F{hour}\u70B9{minute}\u5206\n\u4F60\u4E0A\u5B8C\u4E86\u5395\u6240\uFF0C\u51C6\u5907\u8D77\u8EAB"
+  backgroundImage: {fileID: 0}
+  sound: {fileID: 0}
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: ff318470-ae1e-40cf-a179-c2a7d4ca8ae0
+        Connections:
+        - node_guid: e3890180-b01c-46c5-8297-282bc5f1adc9
+          port_guid: bbbfe76c-7d50-4573-ba47-6c66b1a93521
+        conditionConfig: {fileID: 0}
+    00000001:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 1
+        guid: 1767e0df-d51d-4ea8-9c95-13c7cfbf9935
+        Connections:
+        - node_guid: b612c28e-75be-41a4-9bf9-d714d4c61293
+          port_guid: a305fd09-dad8-4aa5-8220-313b6dee5de9
+        conditionConfig: {fileID: 0}
+--- !u!114 &6085699274713208275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34f560181cec407e9a0fc5a6afbfaba, type: 3}
+  m_Name: Story Display Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  - id: 1
+  internal_guid: e3890180-b01c-46c5-8297-282bc5f1adc9
+  editor_ActiveNode: 0
+  position: {x: 437, y: -83}
+  narrativeGraph: {fileID: 0}
+  eventConfig: {fileID: 0}
+  storyTexts:
+  - conditionConfig: {fileID: 0}
+    storyText: "{year}\u5E74{month}\u6708{day}\u65E5\n\u4F60\u6B63\u5728\u67D0\u5730\n\u516C\u5171\u5395\u6240\u4E00\u6CFB\u5343\u91CC"
+  backgroundImage: {fileID: 0}
+  sound: {fileID: 0}
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: 5f22063c-28f6-4a96-a71a-af4477d1a79c
+        Connections:
+        - node_guid: ee250052-e004-4d2a-b536-e56266adecbe
+          port_guid: 7fe5378b-1951-43ac-9c31-408bb0d90422
+        conditionConfig: {fileID: 0}
+    00000001:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 1
+        guid: bbbfe76c-7d50-4573-ba47-6c66b1a93521
+        Connections:
+        - node_guid: 5d761704-5983-4d5e-bf62-caca55eb16af
+          port_guid: ff318470-ae1e-40cf-a179-c2a7d4ca8ae0
+        conditionConfig: {fileID: 0}
+--- !u!114 &8061627975941756482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 686ecb4fb77d2429ab7ac3851d022996, type: 3}
+  m_Name: Switch Graph Trigger Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  internal_guid: 2b0756e0-c9fb-4529-98e3-91385fc62e94
+  editor_ActiveNode: 0
+  position: {x: 1415.3003, y: -83}
+  narrativeGraph: {fileID: 0}
+  targetGraph: {fileID: 11400000, guid: 22c20f39a130047298926d237bc05104, type: 2}
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: 82612261-314b-46bb-838f-e2473b22ba88
+        Connections:
+        - node_guid: b612c28e-75be-41a4-9bf9-d714d4c61293
+          port_guid: 01404232-9ac3-4409-9516-feef217f464f
+        conditionConfig: {fileID: 0}

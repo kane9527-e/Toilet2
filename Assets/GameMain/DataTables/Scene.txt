@@ -1,0 +1,6 @@
+#	场景配置表			
+#	Id		AssetName
+#	int		string
+#	场景编号	备注	资源名称
+	1	菜单场景	Menu
+	2	文字厕锁场景	Toilet_Text

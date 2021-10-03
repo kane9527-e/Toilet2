@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2742584880322819205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34f560181cec407e9a0fc5a6afbfaba, type: 3}
+  m_Name: Story Display Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  internal_guid: 830fe023-f4ee-4914-9385-282e6330c228
+  editor_ActiveNode: 0
+  position: {x: 400, y: -136}
+  narrativeGraph: {fileID: 0}
+  eventConfig: {fileID: 0}
+  storyTexts:
+  - conditionConfig: {fileID: 0}
+    storyText: "\u5305\u95F4\u540E\u65B9\u7684\u74F7\u7816\u4E0A\n\u6B8B\u7559\u7740\u8BB8\u591A\u6C34\u6E0D\n\u6C34\u7BA1\u9760\u7740\u5899\u8FB9\n\u8868\u9762\u9508\u8FF9\u6591\u6591\n\u76F4\u633A\u633A\u5730\u63D2\u5728\u5730\u4E0A\n\u5F2F\u5934\u5904\u9576\u5D4C\u5728\u5899\u58C1\u4E0A"
+  backgroundImage: {fileID: 0}
+  sound: {fileID: 0}
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: dd50b0e8-afed-48e9-b257-03bc8745c50e
+        Connections:
+        - node_guid: c9859ede-2ad9-4f51-8b5c-76f61468299a
+          port_guid: 3ed3473b-5bc6-4ad0-93db-36c609cca729
+        conditionConfig: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cac613c2c69d574a8f136683f8f0de0, type: 3}
+  m_Name: "\u67E5\u770B\u540E\u65B9\u5899\u9762"
+  m_EditorClassIdentifier: 
+  StartingNode: {fileID: 4619120478137756606}
+  Nodes:
+  - {fileID: 4619120478137756606}
+  - {fileID: -2742584880322819205}
+  Groups: []
+  BlackboardProperties: []
+  StickyNotes: []
+--- !u!114 &4619120478137756606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed165b12bb8f4c948932f8ee28821eca, type: 3}
+  m_Name: Start
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  internal_guid: c9859ede-2ad9-4f51-8b5c-76f61468299a
+  editor_ActiveNode: 0
+  position: {x: 270, y: 30}
+  references:
+    version: 1
+    00000000:
+      type: {class: VisualGraphPort, ns: VisualGraphRuntime, asm: VisualGraphRuntime}
+      data:
+        Name: Next
+        Direction: 1
+        CanBeRemoved: 0
+        guid: 3ed3473b-5bc6-4ad0-93db-36c609cca729
+        Connections:
+        - node_guid: 830fe023-f4ee-4914-9385-282e6330c228
+          port_guid: dd50b0e8-afed-48e9-b257-03bc8745c50e

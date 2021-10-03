@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f17459b7d135745ceab9ed6c1592fd03, type: 3}
+  m_Name: "\u83B7\u5F97m1917\u53F2\u5BC6\u65AF\u7EF4\u68EE"
+  m_EditorClassIdentifier: 
+  events:
+  - conditionConfig: {fileID: 11400000, guid: 578af94a317a54092a8b678a9f4c8b7d, type: 2}
+    nodeEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 11400000, guid: c621c53f434424e97be7ff485e15ad4a, type: 2}
+          m_TargetAssemblyTypeName: Inventory.Runtime.Scripts.ScriptableObject.InventoryPackage,
+            Inventory.Runtime
+          m_MethodName: AddItem
+          m_Mode: 2
+          m_Arguments:
+            m_ObjectArgument: {fileID: 11400000, guid: c149c8074ef2e48cbb588ffee6c23c83, type: 2}
+            m_ObjectArgumentAssemblyTypeName: Inventory.Scripts.ScriptableObject.InventoryItem,
+              Inventory.Runtime
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2

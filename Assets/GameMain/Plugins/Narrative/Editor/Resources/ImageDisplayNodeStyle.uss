@@ -1,0 +1,39 @@
+.VisualGraphNode {
+    border-radius: 10;
+    background-color: rgba(128, 128, 128, 128);
+}
+
+.VisualGraphNodeSelected {
+    border-radius: 10;
+    background-color: rgba(255, 255, 255, 255);
+}
+#RemovePortButton
+{
+    background-color: rgba(128, 0, 0, 255);
+}
+
+#title {
+    background-color: goldenrod;
+}
+#title-label {
+    color: rgba(255, 255, 255, 255);
+    font-size: 125%;
+}
+#contents {
+    background-color: rgba(64, 64, 64, 1);
+}
+#input
+{
+    background-color: deepskyblue;
+}
+#selection-border {
+    border-bottom-color: white;
+    border-left-color: white;
+    border-right-color: white;
+    border-top-color: white;
+}
+
+.node_data {
+    background-color: rgba(64, 64, 64, 1);
+    border-width: 5;
+}
