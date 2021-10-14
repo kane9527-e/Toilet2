@@ -13,11 +13,24 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(LocalizationComponent))]
     internal sealed class LocalizationComponentInspector : GameFrameworkInspector
     {
-        private SerializedProperty m_EnableLoadDictionaryUpdateEvent = null;
-        private SerializedProperty m_EnableLoadDictionaryDependencyAssetEvent = null;
-        private SerializedProperty m_CachedBytesSize = null;
+        private SerializedProperty m_CachedBytesSize;
+        private SerializedProperty m_EnableLoadDictionaryDependencyAssetEvent;
+        private SerializedProperty m_EnableLoadDictionaryUpdateEvent;
 
-        private HelperInfo<LocalizationHelperBase> m_LocalizationHelperInfo = new HelperInfo<LocalizationHelperBase>("Localization");
+        private readonly HelperInfo<LocalizationHelperBase> m_LocalizationHelperInfo =
+            new HelperInfo<LocalizationHelperBase>("Localization");
+
+        private void OnEnable()
+        {
+            m_EnableLoadDictionaryUpdateEvent = serializedObject.FindProperty("m_EnableLoadDictionaryUpdateEvent");
+            m_EnableLoadDictionaryDependencyAssetEvent =
+                serializedObject.FindProperty("m_EnableLoadDictionaryDependencyAssetEvent");
+            m_CachedBytesSize = serializedObject.FindProperty("m_CachedBytesSize");
+
+            m_LocalizationHelperInfo.Init(serializedObject);
+
+            RefreshTypeNames();
+        }
 
         public override void OnInspectorGUI()
         {
@@ -25,7 +38,7 @@ namespace UnityGameFramework.Editor
 
             serializedObject.Update();
 
-            LocalizationComponent t = (LocalizationComponent)target;
+            var t = (LocalizationComponent)target;
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
@@ -52,17 +65,6 @@ namespace UnityGameFramework.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-
-            RefreshTypeNames();
-        }
-
-        private void OnEnable()
-        {
-            m_EnableLoadDictionaryUpdateEvent = serializedObject.FindProperty("m_EnableLoadDictionaryUpdateEvent");
-            m_EnableLoadDictionaryDependencyAssetEvent = serializedObject.FindProperty("m_EnableLoadDictionaryDependencyAssetEvent");
-            m_CachedBytesSize = serializedObject.FindProperty("m_CachedBytesSize");
-
-            m_LocalizationHelperInfo.Init(serializedObject);
 
             RefreshTypeNames();
         }

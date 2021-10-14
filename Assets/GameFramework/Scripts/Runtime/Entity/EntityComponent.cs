@@ -5,18 +5,18 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
 using GameFramework;
 using GameFramework.Entity;
 using GameFramework.ObjectPool;
 using GameFramework.Resource;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 实体组件。
+    ///     实体组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Entity")]
@@ -24,59 +24,40 @@ namespace UnityGameFramework.Runtime
     {
         private const int DefaultPriority = 0;
 
-        private IEntityManager m_EntityManager = null;
-        private EventComponent m_EventComponent = null;
+        [SerializeField] private bool m_EnableShowEntityUpdateEvent;
 
-        private readonly List<IEntity> m_InternalEntityResults = new List<IEntity>();
+        [SerializeField] private bool m_EnableShowEntityDependencyAssetEvent;
 
-        [SerializeField]
-        private bool m_EnableShowEntityUpdateEvent = false;
+        [SerializeField] private Transform m_InstanceRoot;
 
-        [SerializeField]
-        private bool m_EnableShowEntityDependencyAssetEvent = false;
+        [SerializeField] private string m_EntityHelperTypeName = "UnityGameFramework.Runtime.DefaultEntityHelper";
 
-        [SerializeField]
-        private Transform m_InstanceRoot = null;
-
-        [SerializeField]
-        private string m_EntityHelperTypeName = "UnityGameFramework.Runtime.DefaultEntityHelper";
-
-        [SerializeField]
-        private EntityHelperBase m_CustomEntityHelper = null;
+        [SerializeField] private EntityHelperBase m_CustomEntityHelper;
 
         [SerializeField]
         private string m_EntityGroupHelperTypeName = "UnityGameFramework.Runtime.DefaultEntityGroupHelper";
 
-        [SerializeField]
-        private EntityGroupHelperBase m_CustomEntityGroupHelper = null;
+        [SerializeField] private EntityGroupHelperBase m_CustomEntityGroupHelper;
 
-        [SerializeField]
-        private EntityGroup[] m_EntityGroups = null;
+        [SerializeField] private EntityGroup[] m_EntityGroups;
+
+        private readonly List<IEntity> m_InternalEntityResults = new List<IEntity>();
+
+        private IEntityManager m_EntityManager;
+        private EventComponent m_EventComponent;
 
         /// <summary>
-        /// 获取实体数量。
+        ///     获取实体数量。
         /// </summary>
-        public int EntityCount
-        {
-            get
-            {
-                return m_EntityManager.EntityCount;
-            }
-        }
+        public int EntityCount => m_EntityManager.EntityCount;
 
         /// <summary>
-        /// 获取实体组数量。
+        ///     获取实体组数量。
         /// </summary>
-        public int EntityGroupCount
-        {
-            get
-            {
-                return m_EntityManager.EntityGroupCount;
-            }
-        }
+        public int EntityGroupCount => m_EntityManager.EntityGroupCount;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -92,22 +73,17 @@ namespace UnityGameFramework.Runtime
             m_EntityManager.ShowEntitySuccess += OnShowEntitySuccess;
             m_EntityManager.ShowEntityFailure += OnShowEntityFailure;
 
-            if (m_EnableShowEntityUpdateEvent)
-            {
-                m_EntityManager.ShowEntityUpdate += OnShowEntityUpdate;
-            }
+            if (m_EnableShowEntityUpdateEvent) m_EntityManager.ShowEntityUpdate += OnShowEntityUpdate;
 
             if (m_EnableShowEntityDependencyAssetEvent)
-            {
                 m_EntityManager.ShowEntityDependencyAsset += OnShowEntityDependencyAsset;
-            }
 
             m_EntityManager.HideEntityComplete += OnHideEntityComplete;
         }
 
         private void Start()
         {
-            BaseComponent baseComponent = GameEntry.GetComponent<BaseComponent>();
+            var baseComponent = GameEntry.GetComponent<BaseComponent>();
             if (baseComponent == null)
             {
                 Log.Fatal("Base component is invalid.");
@@ -122,17 +98,13 @@ namespace UnityGameFramework.Runtime
             }
 
             if (baseComponent.EditorResourceMode)
-            {
                 m_EntityManager.SetResourceManager(baseComponent.EditorResourceHelper);
-            }
             else
-            {
                 m_EntityManager.SetResourceManager(GameFrameworkEntry.GetModule<IResourceManager>());
-            }
 
             m_EntityManager.SetObjectPoolManager(GameFrameworkEntry.GetModule<IObjectPoolManager>());
 
-            EntityHelperBase entityHelper = Helper.CreateHelper(m_EntityHelperTypeName, m_CustomEntityHelper);
+            var entityHelper = Helper.CreateHelper(m_EntityHelperTypeName, m_CustomEntityHelper);
             if (entityHelper == null)
             {
                 Log.Error("Can not create entity helper.");
@@ -140,7 +112,7 @@ namespace UnityGameFramework.Runtime
             }
 
             entityHelper.name = "Entity Helper";
-            Transform transform = entityHelper.transform;
+            var transform = entityHelper.transform;
             transform.SetParent(this.transform);
             transform.localScale = Vector3.one;
 
@@ -153,18 +125,17 @@ namespace UnityGameFramework.Runtime
                 m_InstanceRoot.localScale = Vector3.one;
             }
 
-            for (int i = 0; i < m_EntityGroups.Length; i++)
-            {
-                if (!AddEntityGroup(m_EntityGroups[i].Name, m_EntityGroups[i].InstanceAutoReleaseInterval, m_EntityGroups[i].InstanceCapacity, m_EntityGroups[i].InstanceExpireTime, m_EntityGroups[i].InstancePriority))
+            for (var i = 0; i < m_EntityGroups.Length; i++)
+                if (!AddEntityGroup(m_EntityGroups[i].Name, m_EntityGroups[i].InstanceAutoReleaseInterval,
+                    m_EntityGroups[i].InstanceCapacity, m_EntityGroups[i].InstanceExpireTime,
+                    m_EntityGroups[i].InstancePriority))
                 {
                     Log.Warning("Add entity group '{0}' failure.", m_EntityGroups[i].Name);
-                    continue;
                 }
-            }
         }
 
         /// <summary>
-        /// 是否存在实体组。
+        ///     是否存在实体组。
         /// </summary>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <returns>是否存在实体组。</returns>
@@ -174,7 +145,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取实体组。
+        ///     获取实体组。
         /// </summary>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <returns>要获取的实体组。</returns>
@@ -184,7 +155,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有实体组。
+        ///     获取所有实体组。
         /// </summary>
         /// <returns>所有实体组。</returns>
         public IEntityGroup[] GetAllEntityGroups()
@@ -193,7 +164,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有实体组。
+        ///     获取所有实体组。
         /// </summary>
         /// <param name="results">所有实体组。</param>
         public void GetAllEntityGroups(List<IEntityGroup> results)
@@ -202,7 +173,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 增加实体组。
+        ///     增加实体组。
         /// </summary>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="instanceAutoReleaseInterval">实体实例对象池自动释放可释放对象的间隔秒数。</param>
@@ -210,14 +181,13 @@ namespace UnityGameFramework.Runtime
         /// <param name="instanceExpireTime">实体实例对象池对象过期秒数。</param>
         /// <param name="instancePriority">实体实例对象池的优先级。</param>
         /// <returns>是否增加实体组成功。</returns>
-        public bool AddEntityGroup(string entityGroupName, float instanceAutoReleaseInterval, int instanceCapacity, float instanceExpireTime, int instancePriority)
+        public bool AddEntityGroup(string entityGroupName, float instanceAutoReleaseInterval, int instanceCapacity,
+            float instanceExpireTime, int instancePriority)
         {
-            if (m_EntityManager.HasEntityGroup(entityGroupName))
-            {
-                return false;
-            }
+            if (m_EntityManager.HasEntityGroup(entityGroupName)) return false;
 
-            EntityGroupHelperBase entityGroupHelper = Helper.CreateHelper(m_EntityGroupHelperTypeName, m_CustomEntityGroupHelper, EntityGroupCount);
+            var entityGroupHelper =
+                Helper.CreateHelper(m_EntityGroupHelperTypeName, m_CustomEntityGroupHelper, EntityGroupCount);
             if (entityGroupHelper == null)
             {
                 Log.Error("Can not create entity group helper.");
@@ -225,15 +195,16 @@ namespace UnityGameFramework.Runtime
             }
 
             entityGroupHelper.name = Utility.Text.Format("Entity Group - {0}", entityGroupName);
-            Transform transform = entityGroupHelper.transform;
+            var transform = entityGroupHelper.transform;
             transform.SetParent(m_InstanceRoot);
             transform.localScale = Vector3.one;
 
-            return m_EntityManager.AddEntityGroup(entityGroupName, instanceAutoReleaseInterval, instanceCapacity, instanceExpireTime, instancePriority, entityGroupHelper);
+            return m_EntityManager.AddEntityGroup(entityGroupName, instanceAutoReleaseInterval, instanceCapacity,
+                instanceExpireTime, instancePriority, entityGroupHelper);
         }
 
         /// <summary>
-        /// 是否存在实体。
+        ///     是否存在实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <returns>是否存在实体。</returns>
@@ -243,7 +214,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 是否存在实体。
+        ///     是否存在实体。
         /// </summary>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <returns>是否存在实体。</returns>
@@ -253,7 +224,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取实体。
+        ///     获取实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <returns>实体。</returns>
@@ -263,7 +234,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取实体。
+        ///     获取实体。
         /// </summary>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <returns>要获取的实体。</returns>
@@ -273,24 +244,21 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取实体。
+        ///     获取实体。
         /// </summary>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <returns>要获取的实体。</returns>
         public Entity[] GetEntities(string entityAssetName)
         {
-            IEntity[] entities = m_EntityManager.GetEntities(entityAssetName);
-            Entity[] entityImpls = new Entity[entities.Length];
-            for (int i = 0; i < entities.Length; i++)
-            {
-                entityImpls[i] = (Entity)entities[i];
-            }
+            var entities = m_EntityManager.GetEntities(entityAssetName);
+            var entityImpls = new Entity[entities.Length];
+            for (var i = 0; i < entities.Length; i++) entityImpls[i] = (Entity)entities[i];
 
             return entityImpls;
         }
 
         /// <summary>
-        /// 获取实体。
+        ///     获取实体。
         /// </summary>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <param name="results">要获取的实体。</param>
@@ -304,30 +272,24 @@ namespace UnityGameFramework.Runtime
 
             results.Clear();
             m_EntityManager.GetEntities(entityAssetName, m_InternalEntityResults);
-            foreach (IEntity entity in m_InternalEntityResults)
-            {
-                results.Add((Entity)entity);
-            }
+            foreach (var entity in m_InternalEntityResults) results.Add((Entity)entity);
         }
 
         /// <summary>
-        /// 获取所有已加载的实体。
+        ///     获取所有已加载的实体。
         /// </summary>
         /// <returns>所有已加载的实体。</returns>
         public Entity[] GetAllLoadedEntities()
         {
-            IEntity[] entities = m_EntityManager.GetAllLoadedEntities();
-            Entity[] entityImpls = new Entity[entities.Length];
-            for (int i = 0; i < entities.Length; i++)
-            {
-                entityImpls[i] = (Entity)entities[i];
-            }
+            var entities = m_EntityManager.GetAllLoadedEntities();
+            var entityImpls = new Entity[entities.Length];
+            for (var i = 0; i < entities.Length; i++) entityImpls[i] = (Entity)entities[i];
 
             return entityImpls;
         }
 
         /// <summary>
-        /// 获取所有已加载的实体。
+        ///     获取所有已加载的实体。
         /// </summary>
         /// <param name="results">所有已加载的实体。</param>
         public void GetAllLoadedEntities(List<Entity> results)
@@ -340,14 +302,11 @@ namespace UnityGameFramework.Runtime
 
             results.Clear();
             m_EntityManager.GetAllLoadedEntities(m_InternalEntityResults);
-            foreach (IEntity entity in m_InternalEntityResults)
-            {
-                results.Add((Entity)entity);
-            }
+            foreach (var entity in m_InternalEntityResults) results.Add((Entity)entity);
         }
 
         /// <summary>
-        /// 获取所有正在加载实体的编号。
+        ///     获取所有正在加载实体的编号。
         /// </summary>
         /// <returns>所有正在加载实体的编号。</returns>
         public int[] GetAllLoadingEntityIds()
@@ -356,7 +315,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有正在加载实体的编号。
+        ///     获取所有正在加载实体的编号。
         /// </summary>
         /// <param name="results">所有正在加载实体的编号。</param>
         public void GetAllLoadingEntityIds(List<int> results)
@@ -365,7 +324,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 是否正在加载实体。
+        ///     是否正在加载实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <returns>是否正在加载实体。</returns>
@@ -375,7 +334,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 是否是合法的实体。
+        ///     是否是合法的实体。
         /// </summary>
         /// <param name="entity">实体。</param>
         /// <returns>实体是否合法。</returns>
@@ -385,7 +344,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <typeparam name="T">实体逻辑类型。</typeparam>
         /// <param name="entityId">实体编号。</param>
@@ -397,7 +356,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <param name="entityLogicType">实体逻辑类型。</param>
@@ -409,59 +368,63 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <typeparam name="T">实体逻辑类型。</typeparam>
         /// <param name="entityId">实体编号。</param>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="priority">加载实体资源的优先级。</param>
-        public void ShowEntity<T>(int entityId, string entityAssetName, string entityGroupName, int priority) where T : EntityLogic
+        public void ShowEntity<T>(int entityId, string entityAssetName, string entityGroupName, int priority)
+            where T : EntityLogic
         {
             ShowEntity(entityId, typeof(T), entityAssetName, entityGroupName, priority, null);
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <param name="entityLogicType">实体逻辑类型。</param>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="priority">加载实体资源的优先级。</param>
-        public void ShowEntity(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName, int priority)
+        public void ShowEntity(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName,
+            int priority)
         {
             ShowEntity(entityId, entityLogicType, entityAssetName, entityGroupName, priority, null);
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <typeparam name="T">实体逻辑类型。</typeparam>
         /// <param name="entityId">实体编号。</param>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void ShowEntity<T>(int entityId, string entityAssetName, string entityGroupName, object userData) where T : EntityLogic
+        public void ShowEntity<T>(int entityId, string entityAssetName, string entityGroupName, object userData)
+            where T : EntityLogic
         {
             ShowEntity(entityId, typeof(T), entityAssetName, entityGroupName, DefaultPriority, userData);
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <param name="entityLogicType">实体逻辑类型。</param>
         /// <param name="entityAssetName">实体资源名称。</param>
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void ShowEntity(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName, object userData)
+        public void ShowEntity(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName,
+            object userData)
         {
             ShowEntity(entityId, entityLogicType, entityAssetName, entityGroupName, DefaultPriority, userData);
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <typeparam name="T">实体逻辑类型。</typeparam>
         /// <param name="entityId">实体编号。</param>
@@ -469,13 +432,14 @@ namespace UnityGameFramework.Runtime
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="priority">加载实体资源的优先级。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void ShowEntity<T>(int entityId, string entityAssetName, string entityGroupName, int priority, object userData) where T : EntityLogic
+        public void ShowEntity<T>(int entityId, string entityAssetName, string entityGroupName, int priority,
+            object userData) where T : EntityLogic
         {
             ShowEntity(entityId, typeof(T), entityAssetName, entityGroupName, priority, userData);
         }
 
         /// <summary>
-        /// 显示实体。
+        ///     显示实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <param name="entityLogicType">实体逻辑类型。</param>
@@ -483,7 +447,8 @@ namespace UnityGameFramework.Runtime
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="priority">加载实体资源的优先级。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void ShowEntity(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName, int priority, object userData)
+        public void ShowEntity(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName,
+            int priority, object userData)
         {
             if (entityLogicType == null)
             {
@@ -491,11 +456,12 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            m_EntityManager.ShowEntity(entityId, entityAssetName, entityGroupName, priority, ShowEntityInfo.Create(entityLogicType, userData));
+            m_EntityManager.ShowEntity(entityId, entityAssetName, entityGroupName, priority,
+                ShowEntityInfo.Create(entityLogicType, userData));
         }
 
         /// <summary>
-        /// 隐藏实体。
+        ///     隐藏实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         public void HideEntity(int entityId)
@@ -504,7 +470,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 隐藏实体。
+        ///     隐藏实体。
         /// </summary>
         /// <param name="entityId">实体编号。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -514,7 +480,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 隐藏实体。
+        ///     隐藏实体。
         /// </summary>
         /// <param name="entity">实体。</param>
         public void HideEntity(Entity entity)
@@ -523,7 +489,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 隐藏实体。
+        ///     隐藏实体。
         /// </summary>
         /// <param name="entity">实体。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -533,7 +499,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 隐藏所有已加载的实体。
+        ///     隐藏所有已加载的实体。
         /// </summary>
         public void HideAllLoadedEntities()
         {
@@ -541,7 +507,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 隐藏所有已加载的实体。
+        ///     隐藏所有已加载的实体。
         /// </summary>
         /// <param name="userData">用户自定义数据。</param>
         public void HideAllLoadedEntities(object userData)
@@ -550,7 +516,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 隐藏所有正在加载的实体。
+        ///     隐藏所有正在加载的实体。
         /// </summary>
         public void HideAllLoadingEntities()
         {
@@ -558,7 +524,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取父实体。
+        ///     获取父实体。
         /// </summary>
         /// <param name="childEntityId">要获取父实体的子实体的实体编号。</param>
         /// <returns>子实体的父实体。</returns>
@@ -568,7 +534,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取父实体。
+        ///     获取父实体。
         /// </summary>
         /// <param name="childEntity">要获取父实体的子实体。</param>
         /// <returns>子实体的父实体。</returns>
@@ -578,7 +544,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取子实体数量。
+        ///     获取子实体数量。
         /// </summary>
         /// <param name="parentEntityId">要获取子实体数量的父实体的实体编号。</param>
         /// <returns>子实体数量。</returns>
@@ -588,7 +554,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取子实体。
+        ///     获取子实体。
         /// </summary>
         /// <param name="parentEntityId">要获取子实体的父实体的实体编号。</param>
         /// <returns>子实体。</returns>
@@ -598,7 +564,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取子实体。
+        ///     获取子实体。
         /// </summary>
         /// <param name="parentEntity">要获取子实体的父实体。</param>
         /// <returns>子实体。</returns>
@@ -608,24 +574,21 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有子实体。
+        ///     获取所有子实体。
         /// </summary>
         /// <param name="parentEntityId">要获取所有子实体的父实体的实体编号。</param>
         /// <returns>所有子实体。</returns>
         public Entity[] GetChildEntities(int parentEntityId)
         {
-            IEntity[] entities = m_EntityManager.GetChildEntities(parentEntityId);
-            Entity[] entityImpls = new Entity[entities.Length];
-            for (int i = 0; i < entities.Length; i++)
-            {
-                entityImpls[i] = (Entity)entities[i];
-            }
+            var entities = m_EntityManager.GetChildEntities(parentEntityId);
+            var entityImpls = new Entity[entities.Length];
+            for (var i = 0; i < entities.Length; i++) entityImpls[i] = (Entity)entities[i];
 
             return entityImpls;
         }
 
         /// <summary>
-        /// 获取所有子实体。
+        ///     获取所有子实体。
         /// </summary>
         /// <param name="parentEntityId">要获取所有子实体的父实体的实体编号。</param>
         /// <param name="results">所有子实体。</param>
@@ -639,31 +602,25 @@ namespace UnityGameFramework.Runtime
 
             results.Clear();
             m_EntityManager.GetChildEntities(parentEntityId, m_InternalEntityResults);
-            foreach (IEntity entity in m_InternalEntityResults)
-            {
-                results.Add((Entity)entity);
-            }
+            foreach (var entity in m_InternalEntityResults) results.Add((Entity)entity);
         }
 
         /// <summary>
-        /// 获取所有子实体。
+        ///     获取所有子实体。
         /// </summary>
         /// <param name="parentEntity">要获取所有子实体的父实体。</param>
         /// <returns>所有子实体。</returns>
         public Entity[] GetChildEntities(Entity parentEntity)
         {
-            IEntity[] entities = m_EntityManager.GetChildEntities(parentEntity);
-            Entity[] entityImpls = new Entity[entities.Length];
-            for (int i = 0; i < entities.Length; i++)
-            {
-                entityImpls[i] = (Entity)entities[i];
-            }
+            var entities = m_EntityManager.GetChildEntities(parentEntity);
+            var entityImpls = new Entity[entities.Length];
+            for (var i = 0; i < entities.Length; i++) entityImpls[i] = (Entity)entities[i];
 
             return entityImpls;
         }
 
         /// <summary>
-        /// 获取所有子实体。
+        ///     获取所有子实体。
         /// </summary>
         /// <param name="parentEntity">要获取所有子实体的父实体。</param>
         /// <param name="results">所有子实体。</param>
@@ -677,14 +634,11 @@ namespace UnityGameFramework.Runtime
 
             results.Clear();
             m_EntityManager.GetChildEntities(parentEntity, m_InternalEntityResults);
-            foreach (IEntity entity in m_InternalEntityResults)
-            {
-                results.Add((Entity)entity);
-            }
+            foreach (var entity in m_InternalEntityResults) results.Add((Entity)entity);
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -694,7 +648,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -704,7 +658,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -714,7 +668,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -724,7 +678,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -735,7 +689,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -746,7 +700,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -757,7 +711,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -768,7 +722,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -779,7 +733,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -790,7 +744,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -801,7 +755,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -812,7 +766,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -823,7 +777,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -834,7 +788,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -845,7 +799,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -856,7 +810,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -868,7 +822,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -880,7 +834,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -892,7 +846,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -922,7 +876,8 @@ namespace UnityGameFramework.Runtime
                 parentTransform = parentEntity.Logic.CachedTransform.Find(parentTransformPath);
                 if (parentTransform == null)
                 {
-                    Log.Warning("Can not find transform path '{0}' from parent entity '{1}'.", parentTransformPath, parentEntity.Logic.Name);
+                    Log.Warning("Can not find transform path '{0}' from parent entity '{1}'.", parentTransformPath,
+                        parentEntity.Logic.Name);
                     parentTransform = parentEntity.Logic.CachedTransform;
                 }
             }
@@ -931,7 +886,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -943,7 +898,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntityId">要附加的子实体的实体编号。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -955,7 +910,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntityId">被附加的父实体的实体编号。</param>
@@ -967,7 +922,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 附加子实体。
+        ///     附加子实体。
         /// </summary>
         /// <param name="childEntity">要附加的子实体。</param>
         /// <param name="parentEntity">被附加的父实体。</param>
@@ -987,16 +942,13 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            if (parentTransform == null)
-            {
-                parentTransform = parentEntity.Logic.CachedTransform;
-            }
+            if (parentTransform == null) parentTransform = parentEntity.Logic.CachedTransform;
 
             m_EntityManager.AttachEntity(childEntity, parentEntity, AttachEntityInfo.Create(parentTransform, userData));
         }
 
         /// <summary>
-        /// 解除子实体。
+        ///     解除子实体。
         /// </summary>
         /// <param name="childEntityId">要解除的子实体的实体编号。</param>
         public void DetachEntity(int childEntityId)
@@ -1005,7 +957,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除子实体。
+        ///     解除子实体。
         /// </summary>
         /// <param name="childEntityId">要解除的子实体的实体编号。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -1015,7 +967,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除子实体。
+        ///     解除子实体。
         /// </summary>
         /// <param name="childEntity">要解除的子实体。</param>
         public void DetachEntity(Entity childEntity)
@@ -1024,7 +976,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除子实体。
+        ///     解除子实体。
         /// </summary>
         /// <param name="childEntity">要解除的子实体。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -1034,7 +986,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除所有子实体。
+        ///     解除所有子实体。
         /// </summary>
         /// <param name="parentEntityId">被解除的父实体的实体编号。</param>
         public void DetachChildEntities(int parentEntityId)
@@ -1043,7 +995,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除所有子实体。
+        ///     解除所有子实体。
         /// </summary>
         /// <param name="parentEntityId">被解除的父实体的实体编号。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -1053,7 +1005,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除所有子实体。
+        ///     解除所有子实体。
         /// </summary>
         /// <param name="parentEntity">被解除的父实体。</param>
         public void DetachChildEntities(Entity parentEntity)
@@ -1062,7 +1014,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除所有子实体。
+        ///     解除所有子实体。
         /// </summary>
         /// <param name="parentEntity">被解除的父实体。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -1072,7 +1024,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 设置实体是否被加锁。
+        ///     设置实体是否被加锁。
         /// </summary>
         /// <param name="entity">实体。</param>
         /// <param name="locked">实体是否被加锁。</param>
@@ -1084,7 +1036,7 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            IEntityGroup entityGroup = entity.EntityGroup;
+            var entityGroup = entity.EntityGroup;
             if (entityGroup == null)
             {
                 Log.Warning("Entity group is invalid.");
@@ -1095,7 +1047,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 设置实体的优先级。
+        ///     设置实体的优先级。
         /// </summary>
         /// <param name="entity">实体。</param>
         /// <param name="priority">实体优先级。</param>
@@ -1107,7 +1059,7 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            IEntityGroup entityGroup = entity.EntityGroup;
+            var entityGroup = entity.EntityGroup;
             if (entityGroup == null)
             {
                 Log.Warning("Entity group is invalid.");
@@ -1124,7 +1076,9 @@ namespace UnityGameFramework.Runtime
 
         private void OnShowEntityFailure(object sender, GameFramework.Entity.ShowEntityFailureEventArgs e)
         {
-            Log.Warning("Show entity failure, entity id '{0}', asset name '{1}', entity group name '{2}', error message '{3}'.", e.EntityId.ToString(), e.EntityAssetName, e.EntityGroupName, e.ErrorMessage);
+            Log.Warning(
+                "Show entity failure, entity id '{0}', asset name '{1}', entity group name '{2}', error message '{3}'.",
+                e.EntityId.ToString(), e.EntityAssetName, e.EntityGroupName, e.ErrorMessage);
             m_EventComponent.Fire(this, ShowEntityFailureEventArgs.Create(e));
         }
 
@@ -1133,7 +1087,8 @@ namespace UnityGameFramework.Runtime
             m_EventComponent.Fire(this, ShowEntityUpdateEventArgs.Create(e));
         }
 
-        private void OnShowEntityDependencyAsset(object sender, GameFramework.Entity.ShowEntityDependencyAssetEventArgs e)
+        private void OnShowEntityDependencyAsset(object sender,
+            GameFramework.Entity.ShowEntityDependencyAssetEventArgs e)
         {
             m_EventComponent.Fire(this, ShowEntityDependencyAssetEventArgs.Create(e));
         }

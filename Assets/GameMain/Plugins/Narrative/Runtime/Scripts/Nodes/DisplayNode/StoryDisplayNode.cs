@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using ConditionSetting;
 using TextVariable;
 using UnityEngine;
 using VisualGraphRuntime;
@@ -10,17 +9,17 @@ using VisualGraphRuntime;
 namespace Narrative.Runtime.Scripts.Nodes.DisplayNode
 {
     [NodeName("DisplayNode/Story Node")]
-    public class StoryDisplayNode : global::Narrative.Runtime.Scripts.Nodes.BaseNode.DisplayNode
+    public class StoryDisplayNode : BaseNode.DisplayNode
     {
         [SerializeField] private List<ConditionText> storyTexts;
-
-        public List<ConditionText> StoryTexts => storyTexts;
 
         //[TextArea(1, 10)] [SerializeField] private string storyText;
         [HideInInspector] [SerializeField] private Texture2D backgroundImage;
 
         // ReSharper disable once NotAccessedField.Local
-        [HideInInspector] [SerializeField] AudioClip sound;
+        [HideInInspector] [SerializeField] private AudioClip sound;
+
+        public List<ConditionText> StoryTexts => storyTexts;
 
         public Texture2D BackgroundImage
         {
@@ -37,12 +36,10 @@ namespace Narrative.Runtime.Scripts.Nodes.DisplayNode
 
         public virtual string GetStoryText()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             foreach (var conditionText in storyTexts)
-            {
                 if (conditionText.ConditionConfig == null || conditionText.ConditionConfig.Result())
                     builder.AppendLine(conditionText.StoryText);
-            }
 
             return TextVariableProcessor.ProcessVariable(builder.ToString());
         }
@@ -50,7 +47,7 @@ namespace Narrative.Runtime.Scripts.Nodes.DisplayNode
         public virtual string GetLine(int index)
         {
             if (storyTexts == null || storyTexts.Count <= 0 || index < 0 || index > storyTexts.Count)
-                return String.Empty;
+                return string.Empty;
             var text = storyTexts[index].StoryText;
             var lines = text.Split('\n');
             if (lines.Length <= 0)

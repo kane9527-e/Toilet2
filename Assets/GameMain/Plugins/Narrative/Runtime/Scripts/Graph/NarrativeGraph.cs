@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VisualGraphRuntime;
 
 namespace Narrative.Runtime.Scripts.Graph
@@ -13,7 +11,16 @@ namespace Narrative.Runtime.Scripts.Graph
     [DefaultNodeType(typeof(NarrativeNode))]
     public class NarrativeGraph : VisualGraph
     {
+#if UNITY_EDITOR
+        /// <summary>
+        ///     StickyNotes.
+        /// </summary>
+        [HideInInspector] [SerializeField] public List<NarativeStickyNote> StickyNotes = new List<NarativeStickyNote>();
+#endif
+
         private DisplayNode _currentNode;
+
+        public Action<DisplayNode> OnNodeChangedEvent;
 
         public DisplayNode CurrentNode
         {
@@ -25,13 +32,6 @@ namespace Narrative.Runtime.Scripts.Graph
             }
         }
 
-        public Action<DisplayNode> OnNodeChangedEvent;
-
-        /// <summary>
-        ///StickyNotes.
-        /// </summary>
-        [HideInInspector] [SerializeField] public List<NarativeStickyNote> StickyNotes = new List<NarativeStickyNote>();
-
         public override void Init()
         {
             Debug.Assert(StartingNode.Outputs.First().Connections.Count != 0, "Starting node needs a connection");
@@ -39,11 +39,8 @@ namespace Narrative.Runtime.Scripts.Graph
             CurrentNode = (DisplayNode)StartingNode.Outputs.First().Connections[0].Node;
             foreach (var state in Nodes)
             {
-                NarrativeNode node = state as NarrativeNode;
-                if (node != null)
-                {
-                    node.narrativeGraph = this;
-                }
+                var node = state as NarrativeNode;
+                if (node != null) node.narrativeGraph = this;
             }
 
             CurrentNode.OnEnter();
@@ -51,15 +48,12 @@ namespace Narrative.Runtime.Scripts.Graph
 
         public void Update()
         {
-            if (CurrentNode != null)
-            {
-                CurrentNode.OnUpdate();
-            }
+            if (CurrentNode != null) CurrentNode.OnUpdate();
         }
 
 
         /// <summary>
-        /// SwitchNode
+        ///     SwitchNode
         /// </summary>
         /// <param name="node"></param>
         public void SwitchNode(DisplayNode node)

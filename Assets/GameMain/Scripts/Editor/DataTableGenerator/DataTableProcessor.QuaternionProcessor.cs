@@ -14,25 +14,13 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
     {
         private sealed class QuaternionProcessor : GenericDataProcessor<Quaternion>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            public override bool IsSystem => false;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "Quaternion";
-                }
-            }
+            public override string LanguageKeyword => "Quaternion";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "quaternion",
                     "unityengine.quaternion"
@@ -41,13 +29,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
             public override Quaternion Parse(string value)
             {
-                string[] splitedValue = value.Split(',');
-                return new Quaternion(float.Parse(splitedValue[0]), float.Parse(splitedValue[1]), float.Parse(splitedValue[2]), float.Parse(splitedValue[3]));
+                var splitedValue = value.Split(',');
+                return new Quaternion(float.Parse(splitedValue[0]), float.Parse(splitedValue[1]),
+                    float.Parse(splitedValue[2]), float.Parse(splitedValue[3]));
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
-                Quaternion quaternion = Parse(value);
+                var quaternion = Parse(value);
                 binaryWriter.Write(quaternion.x);
                 binaryWriter.Write(quaternion.y);
                 binaryWriter.Write(quaternion.z);

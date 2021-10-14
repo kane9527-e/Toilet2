@@ -5,62 +5,31 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using UnityEngine;
+
 namespace UnityGameFramework.Runtime
 {
     public sealed partial class DebuggerComponent : GameFrameworkComponent
     {
-        private sealed partial class RuntimeMemoryInformationWindow<T> : ScrollableDebuggerWindowBase where T : UnityEngine.Object
+        private sealed partial class RuntimeMemoryInformationWindow<T> : ScrollableDebuggerWindowBase where T : Object
         {
             private sealed class Sample
             {
-                private readonly string m_Name;
-                private readonly string m_Type;
-                private readonly long m_Size;
-                private bool m_Highlight;
-
                 public Sample(string name, string type, long size)
                 {
-                    m_Name = name;
-                    m_Type = type;
-                    m_Size = size;
-                    m_Highlight = false;
+                    Name = name;
+                    Type = type;
+                    Size = size;
+                    Highlight = false;
                 }
 
-                public string Name
-                {
-                    get
-                    {
-                        return m_Name;
-                    }
-                }
+                public string Name { get; }
 
-                public string Type
-                {
-                    get
-                    {
-                        return m_Type;
-                    }
-                }
+                public string Type { get; }
 
-                public long Size
-                {
-                    get
-                    {
-                        return m_Size;
-                    }
-                }
+                public long Size { get; }
 
-                public bool Highlight
-                {
-                    get
-                    {
-                        return m_Highlight;
-                    }
-                    set
-                    {
-                        m_Highlight = value;
-                    }
-                }
+                public bool Highlight { get; set; }
             }
         }
     }

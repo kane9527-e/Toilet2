@@ -5,51 +5,44 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System.Collections.Generic;
+using GameFramework;
 using UnityEditor;
 using UnityEngine;
 
 namespace UnityGameFramework.Editor.ResourceTools
 {
     /// <summary>
-    /// 资源编辑器。
+    ///     资源编辑器。
     /// </summary>
     internal sealed partial class ResourceEditor : EditorWindow
     {
-        private ResourceEditorController m_Controller = null;
-        private MenuState m_MenuState = MenuState.Normal;
-        private Resource m_SelectedResource = null;
-        private ResourceFolder m_ResourceRoot = null;
-        private HashSet<string> m_ExpandedResourceFolderNames = null;
-        private HashSet<Asset> m_SelectedAssetsInSelectedResource = null;
-        private HashSet<SourceFolder> m_ExpandedSourceFolders = null;
-        private HashSet<SourceAsset> m_SelectedSourceAssets = null;
-        private Texture m_MissingSourceAssetIcon = null;
+        private HashSet<SourceAsset> m_CachedAssignedSourceAssets;
+        private HashSet<SourceFolder> m_CachedAssignedSourceFolders;
 
-        private HashSet<SourceFolder> m_CachedSelectedSourceFolders = null;
-        private HashSet<SourceFolder> m_CachedUnselectedSourceFolders = null;
-        private HashSet<SourceFolder> m_CachedAssignedSourceFolders = null;
-        private HashSet<SourceFolder> m_CachedUnassignedSourceFolders = null;
-        private HashSet<SourceAsset> m_CachedAssignedSourceAssets = null;
-        private HashSet<SourceAsset> m_CachedUnassignedSourceAssets = null;
+        private HashSet<SourceFolder> m_CachedSelectedSourceFolders;
+        private HashSet<SourceAsset> m_CachedUnassignedSourceAssets;
+        private HashSet<SourceFolder> m_CachedUnassignedSourceFolders;
+        private HashSet<SourceFolder> m_CachedUnselectedSourceFolders;
+        private ResourceEditorController m_Controller;
+        private int m_CurrentResourceContentCount;
+        private int m_CurrentResourceRowOnDraw;
+        private int m_CurrentSourceRowOnDraw;
+        private HashSet<string> m_ExpandedResourceFolderNames;
+        private HashSet<SourceFolder> m_ExpandedSourceFolders;
+        private bool m_HideAssignedSourceAssets;
+        private string m_InputResourceName;
+        private string m_InputResourceVariant;
+        private MenuState m_MenuState = MenuState.Normal;
+        private Texture m_MissingSourceAssetIcon;
+        private ResourceFolder m_ResourceRoot;
 
         private Vector2 m_ResourcesViewScroll = Vector2.zero;
         private Vector2 m_ResourceViewScroll = Vector2.zero;
+        private HashSet<Asset> m_SelectedAssetsInSelectedResource;
+        private Resource m_SelectedResource;
+        private HashSet<SourceAsset> m_SelectedSourceAssets;
         private Vector2 m_SourceAssetsViewScroll = Vector2.zero;
-        private string m_InputResourceName = null;
-        private string m_InputResourceVariant = null;
-        private bool m_HideAssignedSourceAssets = false;
-        private int m_CurrentResourceContentCount = 0;
-        private int m_CurrentResourceRowOnDraw = 0;
-        private int m_CurrentSourceRowOnDraw = 0;
-
-        [MenuItem("Game Framework/Resource Tools/Resource Editor", false, 41)]
-        private static void Open()
-        {
-            ResourceEditor window = GetWindow<ResourceEditor>("Resource Editor", true);
-            window.minSize = new Vector2(1400f, 600f);
-        }
 
         private void OnEnable()
         {
@@ -87,13 +80,9 @@ namespace UnityGameFramework.Editor.ResourceTools
             m_CurrentSourceRowOnDraw = 0;
 
             if (m_Controller.Load())
-            {
                 Debug.Log("Load configuration success.");
-            }
             else
-            {
                 Debug.LogWarning("Load configuration failure.");
-            }
 
             EditorUtility.DisplayProgressBar("Prepare Resource Editor", "Processing...", 0f);
             RefreshResourceTree();
@@ -108,7 +97,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.25f));
                 {
                     GUILayout.Space(5f);
-                    EditorGUILayout.LabelField(Utility.Text.Format("Resource List ({0})", m_Controller.ResourceCount.ToString()), EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(
+                        Utility.Text.Format("Resource List ({0})", m_Controller.ResourceCount.ToString()),
+                        EditorStyles.boldLabel);
                     EditorGUILayout.BeginHorizontal("box", GUILayout.Height(position.height - 52f));
                     {
                         DrawResourcesView();
@@ -125,7 +116,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.25f));
                 {
                     GUILayout.Space(5f);
-                    EditorGUILayout.LabelField(Utility.Text.Format("Resource Content ({0})", m_CurrentResourceContentCount.ToString()), EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(
+                        Utility.Text.Format("Resource Content ({0})", m_CurrentResourceContentCount.ToString()),
+                        EditorStyles.boldLabel);
                     EditorGUILayout.BeginHorizontal("box", GUILayout.Height(position.height - 52f));
                     {
                         DrawResourceView();
@@ -161,6 +154,13 @@ namespace UnityGameFramework.Editor.ResourceTools
             EditorGUILayout.EndHorizontal();
         }
 
+        [MenuItem("Game Framework/Resource Tools/Resource Editor", false, 41)]
+        private static void Open()
+        {
+            var window = GetWindow<ResourceEditor>("Resource Editor", true);
+            window.minSize = new Vector2(1400f, 600f);
+        }
+
         private void DrawResourcesView()
         {
             m_CurrentResourceRowOnDraw = 0;
@@ -173,13 +173,17 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void DrawResourceFolder(ResourceFolder folder)
         {
-            bool expand = IsExpandedResourceFolder(folder);
+            var expand = IsExpandedResourceFolder(folder);
             EditorGUILayout.BeginHorizontal();
             {
 #if UNITY_2019_3_OR_NEWER
-                bool foldout = EditorGUI.Foldout(new Rect(18f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 4f, int.MaxValue, 14f), expand, string.Empty, true);
+                var foldout =
+                    EditorGUI.Foldout(
+                        new Rect(18f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 4f, int.MaxValue, 14f),
+                        expand, string.Empty, true);
 #else
-                bool foldout = EditorGUI.Foldout(new Rect(18f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 2f, int.MaxValue, 14f), expand, string.Empty, true);
+                bool foldout =
+ EditorGUI.Foldout(new Rect(18f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 2f, int.MaxValue, 14f), expand, string.Empty, true);
 #endif
                 if (expand != foldout)
                 {
@@ -188,8 +192,10 @@ namespace UnityGameFramework.Editor.ResourceTools
                 }
 
 #if UNITY_2019_3_OR_NEWER
-                GUI.DrawTexture(new Rect(32f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 3f, 16f, 16f), ResourceFolder.Icon);
-                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(44f + 14f * folder.Depth), GUILayout.Height(18f));
+                GUI.DrawTexture(new Rect(32f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 3f, 16f, 16f),
+                    ResourceFolder.Icon);
+                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(44f + 14f * folder.Depth),
+                    GUILayout.Height(18f));
 #else
                 GUI.DrawTexture(new Rect(32f + 14f * folder.Depth, 20f * m_CurrentResourceRowOnDraw + 1f, 16f, 16f), ResourceFolder.Icon);
                 EditorGUILayout.LabelField(string.Empty, GUILayout.Width(40f + 14f * folder.Depth), GUILayout.Height(18f));
@@ -202,15 +208,9 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             if (expand)
             {
-                foreach (ResourceFolder subFolder in folder.GetFolders())
-                {
-                    DrawResourceFolder(subFolder);
-                }
+                foreach (var subFolder in folder.GetFolders()) DrawResourceFolder(subFolder);
 
-                foreach (ResourceItem resourceItem in folder.GetItems())
-                {
-                    DrawResourceItem(resourceItem);
-                }
+                foreach (var resourceItem in folder.GetItems()) DrawResourceItem(resourceItem);
             }
         }
 
@@ -218,26 +218,22 @@ namespace UnityGameFramework.Editor.ResourceTools
         {
             EditorGUILayout.BeginHorizontal();
             {
-                string title = resourceItem.Name;
-                if (resourceItem.Resource.Packed)
-                {
-                    title = "[Packed] " + title;
-                }
+                var title = resourceItem.Name;
+                if (resourceItem.Resource.Packed) title = "[Packed] " + title;
 
-                float emptySpace = position.width;
-                if (EditorGUILayout.Toggle(m_SelectedResource == resourceItem.Resource, GUILayout.Width(emptySpace - 12f)))
-                {
+                var emptySpace = position.width;
+                if (EditorGUILayout.Toggle(m_SelectedResource == resourceItem.Resource,
+                    GUILayout.Width(emptySpace - 12f)))
                     ChangeSelectedResource(resourceItem.Resource);
-                }
-                else if (m_SelectedResource == resourceItem.Resource)
-                {
-                    ChangeSelectedResource(null);
-                }
+                else if (m_SelectedResource == resourceItem.Resource) ChangeSelectedResource(null);
 
                 GUILayout.Space(-emptySpace + 24f);
 #if UNITY_2019_3_OR_NEWER
-                GUI.DrawTexture(new Rect(32f + 14f * resourceItem.Depth, 20f * m_CurrentResourceRowOnDraw + 3f, 16f, 16f), resourceItem.Icon);
-                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(30f + 14f * resourceItem.Depth), GUILayout.Height(18f));
+                GUI.DrawTexture(
+                    new Rect(32f + 14f * resourceItem.Depth, 20f * m_CurrentResourceRowOnDraw + 3f, 16f, 16f),
+                    resourceItem.Icon);
+                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(30f + 14f * resourceItem.Depth),
+                    GUILayout.Height(18f));
 #else
                 GUI.DrawTexture(new Rect(32f + 14f * resourceItem.Depth, 20f * m_CurrentResourceRowOnDraw + 1f, 16f, 16f), resourceItem.Icon);
                 EditorGUILayout.LabelField(string.Empty, GUILayout.Width(26f + 14f * resourceItem.Depth), GUILayout.Height(18f));
@@ -279,6 +275,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 m_InputResourceVariant = null;
                 GUI.FocusControl(null);
             }
+
             EditorGUI.BeginDisabledGroup(m_SelectedResource == null);
             {
                 if (GUILayout.Button("Rename", GUILayout.Width(65f)))
@@ -288,27 +285,21 @@ namespace UnityGameFramework.Editor.ResourceTools
                     m_InputResourceVariant = m_SelectedResource != null ? m_SelectedResource.Variant : null;
                     GUI.FocusControl(null);
                 }
-                if (GUILayout.Button("Remove", GUILayout.Width(65f)))
-                {
-                    m_MenuState = MenuState.Remove;
-                }
+
+                if (GUILayout.Button("Remove", GUILayout.Width(65f))) m_MenuState = MenuState.Remove;
                 if (m_SelectedResource == null)
                 {
                     EditorGUILayout.EnumPopup(LoadType.LoadFromFile);
                 }
                 else
                 {
-                    LoadType loadType = (LoadType)EditorGUILayout.EnumPopup(m_SelectedResource.LoadType);
-                    if (loadType != m_SelectedResource.LoadType)
-                    {
-                        SetResourceLoadType(loadType);
-                    }
+                    var loadType = (LoadType)EditorGUILayout.EnumPopup(m_SelectedResource.LoadType);
+                    if (loadType != m_SelectedResource.LoadType) SetResourceLoadType(loadType);
                 }
-                bool packed = EditorGUILayout.ToggleLeft("Packed", m_SelectedResource != null && m_SelectedResource.Packed, GUILayout.Width(65f));
-                if (m_SelectedResource != null && packed != m_SelectedResource.Packed)
-                {
-                    SetResourcePacked(packed);
-                }
+
+                var packed = EditorGUILayout.ToggleLeft("Packed",
+                    m_SelectedResource != null && m_SelectedResource.Packed, GUILayout.Width(65f));
+                if (m_SelectedResource != null && packed != m_SelectedResource.Packed) SetResourcePacked(packed);
             }
             EditorGUI.EndDisabledGroup();
         }
@@ -320,8 +311,8 @@ namespace UnityGameFramework.Editor.ResourceTools
             GUI.SetNextControlName("NewResourceVariantTextField");
             m_InputResourceVariant = EditorGUILayout.TextField(m_InputResourceVariant, GUILayout.Width(60f));
 
-            if (GUI.GetNameOfFocusedControl() == "NewResourceNameTextField" || GUI.GetNameOfFocusedControl() == "NewResourceVariantTextField")
-            {
+            if (GUI.GetNameOfFocusedControl() == "NewResourceNameTextField" ||
+                GUI.GetNameOfFocusedControl() == "NewResourceVariantTextField")
                 if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
                 {
                     EditorUtility.DisplayProgressBar("Add Resource", "Processing...", 0f);
@@ -329,7 +320,6 @@ namespace UnityGameFramework.Editor.ResourceTools
                     EditorUtility.ClearProgressBar();
                     Repaint();
                 }
-            }
 
             if (GUILayout.Button("Add", GUILayout.Width(50f)))
             {
@@ -338,10 +328,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 EditorUtility.ClearProgressBar();
             }
 
-            if (GUILayout.Button("Back", GUILayout.Width(50f)))
-            {
-                m_MenuState = MenuState.Normal;
-            }
+            if (GUILayout.Button("Back", GUILayout.Width(50f))) m_MenuState = MenuState.Normal;
         }
 
         private void DrawResourcesMenu_Rename()
@@ -357,8 +344,8 @@ namespace UnityGameFramework.Editor.ResourceTools
             GUI.SetNextControlName("RenameResourceVariantTextField");
             m_InputResourceVariant = EditorGUILayout.TextField(m_InputResourceVariant, GUILayout.Width(60f));
 
-            if (GUI.GetNameOfFocusedControl() == "RenameResourceNameTextField" || GUI.GetNameOfFocusedControl() == "RenameResourceVariantTextField")
-            {
+            if (GUI.GetNameOfFocusedControl() == "RenameResourceNameTextField" ||
+                GUI.GetNameOfFocusedControl() == "RenameResourceVariantTextField")
                 if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
                 {
                     EditorUtility.DisplayProgressBar("Rename Resource", "Processing...", 0f);
@@ -366,7 +353,6 @@ namespace UnityGameFramework.Editor.ResourceTools
                     EditorUtility.ClearProgressBar();
                     Repaint();
                 }
-            }
 
             if (GUILayout.Button("OK", GUILayout.Width(50f)))
             {
@@ -375,10 +361,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 EditorUtility.ClearProgressBar();
             }
 
-            if (GUILayout.Button("Back", GUILayout.Width(50f)))
-            {
-                m_MenuState = MenuState.Normal;
-            }
+            if (GUILayout.Button("Back", GUILayout.Width(50f))) m_MenuState = MenuState.Normal;
         }
 
         private void DrawResourcesMenu_Remove()
@@ -399,10 +382,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 m_MenuState = MenuState.Normal;
             }
 
-            if (GUILayout.Button("No", GUILayout.Width(50f)))
-            {
-                m_MenuState = MenuState.Normal;
-            }
+            if (GUILayout.Button("No", GUILayout.Width(50f))) m_MenuState = MenuState.Normal;
         }
 
         private void DrawResourceView()
@@ -411,17 +391,20 @@ namespace UnityGameFramework.Editor.ResourceTools
             {
                 if (m_SelectedResource != null)
                 {
-                    int index = 0;
-                    Asset[] assets = m_Controller.GetAssets(m_SelectedResource.Name, m_SelectedResource.Variant);
+                    var index = 0;
+                    var assets = m_Controller.GetAssets(m_SelectedResource.Name, m_SelectedResource.Variant);
                     m_CurrentResourceContentCount = assets.Length;
-                    foreach (Asset asset in assets)
+                    foreach (var asset in assets)
                     {
-                        SourceAsset sourceAsset = m_Controller.GetSourceAsset(asset.Guid);
-                        string assetName = sourceAsset != null ? (m_Controller.AssetSorter == AssetSorterType.Path ? sourceAsset.Path : (m_Controller.AssetSorter == AssetSorterType.Name ? sourceAsset.Name : sourceAsset.Guid)) : asset.Guid;
+                        var sourceAsset = m_Controller.GetSourceAsset(asset.Guid);
+                        var assetName = sourceAsset != null
+                            ? m_Controller.AssetSorter == AssetSorterType.Path ? sourceAsset.Path :
+                            m_Controller.AssetSorter == AssetSorterType.Name ? sourceAsset.Name : sourceAsset.Guid
+                            : asset.Guid;
                         EditorGUILayout.BeginHorizontal();
                         {
-                            float emptySpace = position.width;
-                            bool select = IsSelectedAssetInSelectedResource(asset);
+                            var emptySpace = position.width;
+                            var select = IsSelectedAssetInSelectedResource(asset);
                             if (select != EditorGUILayout.Toggle(select, GUILayout.Width(emptySpace - 12f)))
                             {
                                 select = !select;
@@ -430,7 +413,8 @@ namespace UnityGameFramework.Editor.ResourceTools
 
                             GUILayout.Space(-emptySpace + 24f);
 #if UNITY_2019_3_OR_NEWER
-                            GUI.DrawTexture(new Rect(20f, 20f * index++ + 3f, 16f, 16f), sourceAsset != null ? sourceAsset.Icon : m_MissingSourceAssetIcon);
+                            GUI.DrawTexture(new Rect(20f, 20f * index++ + 3f, 16f, 16f),
+                                sourceAsset != null ? sourceAsset.Icon : m_MissingSourceAssetIcon);
                             EditorGUILayout.LabelField(string.Empty, GUILayout.Width(16f), GUILayout.Height(18f));
 #else
                             GUI.DrawTexture(new Rect(20f, 20f * index++ + 1f, 16f, 16f), sourceAsset != null ? sourceAsset.Icon : m_MissingSourceAssetIcon);
@@ -453,26 +437,20 @@ namespace UnityGameFramework.Editor.ResourceTools
         {
             if (GUILayout.Button("All", GUILayout.Width(50f)) && m_SelectedResource != null)
             {
-                Asset[] assets = m_Controller.GetAssets(m_SelectedResource.Name, m_SelectedResource.Variant);
-                foreach (Asset asset in assets)
-                {
-                    SetSelectedAssetInSelectedResource(asset, true);
-                }
+                var assets = m_Controller.GetAssets(m_SelectedResource.Name, m_SelectedResource.Variant);
+                foreach (var asset in assets) SetSelectedAssetInSelectedResource(asset, true);
             }
-            if (GUILayout.Button("None", GUILayout.Width(50f)))
-            {
-                m_SelectedAssetsInSelectedResource.Clear();
-            }
-            m_Controller.AssetSorter = (AssetSorterType)EditorGUILayout.EnumPopup(m_Controller.AssetSorter, GUILayout.Width(60f));
+
+            if (GUILayout.Button("None", GUILayout.Width(50f))) m_SelectedAssetsInSelectedResource.Clear();
+            m_Controller.AssetSorter =
+                (AssetSorterType)EditorGUILayout.EnumPopup(m_Controller.AssetSorter, GUILayout.Width(60f));
             GUILayout.Label(string.Empty);
             EditorGUI.BeginDisabledGroup(m_SelectedResource == null || m_SelectedAssetsInSelectedResource.Count <= 0);
             {
-                if (GUILayout.Button(Utility.Text.Format("{0} >>", m_SelectedAssetsInSelectedResource.Count.ToString()), GUILayout.Width(80f)))
+                if (GUILayout.Button(Utility.Text.Format("{0} >>", m_SelectedAssetsInSelectedResource.Count.ToString()),
+                    GUILayout.Width(80f)))
                 {
-                    foreach (Asset asset in m_SelectedAssetsInSelectedResource)
-                    {
-                        UnassignAsset(asset);
-                    }
+                    foreach (var asset in m_SelectedAssetsInSelectedResource) UnassignAsset(asset);
 
                     m_SelectedAssetsInSelectedResource.Clear();
                 }
@@ -492,15 +470,13 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void DrawSourceAssetsMenu()
         {
-            HashSet<SourceAsset> selectedSourceAssets = GetSelectedSourceAssets();
+            var selectedSourceAssets = GetSelectedSourceAssets();
             EditorGUI.BeginDisabledGroup(m_SelectedResource == null || selectedSourceAssets.Count <= 0);
             {
-                if (GUILayout.Button(Utility.Text.Format("<< {0}", selectedSourceAssets.Count.ToString()), GUILayout.Width(80f)))
+                if (GUILayout.Button(Utility.Text.Format("<< {0}", selectedSourceAssets.Count.ToString()),
+                    GUILayout.Width(80f)))
                 {
-                    foreach (SourceAsset sourceAsset in selectedSourceAssets)
-                    {
-                        AssignAsset(sourceAsset, m_SelectedResource);
-                    }
+                    foreach (var sourceAsset in selectedSourceAssets) AssignAsset(sourceAsset, m_SelectedResource);
 
                     m_SelectedSourceAssets.Clear();
                     m_CachedSelectedSourceFolders.Clear();
@@ -509,21 +485,23 @@ namespace UnityGameFramework.Editor.ResourceTools
             EditorGUI.EndDisabledGroup();
             EditorGUI.BeginDisabledGroup(selectedSourceAssets.Count <= 0);
             {
-                if (GUILayout.Button(Utility.Text.Format("<<< {0}", selectedSourceAssets.Count.ToString()), GUILayout.Width(80f)))
+                if (GUILayout.Button(Utility.Text.Format("<<< {0}", selectedSourceAssets.Count.ToString()),
+                    GUILayout.Width(80f)))
                 {
-                    int index = 0;
-                    int count = selectedSourceAssets.Count;
-                    foreach (SourceAsset sourceAsset in selectedSourceAssets)
+                    var index = 0;
+                    var count = selectedSourceAssets.Count;
+                    foreach (var sourceAsset in selectedSourceAssets)
                     {
-                        EditorUtility.DisplayProgressBar("Add Resources", Utility.Text.Format("{0}/{1} processing...", (++index).ToString(), count.ToString()), (float)index / count);
-                        int dotIndex = sourceAsset.FromRootPath.IndexOf('.');
-                        string name = dotIndex > 0 ? sourceAsset.FromRootPath.Substring(0, dotIndex) : sourceAsset.FromRootPath;
+                        EditorUtility.DisplayProgressBar("Add Resources",
+                            Utility.Text.Format("{0}/{1} processing...", (++index).ToString(), count.ToString()),
+                            (float)index / count);
+                        var dotIndex = sourceAsset.FromRootPath.IndexOf('.');
+                        var name = dotIndex > 0
+                            ? sourceAsset.FromRootPath.Substring(0, dotIndex)
+                            : sourceAsset.FromRootPath;
                         AddResource(name, null, false);
-                        Resource resource = m_Controller.GetResource(name, null);
-                        if (resource == null)
-                        {
-                            continue;
-                        }
+                        var resource = m_Controller.GetResource(name, null);
+                        if (resource == null) continue;
 
                         AssignAsset(sourceAsset, resource);
                     }
@@ -536,7 +514,8 @@ namespace UnityGameFramework.Editor.ResourceTools
                 }
             }
             EditorGUI.EndDisabledGroup();
-            bool hideAssignedSourceAssets = EditorGUILayout.ToggleLeft("Hide Assigned", m_HideAssignedSourceAssets, GUILayout.Width(100f));
+            var hideAssignedSourceAssets =
+                EditorGUILayout.ToggleLeft("Hide Assigned", m_HideAssignedSourceAssets, GUILayout.Width(100f));
             if (hideAssignedSourceAssets != m_HideAssignedSourceAssets)
             {
                 m_HideAssignedSourceAssets = hideAssignedSourceAssets;
@@ -553,6 +532,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 CleanResource();
                 EditorUtility.ClearProgressBar();
             }
+
             if (GUILayout.Button("Save", GUILayout.Width(80f)))
             {
                 EditorUtility.DisplayProgressBar("Save", "Processing...", 0f);
@@ -563,15 +543,12 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void DrawSourceFolder(SourceFolder sourceFolder)
         {
-            if (m_HideAssignedSourceAssets && IsAssignedSourceFolder(sourceFolder))
-            {
-                return;
-            }
+            if (m_HideAssignedSourceAssets && IsAssignedSourceFolder(sourceFolder)) return;
 
-            bool expand = IsExpandedSourceFolder(sourceFolder);
+            var expand = IsExpandedSourceFolder(sourceFolder);
             EditorGUILayout.BeginHorizontal();
             {
-                bool select = IsSelectedSourceFolder(sourceFolder);
+                var select = IsSelectedSourceFolder(sourceFolder);
                 if (select != EditorGUILayout.Toggle(select, GUILayout.Width(12f + 14f * sourceFolder.Depth)))
                 {
                     select = !select;
@@ -580,9 +557,13 @@ namespace UnityGameFramework.Editor.ResourceTools
 
                 GUILayout.Space(-14f * sourceFolder.Depth);
 #if UNITY_2019_3_OR_NEWER
-                bool foldout = EditorGUI.Foldout(new Rect(18f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 4f, int.MaxValue, 14f), expand, string.Empty, true);
+                var foldout =
+                    EditorGUI.Foldout(
+                        new Rect(18f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 4f, int.MaxValue,
+                            14f), expand, string.Empty, true);
 #else
-                bool foldout = EditorGUI.Foldout(new Rect(18f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 2f, int.MaxValue, 14f), expand, string.Empty, true);
+                bool foldout =
+ EditorGUI.Foldout(new Rect(18f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 2f, int.MaxValue, 14f), expand, string.Empty, true);
 #endif
                 if (expand != foldout)
                 {
@@ -591,8 +572,10 @@ namespace UnityGameFramework.Editor.ResourceTools
                 }
 
 #if UNITY_2019_3_OR_NEWER
-                GUI.DrawTexture(new Rect(32f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 3f, 16f, 16f), SourceFolder.Icon);
-                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(30f + 14f * sourceFolder.Depth), GUILayout.Height(18f));
+                GUI.DrawTexture(new Rect(32f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 3f, 16f, 16f),
+                    SourceFolder.Icon);
+                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(30f + 14f * sourceFolder.Depth),
+                    GUILayout.Height(18f));
 #else
                 GUI.DrawTexture(new Rect(32f + 14f * sourceFolder.Depth, 20f * m_CurrentSourceRowOnDraw + 1f, 16f, 16f), SourceFolder.Icon);
                 EditorGUILayout.LabelField(string.Empty, GUILayout.Width(26f + 14f * sourceFolder.Depth), GUILayout.Height(18f));
@@ -605,29 +588,20 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             if (expand)
             {
-                foreach (SourceFolder subSourceFolder in sourceFolder.GetFolders())
-                {
-                    DrawSourceFolder(subSourceFolder);
-                }
+                foreach (var subSourceFolder in sourceFolder.GetFolders()) DrawSourceFolder(subSourceFolder);
 
-                foreach (SourceAsset sourceAsset in sourceFolder.GetAssets())
-                {
-                    DrawSourceAsset(sourceAsset);
-                }
+                foreach (var sourceAsset in sourceFolder.GetAssets()) DrawSourceAsset(sourceAsset);
             }
         }
 
         private void DrawSourceAsset(SourceAsset sourceAsset)
         {
-            if (m_HideAssignedSourceAssets && IsAssignedSourceAsset(sourceAsset))
-            {
-                return;
-            }
+            if (m_HideAssignedSourceAssets && IsAssignedSourceAsset(sourceAsset)) return;
 
             EditorGUILayout.BeginHorizontal();
             {
-                float emptySpace = position.width;
-                bool select = IsSelectedSourceAsset(sourceAsset);
+                var emptySpace = position.width;
+                var select = IsSelectedSourceAsset(sourceAsset);
                 if (select != EditorGUILayout.Toggle(select, GUILayout.Width(emptySpace - 12f)))
                 {
                     select = !select;
@@ -636,15 +610,19 @@ namespace UnityGameFramework.Editor.ResourceTools
 
                 GUILayout.Space(-emptySpace + 24f);
 #if UNITY_2019_3_OR_NEWER
-                GUI.DrawTexture(new Rect(32f + 14f * sourceAsset.Depth, 20f * m_CurrentSourceRowOnDraw + 3f, 16f, 16f), sourceAsset.Icon);
-                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(30f + 14f * sourceAsset.Depth), GUILayout.Height(18f));
+                GUI.DrawTexture(new Rect(32f + 14f * sourceAsset.Depth, 20f * m_CurrentSourceRowOnDraw + 3f, 16f, 16f),
+                    sourceAsset.Icon);
+                EditorGUILayout.LabelField(string.Empty, GUILayout.Width(30f + 14f * sourceAsset.Depth),
+                    GUILayout.Height(18f));
 #else
                 GUI.DrawTexture(new Rect(32f + 14f * sourceAsset.Depth, 20f * m_CurrentSourceRowOnDraw + 1f, 16f, 16f), sourceAsset.Icon);
                 EditorGUILayout.LabelField(string.Empty, GUILayout.Width(26f + 14f * sourceAsset.Depth), GUILayout.Height(18f));
 #endif
                 EditorGUILayout.LabelField(sourceAsset.Name);
-                Asset asset = m_Controller.GetAsset(sourceAsset.Guid);
-                EditorGUILayout.LabelField(asset != null ? GetResourceFullName(asset.Resource.Name, asset.Resource.Variant) : string.Empty, GUILayout.Width(position.width * 0.15f));
+                var asset = m_Controller.GetAsset(sourceAsset.Guid);
+                EditorGUILayout.LabelField(
+                    asset != null ? GetResourceFullName(asset.Resource.Name, asset.Resource.Variant) : string.Empty,
+                    GUILayout.Width(position.width * 0.15f));
             }
             EditorGUILayout.EndHorizontal();
             m_CurrentSourceRowOnDraw++;
@@ -652,10 +630,7 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void ChangeSelectedResource(Resource resource)
         {
-            if (m_SelectedResource == resource)
-            {
-                return;
-            }
+            if (m_SelectedResource == resource) return;
 
             m_SelectedResource = resource;
             m_SelectedAssetsInSelectedResource.Clear();
@@ -664,29 +639,19 @@ namespace UnityGameFramework.Editor.ResourceTools
         private void SaveConfiguration()
         {
             if (m_Controller.Save())
-            {
                 Debug.Log("Save configuration success.");
-            }
             else
-            {
                 Debug.LogWarning("Save configuration failure.");
-            }
         }
 
         private void AddResource(string name, string variant, bool refresh)
         {
-            if (variant == string.Empty)
-            {
-                variant = null;
-            }
+            if (variant == string.Empty) variant = null;
 
-            string fullName = GetResourceFullName(name, variant);
+            var fullName = GetResourceFullName(name, variant);
             if (m_Controller.AddResource(name, variant, null, LoadType.LoadFromFile, false))
             {
-                if (refresh)
-                {
-                    RefreshResourceTree();
-                }
+                if (refresh) RefreshResourceTree();
 
                 Debug.Log(Utility.Text.Format("Add resource '{0}' success.", fullName));
                 m_MenuState = MenuState.Normal;
@@ -705,13 +670,10 @@ namespace UnityGameFramework.Editor.ResourceTools
                 return;
             }
 
-            if (newVariant == string.Empty)
-            {
-                newVariant = null;
-            }
+            if (newVariant == string.Empty) newVariant = null;
 
-            string oldFullName = resource.FullName;
-            string newFullName = GetResourceFullName(newName, newVariant);
+            var oldFullName = resource.FullName;
+            var newFullName = GetResourceFullName(newName, newVariant);
             if (m_Controller.RenameResource(resource.Name, resource.Variant, newName, newVariant))
             {
                 RefreshResourceTree();
@@ -720,13 +682,14 @@ namespace UnityGameFramework.Editor.ResourceTools
             }
             else
             {
-                Debug.LogWarning(Utility.Text.Format("Rename resource '{0}' to '{1}' failure.", oldFullName, newFullName));
+                Debug.LogWarning(Utility.Text.Format("Rename resource '{0}' to '{1}' failure.", oldFullName,
+                    newFullName));
             }
         }
 
         private void RemoveResource()
         {
-            string fullName = m_SelectedResource.FullName;
+            var fullName = m_SelectedResource.FullName;
             if (m_Controller.RemoveResource(m_SelectedResource.Name, m_SelectedResource.Variant))
             {
                 ChangeSelectedResource(null);
@@ -741,70 +704,67 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void SetResourceLoadType(LoadType loadType)
         {
-            string fullName = m_SelectedResource.FullName;
+            var fullName = m_SelectedResource.FullName;
             if (m_Controller.SetResourceLoadType(m_SelectedResource.Name, m_SelectedResource.Variant, loadType))
-            {
-                Debug.Log(Utility.Text.Format("Set resource '{0}' load type to '{1}' success.", fullName, loadType.ToString()));
-            }
+                Debug.Log(Utility.Text.Format("Set resource '{0}' load type to '{1}' success.", fullName,
+                    loadType.ToString()));
             else
-            {
-                Debug.LogWarning(Utility.Text.Format("Set resource '{0}' load type to '{1}' failure.", fullName, loadType.ToString()));
-            }
+                Debug.LogWarning(Utility.Text.Format("Set resource '{0}' load type to '{1}' failure.", fullName,
+                    loadType.ToString()));
         }
 
         private void SetResourcePacked(bool packed)
         {
-            string fullName = m_SelectedResource.FullName;
+            var fullName = m_SelectedResource.FullName;
             if (m_Controller.SetResourcePacked(m_SelectedResource.Name, m_SelectedResource.Variant, packed))
-            {
                 Debug.Log(Utility.Text.Format("{1} resource '{0}' success.", fullName, packed ? "Pack" : "Unpack"));
-            }
             else
-            {
-                Debug.LogWarning(Utility.Text.Format("{1} resource '{0}' failure.", fullName, packed ? "Pack" : "Unpack"));
-            }
+                Debug.LogWarning(Utility.Text.Format("{1} resource '{0}' failure.", fullName,
+                    packed ? "Pack" : "Unpack"));
         }
 
         private void AssignAsset(SourceAsset sourceAsset, Resource resource)
         {
             if (!m_Controller.AssignAsset(sourceAsset.Guid, resource.Name, resource.Variant))
-            {
-                Debug.LogWarning(Utility.Text.Format("Assign asset '{0}' to resource '{1}' failure.", sourceAsset.Name, resource.FullName));
-            }
+                Debug.LogWarning(Utility.Text.Format("Assign asset '{0}' to resource '{1}' failure.", sourceAsset.Name,
+                    resource.FullName));
         }
 
         private void UnassignAsset(Asset asset)
         {
             if (!m_Controller.UnassignAsset(asset.Guid))
-            {
-                Debug.LogWarning(Utility.Text.Format("Unassign asset '{0}' from resource '{1}' failure.", asset.Guid, m_SelectedResource.FullName));
-            }
+                Debug.LogWarning(Utility.Text.Format("Unassign asset '{0}' from resource '{1}' failure.", asset.Guid,
+                    m_SelectedResource.FullName));
         }
 
         private void CleanResource()
         {
-            int unknownAssetCount = m_Controller.RemoveUnknownAssets();
-            int unusedResourceCount = m_Controller.RemoveUnusedResources();
+            var unknownAssetCount = m_Controller.RemoveUnknownAssets();
+            var unusedResourceCount = m_Controller.RemoveUnusedResources();
             RefreshResourceTree();
 
-            Debug.Log(Utility.Text.Format("Clean complete, {0} unknown assets and {1} unused resources has been removed.", unknownAssetCount.ToString(), unusedResourceCount.ToString()));
+            Debug.Log(Utility.Text.Format(
+                "Clean complete, {0} unknown assets and {1} unused resources has been removed.",
+                unknownAssetCount.ToString(), unusedResourceCount.ToString()));
         }
 
         private void RefreshResourceTree()
         {
             m_ResourceRoot.Clear();
-            Resource[] resources = m_Controller.GetResources();
-            foreach (Resource resource in resources)
+            var resources = m_Controller.GetResources();
+            foreach (var resource in resources)
             {
-                string[] splitedPath = resource.Name.Split('/');
-                ResourceFolder folder = m_ResourceRoot;
-                for (int i = 0; i < splitedPath.Length - 1; i++)
+                var splitedPath = resource.Name.Split('/');
+                var folder = m_ResourceRoot;
+                for (var i = 0; i < splitedPath.Length - 1; i++)
                 {
-                    ResourceFolder subFolder = folder.GetFolder(splitedPath[i]);
+                    var subFolder = folder.GetFolder(splitedPath[i]);
                     folder = subFolder == null ? folder.AddFolder(splitedPath[i]) : subFolder;
                 }
 
-                string fullName = resource.Variant != null ? Utility.Text.Format("{0}.{1}", splitedPath[splitedPath.Length - 1], resource.Variant) : splitedPath[splitedPath.Length - 1];
+                var fullName = resource.Variant != null
+                    ? Utility.Text.Format("{0}.{1}", splitedPath[splitedPath.Length - 1], resource.Variant)
+                    : splitedPath[splitedPath.Length - 1];
                 folder.AddItem(fullName, resource);
             }
         }
@@ -817,13 +777,9 @@ namespace UnityGameFramework.Editor.ResourceTools
         private void SetExpandedResourceFolder(ResourceFolder folder, bool expand)
         {
             if (expand)
-            {
                 m_ExpandedResourceFolderNames.Add(folder.FromRootPath);
-            }
             else
-            {
                 m_ExpandedResourceFolderNames.Remove(folder.FromRootPath);
-            }
         }
 
         private bool IsSelectedAssetInSelectedResource(Asset asset)
@@ -834,13 +790,9 @@ namespace UnityGameFramework.Editor.ResourceTools
         private void SetSelectedAssetInSelectedResource(Asset asset, bool select)
         {
             if (select)
-            {
                 m_SelectedAssetsInSelectedResource.Add(asset);
-            }
             else
-            {
                 m_SelectedAssetsInSelectedResource.Remove(asset);
-            }
         }
 
         private bool IsExpandedSourceFolder(SourceFolder sourceFolder)
@@ -851,33 +803,20 @@ namespace UnityGameFramework.Editor.ResourceTools
         private void SetExpandedSourceFolder(SourceFolder sourceFolder, bool expand)
         {
             if (expand)
-            {
                 m_ExpandedSourceFolders.Add(sourceFolder);
-            }
             else
-            {
                 m_ExpandedSourceFolders.Remove(sourceFolder);
-            }
         }
 
         private bool IsSelectedSourceFolder(SourceFolder sourceFolder)
         {
-            if (m_CachedSelectedSourceFolders.Contains(sourceFolder))
-            {
-                return true;
-            }
+            if (m_CachedSelectedSourceFolders.Contains(sourceFolder)) return true;
 
-            if (m_CachedUnselectedSourceFolders.Contains(sourceFolder))
-            {
-                return false;
-            }
+            if (m_CachedUnselectedSourceFolders.Contains(sourceFolder)) return false;
 
-            foreach (SourceAsset sourceAsset in sourceFolder.GetAssets())
+            foreach (var sourceAsset in sourceFolder.GetAssets())
             {
-                if (m_HideAssignedSourceAssets && IsAssignedSourceAsset(sourceAsset))
-                {
-                    continue;
-                }
+                if (m_HideAssignedSourceAssets && IsAssignedSourceAsset(sourceAsset)) continue;
 
                 if (!IsSelectedSourceAsset(sourceAsset))
                 {
@@ -886,12 +825,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 }
             }
 
-            foreach (SourceFolder subSourceFolder in sourceFolder.GetFolders())
+            foreach (var subSourceFolder in sourceFolder.GetFolders())
             {
-                if (m_HideAssignedSourceAssets && IsAssignedSourceFolder(sourceFolder))
-                {
-                    continue;
-                }
+                if (m_HideAssignedSourceAssets && IsAssignedSourceFolder(sourceFolder)) continue;
 
                 if (!IsSelectedSourceFolder(subSourceFolder))
                 {
@@ -911,7 +847,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 m_CachedSelectedSourceFolders.Add(sourceFolder);
                 m_CachedUnselectedSourceFolders.Remove(sourceFolder);
 
-                SourceFolder folder = sourceFolder;
+                var folder = sourceFolder;
                 while (folder != null)
                 {
                     m_CachedUnselectedSourceFolders.Remove(folder);
@@ -923,7 +859,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                 m_CachedSelectedSourceFolders.Remove(sourceFolder);
                 m_CachedUnselectedSourceFolders.Add(sourceFolder);
 
-                SourceFolder folder = sourceFolder;
+                var folder = sourceFolder;
                 while (folder != null)
                 {
                     m_CachedSelectedSourceFolders.Remove(folder);
@@ -931,22 +867,16 @@ namespace UnityGameFramework.Editor.ResourceTools
                 }
             }
 
-            foreach (SourceAsset sourceAsset in sourceFolder.GetAssets())
+            foreach (var sourceAsset in sourceFolder.GetAssets())
             {
-                if (m_HideAssignedSourceAssets && IsAssignedSourceAsset(sourceAsset))
-                {
-                    continue;
-                }
+                if (m_HideAssignedSourceAssets && IsAssignedSourceAsset(sourceAsset)) continue;
 
                 SetSelectedSourceAsset(sourceAsset, select);
             }
 
-            foreach (SourceFolder subSourceFolder in sourceFolder.GetFolders())
+            foreach (var subSourceFolder in sourceFolder.GetFolders())
             {
-                if (m_HideAssignedSourceAssets && IsAssignedSourceFolder(subSourceFolder))
-                {
-                    continue;
-                }
+                if (m_HideAssignedSourceAssets && IsAssignedSourceFolder(subSourceFolder)) continue;
 
                 SetSelectedSourceFolder(subSourceFolder, select);
             }
@@ -963,7 +893,7 @@ namespace UnityGameFramework.Editor.ResourceTools
             {
                 m_SelectedSourceAssets.Add(sourceAsset);
 
-                SourceFolder folder = sourceAsset.Folder;
+                var folder = sourceAsset.Folder;
                 while (folder != null)
                 {
                     m_CachedUnselectedSourceFolders.Remove(folder);
@@ -974,7 +904,7 @@ namespace UnityGameFramework.Editor.ResourceTools
             {
                 m_SelectedSourceAssets.Remove(sourceAsset);
 
-                SourceFolder folder = sourceAsset.Folder;
+                var folder = sourceAsset.Folder;
                 while (folder != null)
                 {
                     m_CachedSelectedSourceFolders.Remove(folder);
@@ -985,48 +915,32 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private bool IsAssignedSourceAsset(SourceAsset sourceAsset)
         {
-            if (m_CachedAssignedSourceAssets.Contains(sourceAsset))
-            {
-                return true;
-            }
+            if (m_CachedAssignedSourceAssets.Contains(sourceAsset)) return true;
 
-            if (m_CachedUnassignedSourceAssets.Contains(sourceAsset))
-            {
-                return false;
-            }
+            if (m_CachedUnassignedSourceAssets.Contains(sourceAsset)) return false;
 
             return m_Controller.GetAsset(sourceAsset.Guid) != null;
         }
 
         private bool IsAssignedSourceFolder(SourceFolder sourceFolder)
         {
-            if (m_CachedAssignedSourceFolders.Contains(sourceFolder))
-            {
-                return true;
-            }
+            if (m_CachedAssignedSourceFolders.Contains(sourceFolder)) return true;
 
-            if (m_CachedUnassignedSourceFolders.Contains(sourceFolder))
-            {
-                return false;
-            }
+            if (m_CachedUnassignedSourceFolders.Contains(sourceFolder)) return false;
 
-            foreach (SourceAsset sourceAsset in sourceFolder.GetAssets())
-            {
+            foreach (var sourceAsset in sourceFolder.GetAssets())
                 if (!IsAssignedSourceAsset(sourceAsset))
                 {
                     m_CachedUnassignedSourceFolders.Add(sourceFolder);
                     return false;
                 }
-            }
 
-            foreach (SourceFolder subSourceFolder in sourceFolder.GetFolders())
-            {
+            foreach (var subSourceFolder in sourceFolder.GetFolders())
                 if (!IsAssignedSourceFolder(subSourceFolder))
                 {
                     m_CachedUnassignedSourceFolders.Add(sourceFolder);
                     return false;
                 }
-            }
 
             m_CachedAssignedSourceFolders.Add(sourceFolder);
             return true;
@@ -1034,19 +948,12 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private HashSet<SourceAsset> GetSelectedSourceAssets()
         {
-            if (!m_HideAssignedSourceAssets)
-            {
-                return m_SelectedSourceAssets;
-            }
+            if (!m_HideAssignedSourceAssets) return m_SelectedSourceAssets;
 
-            HashSet<SourceAsset> selectedUnassignedSourceAssets = new HashSet<SourceAsset>();
-            foreach (SourceAsset sourceAsset in m_SelectedSourceAssets)
-            {
+            var selectedUnassignedSourceAssets = new HashSet<SourceAsset>();
+            foreach (var sourceAsset in m_SelectedSourceAssets)
                 if (!IsAssignedSourceAsset(sourceAsset))
-                {
                     selectedUnassignedSourceAssets.Add(sourceAsset);
-                }
-            }
 
             return selectedUnassignedSourceAssets;
         }
@@ -1058,12 +965,16 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void OnLoadingResource(int index, int count)
         {
-            EditorUtility.DisplayProgressBar("Loading Resources", Utility.Text.Format("Loading resources, {0}/{1} loaded.", index.ToString(), count.ToString()), (float)index / count);
+            EditorUtility.DisplayProgressBar("Loading Resources",
+                Utility.Text.Format("Loading resources, {0}/{1} loaded.", index.ToString(), count.ToString()),
+                (float)index / count);
         }
 
         private void OnLoadingAsset(int index, int count)
         {
-            EditorUtility.DisplayProgressBar("Loading Assets", Utility.Text.Format("Loading assets, {0}/{1} loaded.", index.ToString(), count.ToString()), (float)index / count);
+            EditorUtility.DisplayProgressBar("Loading Assets",
+                Utility.Text.Format("Loading assets, {0}/{1} loaded.", index.ToString(), count.ToString()),
+                (float)index / count);
         }
 
         private void OnLoadCompleted()
@@ -1073,8 +984,8 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void OnAssetAssigned(SourceAsset[] sourceAssets)
         {
-            HashSet<SourceFolder> affectedFolders = new HashSet<SourceFolder>();
-            foreach (SourceAsset sourceAsset in sourceAssets)
+            var affectedFolders = new HashSet<SourceFolder>();
+            foreach (var sourceAsset in sourceAssets)
             {
                 m_CachedAssignedSourceAssets.Add(sourceAsset);
                 m_CachedUnassignedSourceAssets.Remove(sourceAsset);
@@ -1082,9 +993,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 affectedFolders.Add(sourceAsset.Folder);
             }
 
-            foreach (SourceFolder sourceFolder in affectedFolders)
+            foreach (var sourceFolder in affectedFolders)
             {
-                SourceFolder folder = sourceFolder;
+                var folder = sourceFolder;
                 while (folder != null)
                 {
                     m_CachedUnassignedSourceFolders.Remove(folder);
@@ -1095,8 +1006,8 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void OnAssetUnassigned(SourceAsset[] sourceAssets)
         {
-            HashSet<SourceFolder> affectedFolders = new HashSet<SourceFolder>();
-            foreach (SourceAsset sourceAsset in sourceAssets)
+            var affectedFolders = new HashSet<SourceFolder>();
+            foreach (var sourceAsset in sourceAssets)
             {
                 m_CachedAssignedSourceAssets.Remove(sourceAsset);
                 m_CachedUnassignedSourceAssets.Add(sourceAsset);
@@ -1104,9 +1015,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 affectedFolders.Add(sourceAsset.Folder);
             }
 
-            foreach (SourceFolder sourceFolder in affectedFolders)
+            foreach (var sourceFolder in affectedFolders)
             {
-                SourceFolder folder = sourceFolder;
+                var folder = sourceFolder;
                 while (folder != null)
                 {
                     m_CachedSelectedSourceFolders.Remove(folder);

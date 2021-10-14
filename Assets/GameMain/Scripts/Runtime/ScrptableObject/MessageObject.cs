@@ -7,7 +7,7 @@ namespace GameMain.Scripts.UI.GamePlay.MessageUIForm
     public class MessageObject : ScriptableObject
     {
         /// <summary>
-        /// 推送消息
+        ///     推送消息
         /// </summary>
         /// <param name="info"></param>
         public virtual void PushMsg(string info)

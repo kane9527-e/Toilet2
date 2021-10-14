@@ -11,17 +11,17 @@ using GameFramework.Event;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 资源应用成功事件。
+    ///     资源应用成功事件。
     /// </summary>
     public sealed class ResourceApplySuccessEventArgs : GameEventArgs
     {
         /// <summary>
-        /// 资源应用成功事件编号。
+        ///     资源应用成功事件编号。
         /// </summary>
         public static readonly int EventId = typeof(ResourceApplySuccessEventArgs).GetHashCode();
 
         /// <summary>
-        /// 初始化资源应用成功事件的新实例。
+        ///     初始化资源应用成功事件的新实例。
         /// </summary>
         public ResourceApplySuccessEventArgs()
         {
@@ -33,69 +33,43 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取资源应用成功事件编号。
+        ///     获取资源应用成功事件编号。
         /// </summary>
-        public override int Id
-        {
-            get
-            {
-                return EventId;
-            }
-        }
+        public override int Id => EventId;
 
         /// <summary>
-        /// 获取资源名称。
+        ///     获取资源名称。
         /// </summary>
-        public string Name
-        {
-            get;
-            private set;
-        }
+        public string Name { get; private set; }
 
         /// <summary>
-        /// 获取资源应用后存放路径。
+        ///     获取资源应用后存放路径。
         /// </summary>
-        public string ApplyPath
-        {
-            get;
-            private set;
-        }
+        public string ApplyPath { get; private set; }
 
         /// <summary>
-        /// 获取资源包路径。
+        ///     获取资源包路径。
         /// </summary>
-        public string ResourcePackPath
-        {
-            get;
-            private set;
-        }
+        public string ResourcePackPath { get; private set; }
 
         /// <summary>
-        /// 获取资源大小。
+        ///     获取资源大小。
         /// </summary>
-        public int Length
-        {
-            get;
-            private set;
-        }
+        public int Length { get; private set; }
 
         /// <summary>
-        /// 获取压缩后大小。
+        ///     获取压缩后大小。
         /// </summary>
-        public int CompressedLength
-        {
-            get;
-            private set;
-        }
+        public int CompressedLength { get; private set; }
 
         /// <summary>
-        /// 创建资源应用成功事件。
+        ///     创建资源应用成功事件。
         /// </summary>
         /// <param name="e">内部事件。</param>
         /// <returns>创建的资源应用成功事件。</returns>
         public static ResourceApplySuccessEventArgs Create(GameFramework.Resource.ResourceApplySuccessEventArgs e)
         {
-            ResourceApplySuccessEventArgs resourceApplySuccessEventArgs = ReferencePool.Acquire<ResourceApplySuccessEventArgs>();
+            var resourceApplySuccessEventArgs = ReferencePool.Acquire<ResourceApplySuccessEventArgs>();
             resourceApplySuccessEventArgs.Name = e.Name;
             resourceApplySuccessEventArgs.ApplyPath = e.ApplyPath;
             resourceApplySuccessEventArgs.ResourcePackPath = e.ResourcePackPath;
@@ -105,7 +79,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清理资源应用成功事件。
+        ///     清理资源应用成功事件。
         /// </summary>
         public override void Clear()
         {

@@ -344,7 +344,7 @@ MonoBehaviour:
   - id: 3
   internal_guid: 138ce1fe-db45-4322-98a1-b7b21a5477c4
   editor_ActiveNode: 0
-  position: {x: 1698, y: 91}
+  position: {x: 1725, y: 99}
   narrativeGraph: {fileID: 0}
   references:
     version: 1
@@ -606,6 +606,73 @@ MonoBehaviour:
         - node_guid: a42a31d5-54d4-4296-bc27-a659f031657e
           port_guid: 46d4394f-0b8b-4cd8-8aa5-8a0f9b2f6fca
         conditionConfig: {fileID: 0}
+--- !u!114 &-1967042364521104139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735d65243e226474d9029f4ca8a1193f, type: 3}
+  m_Name: Branch Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  - id: 1
+  - id: 2
+  - id: 3
+  internal_guid: 67469870-9868-4c36-8b30-84040ae73e71
+  editor_ActiveNode: 0
+  position: {x: 2850, y: 8}
+  narrativeGraph: {fileID: 0}
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: 45c91445-45f5-4207-9df0-5b9ec999d7e6
+        Connections:
+        - node_guid: ac4b142e-251b-4451-ac85-75461ee1adf5
+          port_guid: 9b3dc510-4a6b-4694-a3eb-9864496b118a
+        conditionConfig: {fileID: 0}
+    00000001:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 1
+        guid: 8b1fac56-22fe-403e-8f95-fdbea8aff2de
+        Connections:
+        - node_guid: 765e8b13-e983-4dce-8362-c90c4ed66284
+          port_guid: 5ae9b66b-184e-4032-8a99-bf547dbffe6b
+        conditionConfig: {fileID: 11400000, guid: 094d57706cd8c41219992a65669f17b0, type: 2}
+    00000002:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 1
+        guid: 4f510fe2-69b8-41e9-871f-29373745b4aa
+        Connections:
+        - node_guid: 568f4db2-8c83-40d6-b6ba-a9f6707367f0
+          port_guid: 88f5d02e-c629-4922-be70-65c77ae385c4
+        conditionConfig: {fileID: 11400000, guid: dffdc8fbcd21947349a0bf32a07aaa6b, type: 2}
+    00000003:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 1
+        guid: 7659b747-2121-4ea4-86c2-d96c61bc59d2
+        Connections:
+        - node_guid: 0cb22773-6597-4b96-86be-a7173c445138
+          port_guid: 200c2699-215f-4d3a-9c7b-c1fa16737d9f
+        conditionConfig: {fileID: 11400000, guid: 738bb1abeee894c34a13f68b926699a5, type: 2}
 --- !u!114 &-1683600180476225349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -652,7 +719,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: ac4b142e-251b-4451-ac85-75461ee1adf5
   editor_ActiveNode: 0
-  position: {x: 2236, y: -102.78}
+  position: {x: 2282, y: -74}
   narrativeGraph: {fileID: 0}
   eventConfig: {fileID: 0}
   storyTexts:
@@ -681,8 +748,8 @@ MonoBehaviour:
         CanBeRemoved: 1
         guid: 9b3dc510-4a6b-4694-a3eb-9864496b118a
         Connections:
-        - node_guid: 765e8b13-e983-4dce-8362-c90c4ed66284
-          port_guid: 5ae9b66b-184e-4032-8a99-bf547dbffe6b
+        - node_guid: 67469870-9868-4c36-8b30-84040ae73e71
+          port_guid: 45c91445-45f5-4207-9df0-5b9ec999d7e6
         conditionConfig: {fileID: 0}
 --- !u!114 &-1315239024493925603
 MonoBehaviour:
@@ -727,6 +794,8 @@ MonoBehaviour:
           port_guid: 34d61fcc-de4d-4f29-8aa9-4a6972e295cb
         - node_guid: 138ce1fe-db45-4322-98a1-b7b21a5477c4
           port_guid: 13f6bf6d-ebdc-4fbf-83ed-d040ab19c12f
+        - node_guid: 67469870-9868-4c36-8b30-84040ae73e71
+          port_guid: 4f510fe2-69b8-41e9-871f-29373745b4aa
         conditionConfig: {fileID: 0}
     00000001:
       type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
@@ -946,9 +1015,9 @@ MonoBehaviour:
   - {fileID: -6373657729544246903}
   - {fileID: 5247527874321576750}
   - {fileID: 6592727425064453316}
+  - {fileID: -1967042364521104139}
   Groups: []
   BlackboardProperties: []
-  StickyNotes: []
 --- !u!114 &252500223093186131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1018,6 +1087,8 @@ MonoBehaviour:
           port_guid: 67b7db3c-4ad9-4eb9-868d-e133341ad375
         - node_guid: 138ce1fe-db45-4322-98a1-b7b21a5477c4
           port_guid: b2c0a6e8-5a19-4032-b533-522254d1fb73
+        - node_guid: 67469870-9868-4c36-8b30-84040ae73e71
+          port_guid: 7659b747-2121-4ea4-86c2-d96c61bc59d2
         conditionConfig: {fileID: 0}
     00000001:
       type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
@@ -1047,7 +1118,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 765e8b13-e983-4dce-8362-c90c4ed66284
   editor_ActiveNode: 0
-  position: {x: 1212.5, y: 41}
+  position: {x: 1213, y: 57.000008}
   narrativeGraph: {fileID: 0}
   eventConfig: {fileID: 0}
   storyTexts:
@@ -1067,8 +1138,8 @@ MonoBehaviour:
         Connections:
         - node_guid: 9d3f6df5-4ad0-4398-add2-09bd414b00c3
           port_guid: 7cd976bb-36c7-4dc6-9dfd-9225bfb8f155
-        - node_guid: ac4b142e-251b-4451-ac85-75461ee1adf5
-          port_guid: 9b3dc510-4a6b-4694-a3eb-9864496b118a
+        - node_guid: 67469870-9868-4c36-8b30-84040ae73e71
+          port_guid: 8b1fac56-22fe-403e-8f95-fdbea8aff2de
         conditionConfig: {fileID: 0}
     00000001:
       type: {class: NarrativePort, ns: , asm: Assembly-CSharp}

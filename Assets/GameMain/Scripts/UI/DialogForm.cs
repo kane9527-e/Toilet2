@@ -7,7 +7,6 @@
 
 using GameFramework;
 using GameMain.Scripts.UI.Extensions;
-using StarForce;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
@@ -17,83 +16,47 @@ namespace GameMain.Scripts.UI
 {
     public class DialogForm : UGuiForm
     {
-        [SerializeField]
-        private Text m_TitleText = null;
+        [SerializeField] private Text m_TitleText;
 
-        [SerializeField]
-        private Text m_MessageText = null;
+        [SerializeField] private Text m_MessageText;
 
-        [SerializeField]
-        private GameObject[] m_ModeObjects = null;
+        [SerializeField] private GameObject[] m_ModeObjects;
 
-        [SerializeField]
-        private Text[] m_ConfirmTexts = null;
+        [SerializeField] private Text[] m_ConfirmTexts;
 
-        [SerializeField]
-        private Text[] m_CancelTexts = null;
+        [SerializeField] private Text[] m_CancelTexts;
 
-        [SerializeField]
-        private Text[] m_OtherTexts = null;
+        [SerializeField] private Text[] m_OtherTexts;
 
-        private int m_DialogMode = 1;
-        private bool m_PauseGame = false;
-        private object m_UserData = null;
-        private GameFrameworkAction<object> m_OnClickConfirm = null;
-        private GameFrameworkAction<object> m_OnClickCancel = null;
-        private GameFrameworkAction<object> m_OnClickOther = null;
+        private GameFrameworkAction<object> m_OnClickCancel;
+        private GameFrameworkAction<object> m_OnClickConfirm;
+        private GameFrameworkAction<object> m_OnClickOther;
 
-        public int DialogMode
-        {
-            get
-            {
-                return m_DialogMode;
-            }
-        }
+        public int DialogMode { get; private set; } = 1;
 
-        public bool PauseGame
-        {
-            get
-            {
-                return m_PauseGame;
-            }
-        }
+        public bool PauseGame { get; private set; }
 
-        public object UserData
-        {
-            get
-            {
-                return m_UserData;
-            }
-        }
+        public object UserData { get; private set; }
 
         public void OnConfirmButtonClick()
         {
             Close();
 
-            if (m_OnClickConfirm != null)
-            {
-                m_OnClickConfirm(m_UserData);
-            }
+            if (m_OnClickConfirm != null) m_OnClickConfirm(UserData);
         }
 
         public void OnCancelButtonClick()
         {
             Close();
 
-            if (m_OnClickCancel != null)
-            {
-                m_OnClickCancel(m_UserData);
-            }
+            if (m_OnClickCancel != null) m_OnClickCancel(UserData);
         }
 
         public void OnOtherButtonClick()
         {
             Close();
 
-            if (m_OnClickOther != null)
-            {
-                m_OnClickOther(m_UserData);
-            }
+            if (m_OnClickOther != null) m_OnClickOther(UserData);
         }
 
 #if UNITY_2017_3_OR_NEWER
@@ -104,23 +67,23 @@ namespace GameMain.Scripts.UI
         {
             base.OnOpen(userData);
 
-            DialogParams dialogParams = (DialogParams)userData;
+            var dialogParams = (DialogParams)userData;
             if (dialogParams == null)
             {
                 Log.Warning("DialogParams is invalid.");
                 return;
             }
 
-            m_DialogMode = dialogParams.Mode;
+            DialogMode = dialogParams.Mode;
             RefreshDialogMode();
 
             m_TitleText.text = dialogParams.Title;
             m_MessageText.text = dialogParams.Message;
 
-            m_PauseGame = dialogParams.PauseGame;
+            PauseGame = dialogParams.PauseGame;
             RefreshPauseGame();
 
-            m_UserData = dialogParams.UserData;
+            UserData = dialogParams.UserData;
 
             RefreshConfirmText(dialogParams.ConfirmText);
             m_OnClickConfirm = dialogParams.OnClickConfirm;
@@ -138,16 +101,13 @@ namespace GameMain.Scripts.UI
         protected internal override void OnClose(bool isShutdown, object userData)
 #endif
         {
-            if (m_PauseGame)
-            {
-                GameEntry.Base.ResumeGame();
-            }
+            if (PauseGame) GameEntry.Base.ResumeGame();
 
-            m_DialogMode = 1;
+            DialogMode = 1;
             m_TitleText.text = string.Empty;
             m_MessageText.text = string.Empty;
-            m_PauseGame = false;
-            m_UserData = null;
+            PauseGame = false;
+            UserData = null;
 
             RefreshConfirmText(string.Empty);
             m_OnClickConfirm = null;
@@ -163,57 +123,34 @@ namespace GameMain.Scripts.UI
 
         private void RefreshDialogMode()
         {
-            for (int i = 1; i <= m_ModeObjects.Length; i++)
-            {
-                m_ModeObjects[i - 1].SetActive(i == m_DialogMode);
-            }
+            for (var i = 1; i <= m_ModeObjects.Length; i++) m_ModeObjects[i - 1].SetActive(i == DialogMode);
         }
 
         private void RefreshPauseGame()
         {
-            if (m_PauseGame)
-            {
-                GameEntry.Base.PauseGame();
-            }
+            if (PauseGame) GameEntry.Base.PauseGame();
         }
 
         private void RefreshConfirmText(string confirmText)
         {
             if (string.IsNullOrEmpty(confirmText))
-            {
                 confirmText = GameEntry.Localization.GetString("Dialog.ConfirmButton");
-            }
 
-            for (int i = 0; i < m_ConfirmTexts.Length; i++)
-            {
-                m_ConfirmTexts[i].text = confirmText;
-            }
+            for (var i = 0; i < m_ConfirmTexts.Length; i++) m_ConfirmTexts[i].text = confirmText;
         }
 
         private void RefreshCancelText(string cancelText)
         {
-            if (string.IsNullOrEmpty(cancelText))
-            {
-                cancelText = GameEntry.Localization.GetString("Dialog.CancelButton");
-            }
+            if (string.IsNullOrEmpty(cancelText)) cancelText = GameEntry.Localization.GetString("Dialog.CancelButton");
 
-            for (int i = 0; i < m_CancelTexts.Length; i++)
-            {
-                m_CancelTexts[i].text = cancelText;
-            }
+            for (var i = 0; i < m_CancelTexts.Length; i++) m_CancelTexts[i].text = cancelText;
         }
 
         private void RefreshOtherText(string otherText)
         {
-            if (string.IsNullOrEmpty(otherText))
-            {
-                otherText = GameEntry.Localization.GetString("Dialog.OtherButton");
-            }
+            if (string.IsNullOrEmpty(otherText)) otherText = GameEntry.Localization.GetString("Dialog.OtherButton");
 
-            for (int i = 0; i < m_OtherTexts.Length; i++)
-            {
-                m_OtherTexts[i].text = otherText;
-            }
+            for (var i = 0; i < m_OtherTexts.Length; i++) m_OtherTexts[i].text = otherText;
         }
     }
 }

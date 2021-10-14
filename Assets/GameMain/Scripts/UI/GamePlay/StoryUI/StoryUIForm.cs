@@ -1,16 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Narrative.Runtime.Scripts.NarrativeDataBase;
 using Narrative.Runtime.Scripts.MonoBehaviour;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
-using Narrative.Runtime.Scripts.Nodes.OptionNode;
 using UI.GamePlay.StoryUI;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-using UnityEngine.Video;
 using VisualGraphRuntime;
 
 public class StoryUIForm : MonoBehaviour
@@ -25,18 +20,15 @@ public class StoryUIForm : MonoBehaviour
     [SerializeField] private List<DisplayUI> displayUis;
 
     [SerializeField] private Image textureUI;
-    private List<OptionUI> m_Options = new List<OptionUI>();
-    private List<OptionNode> optionNodes;
     private Coroutine _updateStoryUICoroutine;
+    private readonly List<OptionUI> m_Options = new List<OptionUI>();
+    private List<OptionNode> optionNodes;
     public bool CanOperate { get; private set; }
 
     private void Awake()
     {
         NarrativeManager.Instance.OnNarrativeNodeChangeEvent += UpdateNarrativeUI;
-        foreach (var displayUi in displayUis)
-        {
-            displayUi.ShowDisplayFinishCallBack += UpdateOptionButton;
-        }
+        foreach (var displayUi in displayUis) displayUi.ShowDisplayFinishCallBack += UpdateOptionButton;
     }
 
     private void UpdateNarrativeUI(DisplayNode node)
@@ -46,7 +38,7 @@ public class StoryUIForm : MonoBehaviour
         _updateStoryUICoroutine = StartCoroutine(UpdateStoryUI(node));
     }
 
-    IEnumerator UpdateStoryUI(DisplayNode node)
+    private IEnumerator UpdateStoryUI(DisplayNode node)
     {
         yield return new WaitForNextFrameUnit();
         yield return new WaitForEndOfFrame();
@@ -58,28 +50,21 @@ public class StoryUIForm : MonoBehaviour
         //var triggerNodes =manager. GetPortNodesWithCondition<TriggerNode>(node, VisualGraphPort.PortDirection.Output);
         var branchNodes = manager.GetPortNodesWithCondition<BranchNode>(node, VisualGraphPort.PortDirection.Output);
         if (branchNodes != null)
-        {
             foreach (var branchNode in branchNodes)
             {
                 var resultNodes = branchNode.GetResultNodes();
                 foreach (var resultNode in resultNodes)
-                {
                     if (resultNode.GetType().BaseType == typeof(OptionNode))
                         optionNodes.Add((OptionNode)resultNode);
-                    // if (resultNode.GetType().BaseType == typeof(TriggerNode))
-                    //     triggerNodes.Add((TriggerNode)resultNode);
-                }
+                // if (resultNode.GetType().BaseType == typeof(TriggerNode))
+                //     triggerNodes.Add((TriggerNode)resultNode);
             }
-        }
 
         yield return new WaitForEndOfFrame();
-        
-        if (optionNodes != null && optionNodes.Count > 0)
-        {
-            optionNodes.RemoveAll(optionNode => optionNode.Once && optionNode.Triggered);
-        }
 
-        
+        if (optionNodes != null && optionNodes.Count > 0)
+            optionNodes.RemoveAll(optionNode => optionNode.Once && optionNode.Triggered);
+
 
         CanOperate = false;
         HideAllOptionButton();
@@ -129,13 +114,10 @@ public class StoryUIForm : MonoBehaviour
         {
             var optionObj = Instantiate(optionPrefab, optionRoot);
             var optionUI = optionObj.GetComponent<OptionUI>();
-            if (optionUI)
-            {
-                m_Options.Add(optionUI);
-            }
+            if (optionUI) m_Options.Add(optionUI);
         }
 
-        for (int i = 0; i < m_Options.Count; i++)
+        for (var i = 0; i < m_Options.Count; i++)
         {
             if (i < optionNodes.Count)
             {
@@ -152,5 +134,4 @@ public class StoryUIForm : MonoBehaviour
             m_Options[i].gameObject.SetActive(i < optionNodes.Count);
         }
     }
-    
 }

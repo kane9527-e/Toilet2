@@ -23,21 +23,15 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             public string[][] Check()
             {
-                HashSet<string> hosts = new HashSet<string>();
-                foreach (Stamp stamp in m_Stamps)
-                {
-                    hosts.Add(stamp.HostAssetName);
-                }
+                var hosts = new HashSet<string>();
+                foreach (var stamp in m_Stamps) hosts.Add(stamp.HostAssetName);
 
-                List<string[]> results = new List<string[]>();
-                foreach (string host in hosts)
+                var results = new List<string[]>();
+                foreach (var host in hosts)
                 {
-                    LinkedList<string> route = new LinkedList<string>();
-                    HashSet<string> visited = new HashSet<string>();
-                    if (Check(host, route, visited))
-                    {
-                        results.Add(route.ToArray());
-                    }
+                    var route = new LinkedList<string>();
+                    var visited = new HashSet<string>();
+                    if (Check(host, route, visited)) results.Add(route.ToArray());
                 }
 
                 return results.ToArray();
@@ -48,12 +42,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 visited.Add(host);
                 route.AddLast(host);
 
-                foreach (Stamp stamp in m_Stamps)
+                foreach (var stamp in m_Stamps)
                 {
-                    if (host != stamp.HostAssetName)
-                    {
-                        continue;
-                    }
+                    if (host != stamp.HostAssetName) continue;
 
                     if (visited.Contains(stamp.DependencyAssetName))
                     {
@@ -61,10 +52,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                         return true;
                     }
 
-                    if (Check(stamp.DependencyAssetName, route, visited))
-                    {
-                        return true;
-                    }
+                    if (Check(stamp.DependencyAssetName, route, visited)) return true;
                 }
 
                 route.RemoveLast();

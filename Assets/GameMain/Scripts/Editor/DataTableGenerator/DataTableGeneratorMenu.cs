@@ -5,11 +5,9 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
+using GameMain.Scripts.Definition.Constant;
 using UnityEditor;
 using UnityEngine;
-using Constant = GameMain.Scripts.Definition.Constant.Constant;
-
 
 namespace GameMain.Scripts.Editor.DataTableGenerator
 {
@@ -25,9 +23,9 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
         [MenuItem("Game Framework/Generate DataTables")]
         private static void GenerateDataTables()
         {
-            foreach (string dataTableName in Constant.DataTable.DataTableNames)
+            foreach (var dataTableName in Constant.DataTable.DataTableNames)
             {
-                DataTableProcessor dataTableProcessor = DataTableGenerator.CreateDataTableProcessor(dataTableName);
+                var dataTableProcessor = DataTableGenerator.CreateDataTableProcessor(dataTableName);
                 if (!DataTableGenerator.CheckRawData(dataTableProcessor, dataTableName))
                 {
                     Debug.LogError(GameFramework.Utility.Text.Format("Check raw data failure. DataTableName='{0}'",

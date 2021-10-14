@@ -3,16 +3,17 @@
 // date: 2020
 // Copyright (c) Bus Stop Studios.
 ///-------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
 
 namespace VisualGraphRuntime
 {
-    /// <summary>
-    /// Vector3 Blackboard property
-    /// </summary>
-    [Serializable]
+	/// <summary>
+	///     Vector3 Blackboard property
+	/// </summary>
+	[Serializable]
     public class Vector3BlackboardProperty : AbstractBlackboardProperty<Vector3>
     {
-	}
+    }
 }

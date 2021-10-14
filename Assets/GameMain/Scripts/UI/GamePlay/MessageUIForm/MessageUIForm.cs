@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using GameMain.Scripts.Runtime.Message;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using GameEntry = GameMain.Scripts.Runtime.Base.GameEntry;
@@ -78,6 +77,7 @@ namespace GameMain.Scripts.UI.GamePlay.MessageUIForm
                 HidePanel();
                 return;
             }
+
             MessageSystem.NextMessage();
         }
 
@@ -87,6 +87,22 @@ namespace GameMain.Scripts.UI.GamePlay.MessageUIForm
             if (_fadeCanvasGroupCor != null)
                 StopCoroutine(_fadeCanvasGroupCor);
             _fadeCanvasGroupCor = StartCoroutine(FadeCanvasGroup(messagePanelCanvasGroup, 0f, 15f, ONPanelHide));
+        }
+
+        private IEnumerator FadeCanvasGroup(CanvasGroup group, float targetValue, float speedMultiplier = 1f,
+            Action callBack = null)
+        {
+            if (!group) yield break;
+            targetValue = targetValue > 1 ? 1 : targetValue < 0 ? 0 : targetValue; //Clamp 0 to 1
+            var waitTime = new WaitForEndOfFrame();
+            while (Math.Abs(group.alpha - targetValue) > Time.deltaTime)
+            {
+                group.alpha = Mathf.Lerp(group.alpha, targetValue, Time.deltaTime * speedMultiplier);
+                yield return waitTime;
+            }
+
+            group.alpha = targetValue;
+            callBack?.Invoke();
         }
 
         #region PrivateMethod
@@ -106,21 +122,5 @@ namespace GameMain.Scripts.UI.GamePlay.MessageUIForm
         }
 
         #endregion
-
-        IEnumerator FadeCanvasGroup(CanvasGroup @group, float targetValue, float speedMultiplier = 1f,
-            Action callBack = null)
-        {
-            if (!group) yield break;
-            targetValue = targetValue > 1 ? 1 : targetValue < 0 ? 0 : targetValue; //Clamp 0 to 1
-            WaitForEndOfFrame waitTime = new WaitForEndOfFrame();
-            while (Math.Abs(@group.alpha - targetValue) > Time.deltaTime)
-            {
-                group.alpha = Mathf.Lerp(group.alpha, targetValue, Time.deltaTime * speedMultiplier);
-                yield return waitTime;
-            }
-
-            group.alpha = targetValue;
-            callBack?.Invoke();
-        }
     }
 }

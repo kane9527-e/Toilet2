@@ -1,10 +1,4 @@
-using System;
-using System.Linq;
-using Narrative.Runtime.Scripts.EventConfig;
 using Narrative.Runtime.Scripts.Nodes.OptionNode;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
-using UnityEditor.Graphs;
-using UnityEngine;
 using UnityEngine.UIElements;
 using VisualGraphEditor;
 
@@ -21,7 +15,7 @@ namespace Narrative.Editor.Views.Nodes
 
         public override void DrawNode()
         {
-            _node = ((StoryOptionNode)nodeTarget);
+            _node = (StoryOptionNode)nodeTarget;
             if (NodeDataView == null)
             {
                 NodeDataView = new VisualElement();
@@ -31,7 +25,7 @@ namespace Narrative.Editor.Views.Nodes
             RefreshTitle();
             //onceToggle.style.backgroundColor = new StyleColor(Color.black);
 
-            TextField optionTextField = new TextField();
+            var optionTextField = new TextField();
             optionTextField.multiline = true;
             optionTextField.value = _node.OptionText;
             //optionTextField.style.backgroundColor = new StyleColor(Color.black);
@@ -50,7 +44,7 @@ namespace Narrative.Editor.Views.Nodes
         private void RefreshTitle()
         {
             if (_node)
-                title = String.Format("Option:{0}", _node.OptionText);
+                title = string.Format("Option:{0}", _node.OptionText);
         }
     }
 }

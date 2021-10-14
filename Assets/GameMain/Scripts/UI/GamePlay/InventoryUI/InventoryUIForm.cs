@@ -1,19 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using GameMain.Scripts.Runtime.Message;
 using GameMain.Scripts.Runtime.ScrptableObject;
 using GameMain.Scripts.UI.GamePlay.InventoryUI;
-using GameMain.Scripts.UI.GamePlay.MessageUIForm;
 using Inventory.Runtime.Scripts.Manager;
 using Inventory.Runtime.Scripts.ScriptableObject;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using Cache = UnityEngine.Cache;
 using GameEntry = GameMain.Scripts.Runtime.Base.GameEntry;
 
 public class InventoryUIForm : UIFormLogic
@@ -30,8 +24,8 @@ public class InventoryUIForm : UIFormLogic
     [Header("按钮操作设置")] [SerializeField] private Button useButton; //使用按钮
     [SerializeField] private Button discardButton; //丢弃按钮
     [SerializeField] private Button disSelectButton; //取消选择按钮
-    private List<ItemUIGrid> _itemUIGrids = new List<ItemUIGrid>();
-    public List<ItemUIGrid> ItemUIGrids => _itemUIGrids;
+    public List<ItemUIGrid> ItemUIGrids { get; } = new List<ItemUIGrid>();
+
     public ItemUIGrid CurrentSelectGrid { get; private set; }
 
     public static bool IsInited { get; private set; }
@@ -39,10 +33,7 @@ public class InventoryUIForm : UIFormLogic
 
     private void Awake()
     {
-        if (!GameEntry.Base)
-        {
-            OnInit(this);
-        }
+        if (!GameEntry.Base) OnInit(this);
     }
 
     // private void OnEnable()
@@ -78,10 +69,8 @@ public class InventoryUIForm : UIFormLogic
     {
         base.OnClose(isShutdown, userData);
         if (!GameEntry.Base)
-        {
             if (rootPanel)
                 rootPanel.gameObject.SetActive(false);
-        }
 
         DisCurrentSelectGrid();
     }
@@ -121,18 +110,18 @@ public class InventoryUIForm : UIFormLogic
 
     private void OnItemUsedHandler(ItemStack stack)
     {
-        var grid = FindGrid((stack));
+        var grid = FindGrid(stack);
         if (!grid) return;
         grid.UpdateItemGridUI();
     }
 
     private void OnItemReducedHandler(ItemStack stack)
     {
-        var grid = FindGrid((stack));
+        var grid = FindGrid(stack);
         if (!grid) return;
         if (!InventoryManager.Instance.Package.Items.Contains(stack) || stack.Amount <= 0)
         {
-            _itemUIGrids.Remove(grid);
+            ItemUIGrids.Remove(grid);
             Destroy(grid.gameObject);
             if (CurrentSelectGrid != null && grid == CurrentSelectGrid)
                 CurrentSelectGrid = null;
@@ -145,7 +134,7 @@ public class InventoryUIForm : UIFormLogic
 
     private void OnItemAddedHandler(ItemStack stack)
     {
-        var grid = FindGrid((stack));
+        var grid = FindGrid(stack);
         if (!grid)
             grid = CreateNewGrid(stack);
         else
@@ -178,20 +167,20 @@ public class InventoryUIForm : UIFormLogic
 
     private ItemUIGrid FindGrid(ItemStack stack)
     {
-        return _itemUIGrids.Find(g => g.Stack == stack);
+        return ItemUIGrids.Find(g => g.Stack == stack);
     }
 
     private ItemUIGrid CreateNewGrid(ItemStack stack)
     {
         var gridUI = Instantiate(itemGridUIPrefab, itemGridRoot).GetComponent<ItemUIGrid>();
         gridUI.InitGrid(this, stack);
-        if (!_itemUIGrids.Contains(gridUI))
-            _itemUIGrids.Add(gridUI);
+        if (!ItemUIGrids.Contains(gridUI))
+            ItemUIGrids.Add(gridUI);
         return gridUI;
     }
 
     /// <summary>
-    /// 更新物品面板状态
+    ///     更新物品面板状态
     /// </summary>
     private void UpdateItemPanelStatus()
     {
@@ -227,18 +216,15 @@ public class InventoryUIForm : UIFormLogic
 
     private void ForceUpdateAllUIGrid()
     {
-        for (int i = _itemUIGrids.Count - 1; i >= 0; i--)
+        for (var i = ItemUIGrids.Count - 1; i >= 0; i--)
         {
-            var girdUI = _itemUIGrids[i];
-            _itemUIGrids.Remove(girdUI);
+            var girdUI = ItemUIGrids[i];
+            ItemUIGrids.Remove(girdUI);
             Destroy(girdUI.gameObject);
         }
 
         var itemstack = InventoryManager.Instance.Package.Items;
-        foreach (var stack in itemstack)
-        {
-            CreateNewGrid(stack);
-        }
+        foreach (var stack in itemstack) CreateNewGrid(stack);
     }
 
     #endregion
@@ -259,7 +245,7 @@ public class InventoryUIForm : UIFormLogic
     }
 
     /// <summary>
-    /// 使用当前物品
+    ///     使用当前物品
     /// </summary>
     public void UnOrUseCurrentItem()
     {
@@ -270,17 +256,13 @@ public class InventoryUIForm : UIFormLogic
 
 
         if (IsUsing)
-        {
             UseCurrentItem();
-        }
         else
-        {
             UnUseCurrentItem();
-        }
     }
 
     /// <summary>
-    /// 使用当前物品
+    ///     使用当前物品
     /// </summary>
     public void UseCurrentItem()
     {
@@ -288,7 +270,7 @@ public class InventoryUIForm : UIFormLogic
         var item = CurrentSelectGrid.Stack.Item;
         if (!item.ItemType.CanUse) return;
         var eventCount = item.onUseEvent.GetPersistentEventCount();
-        for (int i = 0; i < eventCount; i++)
+        for (var i = 0; i < eventCount; i++)
         {
             var eventTarget = item.onUseEvent.GetPersistentTarget(i);
             if (eventTarget.GetType() == typeof(ItemUsableConfig))
@@ -315,7 +297,7 @@ public class InventoryUIForm : UIFormLogic
     }
 
     /// <summary>
-    /// 取消使用当前物品
+    ///     取消使用当前物品
     /// </summary>
     public void UnUseCurrentItem()
     {
@@ -327,7 +309,7 @@ public class InventoryUIForm : UIFormLogic
     }
 
     /// <summary>
-    /// 丢弃当前物品
+    ///     丢弃当前物品
     /// </summary>
     public void DiscardCurrentItem()
     {

@@ -11,27 +11,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 {
     public sealed partial class DataTableProcessor
     {
-        private sealed class CharProcessor : DataTableProcessor.GenericDataProcessor<char>
+        private sealed class CharProcessor : GenericDataProcessor<char>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsSystem => true;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "char";
-                }
-            }
+            public override string LanguageKeyword => "char";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "char",
                     "system.char"
@@ -43,7 +31,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 return char.Parse(value);
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
                 binaryWriter.Write(Parse(value));
             }

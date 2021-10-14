@@ -12,17 +12,17 @@ using GameFramework.Network;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 网络心跳包丢失事件。
+    ///     网络心跳包丢失事件。
     /// </summary>
     public sealed class NetworkMissHeartBeatEventArgs : GameEventArgs
     {
         /// <summary>
-        /// 网络心跳包丢失事件编号。
+        ///     网络心跳包丢失事件编号。
         /// </summary>
         public static readonly int EventId = typeof(NetworkMissHeartBeatEventArgs).GetHashCode();
 
         /// <summary>
-        /// 初始化网络心跳包丢失事件的新实例。
+        ///     初始化网络心跳包丢失事件的新实例。
         /// </summary>
         public NetworkMissHeartBeatEventArgs()
         {
@@ -31,49 +31,35 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取网络心跳包丢失事件编号。
+        ///     获取网络心跳包丢失事件编号。
         /// </summary>
-        public override int Id
-        {
-            get
-            {
-                return EventId;
-            }
-        }
+        public override int Id => EventId;
 
         /// <summary>
-        /// 获取网络频道。
+        ///     获取网络频道。
         /// </summary>
-        public INetworkChannel NetworkChannel
-        {
-            get;
-            private set;
-        }
+        public INetworkChannel NetworkChannel { get; private set; }
 
         /// <summary>
-        /// 获取心跳包已丢失次数。
+        ///     获取心跳包已丢失次数。
         /// </summary>
-        public int MissCount
-        {
-            get;
-            private set;
-        }
+        public int MissCount { get; private set; }
 
         /// <summary>
-        /// 创建网络心跳包丢失事件。
+        ///     创建网络心跳包丢失事件。
         /// </summary>
         /// <param name="e">内部事件。</param>
         /// <returns>创建的网络心跳包丢失事件。</returns>
         public static NetworkMissHeartBeatEventArgs Create(GameFramework.Network.NetworkMissHeartBeatEventArgs e)
         {
-            NetworkMissHeartBeatEventArgs networkMissHeartBeatEventArgs = ReferencePool.Acquire<NetworkMissHeartBeatEventArgs>();
+            var networkMissHeartBeatEventArgs = ReferencePool.Acquire<NetworkMissHeartBeatEventArgs>();
             networkMissHeartBeatEventArgs.NetworkChannel = e.NetworkChannel;
             networkMissHeartBeatEventArgs.MissCount = e.MissCount;
             return networkMissHeartBeatEventArgs;
         }
 
         /// <summary>
-        /// 清理网络心跳包丢失事件。
+        ///     清理网络心跳包丢失事件。
         /// </summary>
         public override void Clear()
         {

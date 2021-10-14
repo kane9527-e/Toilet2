@@ -11,17 +11,17 @@ using GameFramework.Event;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 打开界面时加载依赖资源事件。
+    ///     打开界面时加载依赖资源事件。
     /// </summary>
     public sealed class OpenUIFormDependencyAssetEventArgs : GameEventArgs
     {
         /// <summary>
-        /// 打开界面时加载依赖资源事件编号。
+        ///     打开界面时加载依赖资源事件编号。
         /// </summary>
         public static readonly int EventId = typeof(OpenUIFormDependencyAssetEventArgs).GetHashCode();
 
         /// <summary>
-        /// 初始化打开界面时加载依赖资源事件的新实例。
+        ///     初始化打开界面时加载依赖资源事件的新实例。
         /// </summary>
         public OpenUIFormDependencyAssetEventArgs()
         {
@@ -36,96 +36,58 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取打开界面时加载依赖资源事件编号。
+        ///     获取打开界面时加载依赖资源事件编号。
         /// </summary>
-        public override int Id
-        {
-            get
-            {
-                return EventId;
-            }
-        }
+        public override int Id => EventId;
 
         /// <summary>
-        /// 获取界面序列编号。
+        ///     获取界面序列编号。
         /// </summary>
-        public int SerialId
-        {
-            get;
-            private set;
-        }
+        public int SerialId { get; private set; }
 
         /// <summary>
-        /// 获取界面资源名称。
+        ///     获取界面资源名称。
         /// </summary>
-        public string UIFormAssetName
-        {
-            get;
-            private set;
-        }
+        public string UIFormAssetName { get; private set; }
 
         /// <summary>
-        /// 获取界面组名称。
+        ///     获取界面组名称。
         /// </summary>
-        public string UIGroupName
-        {
-            get;
-            private set;
-        }
+        public string UIGroupName { get; private set; }
 
         /// <summary>
-        /// 获取是否暂停被覆盖的界面。
+        ///     获取是否暂停被覆盖的界面。
         /// </summary>
-        public bool PauseCoveredUIForm
-        {
-            get;
-            private set;
-        }
+        public bool PauseCoveredUIForm { get; private set; }
 
         /// <summary>
-        /// 获取被加载的依赖资源名称。
+        ///     获取被加载的依赖资源名称。
         /// </summary>
-        public string DependencyAssetName
-        {
-            get;
-            private set;
-        }
+        public string DependencyAssetName { get; private set; }
 
         /// <summary>
-        /// 获取当前已加载依赖资源数量。
+        ///     获取当前已加载依赖资源数量。
         /// </summary>
-        public int LoadedCount
-        {
-            get;
-            private set;
-        }
+        public int LoadedCount { get; private set; }
 
         /// <summary>
-        /// 获取总共加载依赖资源数量。
+        ///     获取总共加载依赖资源数量。
         /// </summary>
-        public int TotalCount
-        {
-            get;
-            private set;
-        }
+        public int TotalCount { get; private set; }
 
         /// <summary>
-        /// 获取用户自定义数据。
+        ///     获取用户自定义数据。
         /// </summary>
-        public object UserData
-        {
-            get;
-            private set;
-        }
+        public object UserData { get; private set; }
 
         /// <summary>
-        /// 创建打开界面时加载依赖资源事件。
+        ///     创建打开界面时加载依赖资源事件。
         /// </summary>
         /// <param name="e">内部事件。</param>
         /// <returns>创建的打开界面时加载依赖资源事件。</returns>
         public static OpenUIFormDependencyAssetEventArgs Create(GameFramework.UI.OpenUIFormDependencyAssetEventArgs e)
         {
-            OpenUIFormDependencyAssetEventArgs openUIFormDependencyAssetEventArgs = ReferencePool.Acquire<OpenUIFormDependencyAssetEventArgs>();
+            var openUIFormDependencyAssetEventArgs = ReferencePool.Acquire<OpenUIFormDependencyAssetEventArgs>();
             openUIFormDependencyAssetEventArgs.SerialId = e.SerialId;
             openUIFormDependencyAssetEventArgs.UIFormAssetName = e.UIFormAssetName;
             openUIFormDependencyAssetEventArgs.UIGroupName = e.UIGroupName;
@@ -138,7 +100,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清理打开界面时加载依赖资源事件。
+        ///     清理打开界面时加载依赖资源事件。
         /// </summary>
         public override void Clear()
         {

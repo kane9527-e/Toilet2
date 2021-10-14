@@ -11,19 +11,19 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 界面辅助器基类。
+    ///     界面辅助器基类。
     /// </summary>
     public abstract class UIFormHelperBase : MonoBehaviour, IUIFormHelper
     {
         /// <summary>
-        /// 实例化界面。
+        ///     实例化界面。
         /// </summary>
         /// <param name="uiFormAsset">要实例化的界面资源。</param>
         /// <returns>实例化后的界面。</returns>
         public abstract object InstantiateUIForm(object uiFormAsset);
 
         /// <summary>
-        /// 创建界面。
+        ///     创建界面。
         /// </summary>
         /// <param name="uiFormInstance">界面实例。</param>
         /// <param name="uiGroup">界面所属的界面组。</param>
@@ -32,7 +32,7 @@ namespace UnityGameFramework.Runtime
         public abstract IUIForm CreateUIForm(object uiFormInstance, IUIGroup uiGroup, object userData);
 
         /// <summary>
-        /// 释放界面。
+        ///     释放界面。
         /// </summary>
         /// <param name="uiFormAsset">要释放的界面资源。</param>
         /// <param name="uiFormInstance">要释放的界面实例。</param>

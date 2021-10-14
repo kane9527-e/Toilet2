@@ -839,7 +839,7 @@ MonoBehaviour:
         Connections:
         - node_guid: 3516e302-e22e-402a-b858-002532fbdbfb
           port_guid: 01478b88-8f6c-4c7e-8735-9ffad5bfa922
-        conditionConfig: {fileID: 11400000, guid: 5c546300860d9404f8fdb106947f6f2c, type: 2}
+        conditionConfig: {fileID: 11400000, guid: dc51dc60f68b84a8299fcc4a851c4f32, type: 2}
     00000002:
       type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
       data:
@@ -997,7 +997,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 3516e302-e22e-402a-b858-002532fbdbfb
   editor_ActiveNode: 0
-  position: {x: 2190, y: 1049}
+  position: {x: 2167, y: 945}
   narrativeGraph: {fileID: 0}
   once: 0
   eventConfig: {fileID: 0}
@@ -1356,7 +1356,7 @@ MonoBehaviour:
         Connections:
         - node_guid: 437f5deb-29db-41bd-a474-7874e72ffdd7
           port_guid: 33e4dc2a-d2e3-49d2-b1fd-646b90366615
-        conditionConfig: {fileID: 0}
+        conditionConfig: {fileID: 11400000, guid: dc51dc60f68b84a8299fcc4a851c4f32, type: 2}
     00000004:
       type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
       data:
@@ -1367,4 +1367,4 @@ MonoBehaviour:
         Connections:
         - node_guid: d783aa1b-bf95-40f4-8a4a-0017566d47b0
           port_guid: 5bd77ff7-ca2f-4758-98fb-df47c7a4410c
-        conditionConfig: {fileID: 11400000, guid: 5c546300860d9404f8fdb106947f6f2c, type: 2}
+        conditionConfig: {fileID: 0}

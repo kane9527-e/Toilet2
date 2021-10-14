@@ -5,70 +5,63 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using GameFramework;
 using UnityEditor;
 using UnityEngine;
 
 namespace UnityGameFramework.Editor
 {
     /// <summary>
-    /// 构建配置相关的实用函数。
+    ///     构建配置相关的实用函数。
     /// </summary>
     internal static class BuildSettings
     {
-        private static readonly string s_ConfigurationPath = null;
+        private static readonly string s_ConfigurationPath;
         private static readonly List<string> s_DefaultSceneNames = new List<string>();
         private static readonly List<string> s_SearchScenePaths = new List<string>();
 
         static BuildSettings()
         {
-            s_ConfigurationPath = Type.GetConfigurationPath<BuildSettingsConfigPathAttribute>() ?? Utility.Path.GetRegularPath(Path.Combine(Application.dataPath, "GameFramework/Configs/BuildSettings.xml"));
+            s_ConfigurationPath = Type.GetConfigurationPath<BuildSettingsConfigPathAttribute>() ??
+                                  Utility.Path.GetRegularPath(Path.Combine(Application.dataPath,
+                                      "GameFramework/Configs/BuildSettings.xml"));
             s_DefaultSceneNames.Clear();
             s_SearchScenePaths.Clear();
 
-            if (!File.Exists(s_ConfigurationPath))
-            {
-                return;
-            }
+            if (!File.Exists(s_ConfigurationPath)) return;
 
             try
             {
-                XmlDocument xmlDocument = new XmlDocument();
+                var xmlDocument = new XmlDocument();
                 xmlDocument.Load(s_ConfigurationPath);
-                XmlNode xmlRoot = xmlDocument.SelectSingleNode("UnityGameFramework");
-                XmlNode xmlBuildSettings = xmlRoot.SelectSingleNode("BuildSettings");
-                XmlNode xmlDefaultScenes = xmlBuildSettings.SelectSingleNode("DefaultScenes");
-                XmlNode xmlSearchScenePaths = xmlBuildSettings.SelectSingleNode("SearchScenePaths");
+                var xmlRoot = xmlDocument.SelectSingleNode("UnityGameFramework");
+                var xmlBuildSettings = xmlRoot.SelectSingleNode("BuildSettings");
+                var xmlDefaultScenes = xmlBuildSettings.SelectSingleNode("DefaultScenes");
+                var xmlSearchScenePaths = xmlBuildSettings.SelectSingleNode("SearchScenePaths");
 
                 XmlNodeList xmlNodeList = null;
                 XmlNode xmlNode = null;
 
                 xmlNodeList = xmlDefaultScenes.ChildNodes;
-                for (int i = 0; i < xmlNodeList.Count; i++)
+                for (var i = 0; i < xmlNodeList.Count; i++)
                 {
                     xmlNode = xmlNodeList.Item(i);
-                    if (xmlNode.Name != "DefaultScene")
-                    {
-                        continue;
-                    }
+                    if (xmlNode.Name != "DefaultScene") continue;
 
-                    string defaultSceneName = xmlNode.Attributes.GetNamedItem("Name").Value;
+                    var defaultSceneName = xmlNode.Attributes.GetNamedItem("Name").Value;
                     s_DefaultSceneNames.Add(defaultSceneName);
                 }
 
                 xmlNodeList = xmlSearchScenePaths.ChildNodes;
-                for (int i = 0; i < xmlNodeList.Count; i++)
+                for (var i = 0; i < xmlNodeList.Count; i++)
                 {
                     xmlNode = xmlNodeList.Item(i);
-                    if (xmlNode.Name != "SearchScenePath")
-                    {
-                        continue;
-                    }
+                    if (xmlNode.Name != "SearchScenePath") continue;
 
-                    string searchScenePath = xmlNode.Attributes.GetNamedItem("Path").Value;
+                    var searchScenePath = xmlNode.Attributes.GetNamedItem("Path").Value;
                     s_SearchScenePaths.Add(searchScenePath);
                 }
             }
@@ -78,22 +71,16 @@ namespace UnityGameFramework.Editor
         }
 
         /// <summary>
-        /// 将构建场景设置为默认。
+        ///     将构建场景设置为默认。
         /// </summary>
         [MenuItem("Game Framework/Scenes in Build Settings/Default Scenes", false, 20)]
         public static void DefaultScenes()
         {
-            HashSet<string> sceneNames = new HashSet<string>();
-            foreach (string sceneName in s_DefaultSceneNames)
-            {
-                sceneNames.Add(sceneName);
-            }
+            var sceneNames = new HashSet<string>();
+            foreach (var sceneName in s_DefaultSceneNames) sceneNames.Add(sceneName);
 
-            List<EditorBuildSettingsScene> scenes = new List<EditorBuildSettingsScene>();
-            foreach (string sceneName in sceneNames)
-            {
-                scenes.Add(new EditorBuildSettingsScene(sceneName, true));
-            }
+            var scenes = new List<EditorBuildSettingsScene>();
+            foreach (var sceneName in sceneNames) scenes.Add(new EditorBuildSettingsScene(sceneName, true));
 
             EditorBuildSettings.scenes = scenes.ToArray();
 
@@ -101,29 +88,23 @@ namespace UnityGameFramework.Editor
         }
 
         /// <summary>
-        /// 将构建场景设置为所有。
+        ///     将构建场景设置为所有。
         /// </summary>
         [MenuItem("Game Framework/Scenes in Build Settings/All Scenes", false, 21)]
         public static void AllScenes()
         {
-            HashSet<string> sceneNames = new HashSet<string>();
-            foreach (string sceneName in s_DefaultSceneNames)
+            var sceneNames = new HashSet<string>();
+            foreach (var sceneName in s_DefaultSceneNames) sceneNames.Add(sceneName);
+
+            var sceneGuids = AssetDatabase.FindAssets("t:Scene", s_SearchScenePaths.ToArray());
+            foreach (var sceneGuid in sceneGuids)
             {
+                var sceneName = AssetDatabase.GUIDToAssetPath(sceneGuid);
                 sceneNames.Add(sceneName);
             }
 
-            string[] sceneGuids = AssetDatabase.FindAssets("t:Scene", s_SearchScenePaths.ToArray());
-            foreach (string sceneGuid in sceneGuids)
-            {
-                string sceneName = AssetDatabase.GUIDToAssetPath(sceneGuid);
-                sceneNames.Add(sceneName);
-            }
-
-            List<EditorBuildSettingsScene> scenes = new List<EditorBuildSettingsScene>();
-            foreach (string sceneName in sceneNames)
-            {
-                scenes.Add(new EditorBuildSettingsScene(sceneName, true));
-            }
+            var scenes = new List<EditorBuildSettingsScene>();
+            foreach (var sceneName in sceneNames) scenes.Add(new EditorBuildSettingsScene(sceneName, true));
 
             EditorBuildSettings.scenes = scenes.ToArray();
 

@@ -5,36 +5,30 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using System.Collections.Generic;
 using GameFramework;
 using GameFramework.Network;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 网络组件。
+    ///     网络组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Network")]
     public sealed class NetworkComponent : GameFrameworkComponent
     {
-        private INetworkManager m_NetworkManager = null;
-        private EventComponent m_EventComponent = null;
+        private EventComponent m_EventComponent;
+        private INetworkManager m_NetworkManager;
 
         /// <summary>
-        /// 获取网络频道数量。
+        ///     获取网络频道数量。
         /// </summary>
-        public int NetworkChannelCount
-        {
-            get
-            {
-                return m_NetworkManager.NetworkChannelCount;
-            }
-        }
+        public int NetworkChannelCount => m_NetworkManager.NetworkChannelCount;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -60,12 +54,11 @@ namespace UnityGameFramework.Runtime
             if (m_EventComponent == null)
             {
                 Log.Fatal("Event component is invalid.");
-                return;
             }
         }
 
         /// <summary>
-        /// 检查是否存在网络频道。
+        ///     检查是否存在网络频道。
         /// </summary>
         /// <param name="name">网络频道名称。</param>
         /// <returns>是否存在网络频道。</returns>
@@ -75,7 +68,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取网络频道。
+        ///     获取网络频道。
         /// </summary>
         /// <param name="name">网络频道名称。</param>
         /// <returns>要获取的网络频道。</returns>
@@ -85,7 +78,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有网络频道。
+        ///     获取所有网络频道。
         /// </summary>
         /// <returns>所有网络频道。</returns>
         public INetworkChannel[] GetAllNetworkChannels()
@@ -94,7 +87,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有网络频道。
+        ///     获取所有网络频道。
         /// </summary>
         /// <param name="results">所有网络频道。</param>
         public void GetAllNetworkChannels(List<INetworkChannel> results)
@@ -103,19 +96,20 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建网络频道。
+        ///     创建网络频道。
         /// </summary>
         /// <param name="name">网络频道名称。</param>
         /// <param name="serviceType">网络服务类型。</param>
         /// <param name="networkChannelHelper">网络频道辅助器。</param>
         /// <returns>要创建的网络频道。</returns>
-        public INetworkChannel CreateNetworkChannel(string name, ServiceType serviceType, INetworkChannelHelper networkChannelHelper)
+        public INetworkChannel CreateNetworkChannel(string name, ServiceType serviceType,
+            INetworkChannelHelper networkChannelHelper)
         {
             return m_NetworkManager.CreateNetworkChannel(name, serviceType, networkChannelHelper);
         }
 
         /// <summary>
-        /// 销毁网络频道。
+        ///     销毁网络频道。
         /// </summary>
         /// <param name="name">网络频道名称。</param>
         /// <returns>是否销毁网络频道成功。</returns>

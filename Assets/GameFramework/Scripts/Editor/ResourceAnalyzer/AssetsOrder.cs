@@ -16,6 +16,6 @@ namespace UnityGameFramework.Editor.ResourceTools
         DependencyAssetCountAsc,
         DependencyAssetCountDesc,
         ScatteredDependencyAssetCountAsc,
-        ScatteredDependencyAssetCountDesc,
+        ScatteredDependencyAssetCountDesc
     }
 }

@@ -11,9 +11,9 @@ namespace UnityGameFramework.Editor.ResourceTools
 {
     public sealed class DependencyData
     {
-        private List<Resource> m_DependencyResources;
-        private List<Asset> m_DependencyAssets;
-        private List<string> m_ScatteredDependencyAssetNames;
+        private readonly List<Asset> m_DependencyAssets;
+        private readonly List<Resource> m_DependencyResources;
+        private readonly List<string> m_ScatteredDependencyAssetNames;
 
         public DependencyData()
         {
@@ -22,36 +22,15 @@ namespace UnityGameFramework.Editor.ResourceTools
             m_ScatteredDependencyAssetNames = new List<string>();
         }
 
-        public int DependencyResourceCount
-        {
-            get
-            {
-                return m_DependencyResources.Count;
-            }
-        }
+        public int DependencyResourceCount => m_DependencyResources.Count;
 
-        public int DependencyAssetCount
-        {
-            get
-            {
-                return m_DependencyAssets.Count;
-            }
-        }
+        public int DependencyAssetCount => m_DependencyAssets.Count;
 
-        public int ScatteredDependencyAssetCount
-        {
-            get
-            {
-                return m_ScatteredDependencyAssetNames.Count;
-            }
-        }
+        public int ScatteredDependencyAssetCount => m_ScatteredDependencyAssetNames.Count;
 
         public void AddDependencyAsset(Asset asset)
         {
-            if (!m_DependencyResources.Contains(asset.Resource))
-            {
-                m_DependencyResources.Add(asset.Resource);
-            }
+            if (!m_DependencyResources.Contains(asset.Resource)) m_DependencyResources.Add(asset.Resource);
 
             m_DependencyAssets.Add(asset);
         }

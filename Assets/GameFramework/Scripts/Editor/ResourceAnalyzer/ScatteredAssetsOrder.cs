@@ -12,6 +12,6 @@ namespace UnityGameFramework.Editor.ResourceTools
         AssetNameAsc,
         AssetNameDesc,
         HostAssetCountAsc,
-        HostAssetCountDesc,
+        HostAssetCountDesc
     }
 }

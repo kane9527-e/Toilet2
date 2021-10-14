@@ -13,7 +13,7 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 本地化组件。
+    ///     本地化组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Localization")]
@@ -21,74 +21,47 @@ namespace UnityGameFramework.Runtime
     {
         private const int DefaultPriority = 0;
 
-        private ILocalizationManager m_LocalizationManager = null;
-        private EventComponent m_EventComponent = null;
+        [SerializeField] private bool m_EnableLoadDictionaryUpdateEvent;
 
-        [SerializeField]
-        private bool m_EnableLoadDictionaryUpdateEvent = false;
-
-        [SerializeField]
-        private bool m_EnableLoadDictionaryDependencyAssetEvent = false;
+        [SerializeField] private bool m_EnableLoadDictionaryDependencyAssetEvent;
 
         [SerializeField]
         private string m_LocalizationHelperTypeName = "UnityGameFramework.Runtime.DefaultLocalizationHelper";
 
-        [SerializeField]
-        private LocalizationHelperBase m_CustomLocalizationHelper = null;
+        [SerializeField] private LocalizationHelperBase m_CustomLocalizationHelper;
 
-        [SerializeField]
-        private int m_CachedBytesSize = 0;
+        [SerializeField] private int m_CachedBytesSize;
+
+        private EventComponent m_EventComponent;
+
+        private ILocalizationManager m_LocalizationManager;
 
         /// <summary>
-        /// 获取或设置本地化语言。
+        ///     获取或设置本地化语言。
         /// </summary>
         public Language Language
         {
-            get
-            {
-                return m_LocalizationManager.Language;
-            }
-            set
-            {
-                m_LocalizationManager.Language = value;
-            }
+            get => m_LocalizationManager.Language;
+            set => m_LocalizationManager.Language = value;
         }
 
         /// <summary>
-        /// 获取系统语言。
+        ///     获取系统语言。
         /// </summary>
-        public Language SystemLanguage
-        {
-            get
-            {
-                return m_LocalizationManager.SystemLanguage;
-            }
-        }
+        public Language SystemLanguage => m_LocalizationManager.SystemLanguage;
 
         /// <summary>
-        /// 获取字典数量。
+        ///     获取字典数量。
         /// </summary>
-        public int DictionaryCount
-        {
-            get
-            {
-                return m_LocalizationManager.DictionaryCount;
-            }
-        }
+        public int DictionaryCount => m_LocalizationManager.DictionaryCount;
 
         /// <summary>
-        /// 获取缓冲二进制流的大小。
+        ///     获取缓冲二进制流的大小。
         /// </summary>
-        public int CachedBytesSize
-        {
-            get
-            {
-                return m_LocalizationManager.CachedBytesSize;
-            }
-        }
+        public int CachedBytesSize => m_LocalizationManager.CachedBytesSize;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -104,20 +77,15 @@ namespace UnityGameFramework.Runtime
             m_LocalizationManager.ReadDataSuccess += OnReadDataSuccess;
             m_LocalizationManager.ReadDataFailure += OnReadDataFailure;
 
-            if (m_EnableLoadDictionaryUpdateEvent)
-            {
-                m_LocalizationManager.ReadDataUpdate += OnReadDataUpdate;
-            }
+            if (m_EnableLoadDictionaryUpdateEvent) m_LocalizationManager.ReadDataUpdate += OnReadDataUpdate;
 
             if (m_EnableLoadDictionaryDependencyAssetEvent)
-            {
                 m_LocalizationManager.ReadDataDependencyAsset += OnReadDataDependencyAsset;
-            }
         }
 
         private void Start()
         {
-            BaseComponent baseComponent = GameEntry.GetComponent<BaseComponent>();
+            var baseComponent = GameEntry.GetComponent<BaseComponent>();
             if (baseComponent == null)
             {
                 Log.Fatal("Base component is invalid.");
@@ -132,15 +100,11 @@ namespace UnityGameFramework.Runtime
             }
 
             if (baseComponent.EditorResourceMode)
-            {
                 m_LocalizationManager.SetResourceManager(baseComponent.EditorResourceHelper);
-            }
             else
-            {
                 m_LocalizationManager.SetResourceManager(GameFrameworkEntry.GetModule<IResourceManager>());
-            }
 
-            LocalizationHelperBase localizationHelper = Helper.CreateHelper(m_LocalizationHelperTypeName, m_CustomLocalizationHelper);
+            var localizationHelper = Helper.CreateHelper(m_LocalizationHelperTypeName, m_CustomLocalizationHelper);
             if (localizationHelper == null)
             {
                 Log.Error("Can not create localization helper.");
@@ -148,21 +112,21 @@ namespace UnityGameFramework.Runtime
             }
 
             localizationHelper.name = "Localization Helper";
-            Transform transform = localizationHelper.transform;
+            var transform = localizationHelper.transform;
             transform.SetParent(this.transform);
             transform.localScale = Vector3.one;
 
             m_LocalizationManager.SetDataProviderHelper(localizationHelper);
             m_LocalizationManager.SetLocalizationHelper(localizationHelper);
-            m_LocalizationManager.Language = baseComponent.EditorResourceMode && baseComponent.EditorLanguage != Language.Unspecified ? baseComponent.EditorLanguage : m_LocalizationManager.SystemLanguage;
-            if (m_CachedBytesSize > 0)
-            {
-                EnsureCachedBytesSize(m_CachedBytesSize);
-            }
+            m_LocalizationManager.Language =
+                baseComponent.EditorResourceMode && baseComponent.EditorLanguage != Language.Unspecified
+                    ? baseComponent.EditorLanguage
+                    : m_LocalizationManager.SystemLanguage;
+            if (m_CachedBytesSize > 0) EnsureCachedBytesSize(m_CachedBytesSize);
         }
 
         /// <summary>
-        /// 确保二进制流缓存分配足够大小的内存并缓存。
+        ///     确保二进制流缓存分配足够大小的内存并缓存。
         /// </summary>
         /// <param name="ensureSize">要确保二进制流缓存分配内存的大小。</param>
         public void EnsureCachedBytesSize(int ensureSize)
@@ -171,7 +135,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 释放缓存的二进制流。
+        ///     释放缓存的二进制流。
         /// </summary>
         public void FreeCachedBytes()
         {
@@ -179,7 +143,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取字典。
+        ///     读取字典。
         /// </summary>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
         public void ReadData(string dictionaryAssetName)
@@ -188,7 +152,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取字典。
+        ///     读取字典。
         /// </summary>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
         /// <param name="priority">加载字典资源的优先级。</param>
@@ -198,7 +162,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取字典。
+        ///     读取字典。
         /// </summary>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -208,7 +172,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取字典。
+        ///     读取字典。
         /// </summary>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
         /// <param name="priority">加载字典资源的优先级。</param>
@@ -219,7 +183,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="dictionaryString">要解析的字典字符串。</param>
         /// <returns>是否解析字典成功。</returns>
@@ -229,7 +193,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="dictionaryString">要解析的字典字符串。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -240,7 +204,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="dictionaryBytes">要解析的字典二进制流。</param>
         /// <returns>是否解析字典成功。</returns>
@@ -250,7 +214,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="dictionaryBytes">要解析的字典二进制流。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -261,7 +225,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="dictionaryBytes">要解析的字典二进制流。</param>
         /// <param name="startIndex">字典二进制流的起始位置。</param>
@@ -273,7 +237,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="dictionaryBytes">要解析的字典二进制流。</param>
         /// <param name="startIndex">字典二进制流的起始位置。</param>
@@ -286,7 +250,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 根据字典主键获取字典内容字符串。
+        ///     根据字典主键获取字典内容字符串。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <returns>要获取的字典内容字符串。</returns>
@@ -296,7 +260,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 根据字典主键获取字典内容字符串。
+        ///     根据字典主键获取字典内容字符串。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <param name="arg0">字典参数 0。</param>
@@ -307,7 +271,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 根据字典主键获取字典内容字符串。
+        ///     根据字典主键获取字典内容字符串。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <param name="arg0">字典参数 0。</param>
@@ -319,7 +283,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 根据字典主键获取字典内容字符串。
+        ///     根据字典主键获取字典内容字符串。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <param name="arg0">字典参数 0。</param>
@@ -332,7 +296,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 根据字典主键获取字典内容字符串。
+        ///     根据字典主键获取字典内容字符串。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <param name="args">字典参数。</param>
@@ -343,7 +307,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 是否存在字典。
+        ///     是否存在字典。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <returns>是否存在字典。</returns>
@@ -353,7 +317,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 根据字典主键获取字典值。
+        ///     根据字典主键获取字典值。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <returns>字典值。</returns>
@@ -363,7 +327,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 移除字典。
+        ///     移除字典。
         /// </summary>
         /// <param name="key">字典主键。</param>
         /// <returns>是否移除字典成功。</returns>
@@ -373,7 +337,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清空所有字典。
+        ///     清空所有字典。
         /// </summary>
         public void RemoveAllRawStrings()
         {
@@ -387,7 +351,8 @@ namespace UnityGameFramework.Runtime
 
         private void OnReadDataFailure(object sender, ReadDataFailureEventArgs e)
         {
-            Log.Warning("Load dictionary failure, asset name '{0}', error message '{1}'.", e.DataAssetName, e.ErrorMessage);
+            Log.Warning("Load dictionary failure, asset name '{0}', error message '{1}'.", e.DataAssetName,
+                e.ErrorMessage);
             m_EventComponent.Fire(this, LoadDictionaryFailureEventArgs.Create(e));
         }
 

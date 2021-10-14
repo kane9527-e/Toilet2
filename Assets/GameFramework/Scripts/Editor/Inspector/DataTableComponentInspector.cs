@@ -15,11 +15,25 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(DataTableComponent))]
     internal sealed class DataTableComponentInspector : GameFrameworkInspector
     {
-        private SerializedProperty m_EnableLoadDataTableUpdateEvent = null;
-        private SerializedProperty m_EnableLoadDataTableDependencyAssetEvent = null;
-        private SerializedProperty m_CachedBytesSize = null;
+        private SerializedProperty m_CachedBytesSize;
 
-        private HelperInfo<DataTableHelperBase> m_DataTableHelperInfo = new HelperInfo<DataTableHelperBase>("DataTable");
+        private readonly HelperInfo<DataTableHelperBase> m_DataTableHelperInfo =
+            new HelperInfo<DataTableHelperBase>("DataTable");
+
+        private SerializedProperty m_EnableLoadDataTableDependencyAssetEvent;
+        private SerializedProperty m_EnableLoadDataTableUpdateEvent;
+
+        private void OnEnable()
+        {
+            m_EnableLoadDataTableUpdateEvent = serializedObject.FindProperty("m_EnableLoadDataTableUpdateEvent");
+            m_EnableLoadDataTableDependencyAssetEvent =
+                serializedObject.FindProperty("m_EnableLoadDataTableDependencyAssetEvent");
+            m_CachedBytesSize = serializedObject.FindProperty("m_CachedBytesSize");
+
+            m_DataTableHelperInfo.Init(serializedObject);
+
+            RefreshTypeNames();
+        }
 
         public override void OnInspectorGUI()
         {
@@ -27,7 +41,7 @@ namespace UnityGameFramework.Editor
 
             serializedObject.Update();
 
-            DataTableComponent t = (DataTableComponent)target;
+            var t = (DataTableComponent)target;
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
@@ -43,11 +57,8 @@ namespace UnityGameFramework.Editor
                 EditorGUILayout.LabelField("Data Table Count", t.Count.ToString());
                 EditorGUILayout.LabelField("Cached Bytes Size", t.CachedBytesSize.ToString());
 
-                DataTableBase[] dataTables = t.GetAllDataTables();
-                foreach (DataTableBase dataTable in dataTables)
-                {
-                    DrawDataTable(dataTable);
-                }
+                var dataTables = t.GetAllDataTables();
+                foreach (var dataTable in dataTables) DrawDataTable(dataTable);
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -58,17 +69,6 @@ namespace UnityGameFramework.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-
-            RefreshTypeNames();
-        }
-
-        private void OnEnable()
-        {
-            m_EnableLoadDataTableUpdateEvent = serializedObject.FindProperty("m_EnableLoadDataTableUpdateEvent");
-            m_EnableLoadDataTableDependencyAssetEvent = serializedObject.FindProperty("m_EnableLoadDataTableDependencyAssetEvent");
-            m_CachedBytesSize = serializedObject.FindProperty("m_CachedBytesSize");
-
-            m_DataTableHelperInfo.Init(serializedObject);
 
             RefreshTypeNames();
         }

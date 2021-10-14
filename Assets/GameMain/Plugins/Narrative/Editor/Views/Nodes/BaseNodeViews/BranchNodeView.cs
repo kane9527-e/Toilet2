@@ -1,3 +1,4 @@
+using Narrative.Editor.Views.Nodes.BaseNodeViews;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using VisualGraphEditor;
 
@@ -5,7 +6,7 @@ using VisualGraphEditor;
 namespace Narrative.Editor.Views.Nodes
 {
     [CustomNodeView(typeof(BranchNode))]
-    public class BranchNodeView : VisualGraphNodeView
+    public class BranchNodeView : NarrativeNodeView
     {
         public override bool ShowNodeProperties => false;
     }

@@ -38,13 +38,10 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         public static bool CheckRawData(DataTableProcessor dataTableProcessor, string dataTableName)
         {
-            for (int i = 0; i < dataTableProcessor.RawColumnCount; i++)
+            for (var i = 0; i < dataTableProcessor.RawColumnCount; i++)
             {
-                string name = dataTableProcessor.GetName(i);
-                if (string.IsNullOrEmpty(name) || name == "#")
-                {
-                    continue;
-                }
+                var name = dataTableProcessor.GetName(i);
+                if (string.IsNullOrEmpty(name) || name == "#") continue;
 
                 if (!NameRegex.IsMatch(name))
                 {
@@ -60,12 +57,10 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         public static void GenerateDataFile(DataTableProcessor dataTableProcessor, string dataTableName)
         {
-            string binaryDataFileName =
+            var binaryDataFileName =
                 GameFramework.Utility.Path.GetRegularPath(Path.Combine(DataTablePath, dataTableName + ".bytes"));
             if (!dataTableProcessor.GenerateDataFile(binaryDataFileName) && File.Exists(binaryDataFileName))
-            {
                 File.Delete(binaryDataFileName);
-            }
         }
 
         public static void GenerateCodeFile(DataTableProcessor dataTableProcessor, string dataTableName)
@@ -73,17 +68,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
             dataTableProcessor.SetCodeTemplate(CSharpCodeTemplateFileName, Encoding.UTF8);
             dataTableProcessor.SetCodeGenerator(DataTableCodeGenerator);
 
-            string csharpCodeFileName =
+            var csharpCodeFileName =
                 GameFramework.Utility.Path.GetRegularPath(Path.Combine(CSharpCodePath, "DR" + dataTableName + ".cs"));
             if (!dataTableProcessor.GenerateCodeFile(csharpCodeFileName, Encoding.UTF8, dataTableName) &&
                 File.Exists(csharpCodeFileName))
-            {
                 File.Delete(csharpCodeFileName);
-            }
         }
 
         /// <summary>
-        /// 生成数据表静态代码文件
+        ///     生成数据表静态代码文件
         /// </summary>
         public static void GenerateConstantCodeFile()
         {
@@ -95,30 +88,23 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
             if (!GenerateCodeFile(codeTemplate, csharpCodeFileName, Encoding.UTF8) &&
                 File.Exists(csharpCodeFileName))
-            {
                 File.Delete(csharpCodeFileName);
-            }
         }
 
         private static bool GenerateCodeFile(string codeTemplate, string outputFileName, Encoding encoding,
             object userData = null)
         {
             if (string.IsNullOrEmpty(codeTemplate))
-            {
                 throw new GameFrameworkException("You must set code template first.");
-            }
 
-            if (string.IsNullOrEmpty(outputFileName))
-            {
-                throw new GameFrameworkException("Output file name is invalid.");
-            }
+            if (string.IsNullOrEmpty(outputFileName)) throw new GameFrameworkException("Output file name is invalid.");
 
             try
             {
-                StringBuilder stringBuilder = new StringBuilder(codeTemplate);
-                using (FileStream fileStream = new FileStream(outputFileName, FileMode.Create, FileAccess.Write))
+                var stringBuilder = new StringBuilder(codeTemplate);
+                using (var fileStream = new FileStream(outputFileName, FileMode.Create, FileAccess.Write))
                 {
-                    using (StreamWriter stream = new StreamWriter(fileStream, encoding))
+                    using (var stream = new StreamWriter(fileStream, encoding))
                     {
                         stream.Write(stringBuilder.ToString());
                     }
@@ -140,7 +126,7 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
         private static void DataTableCodeGenerator(DataTableProcessor dataTableProcessor, StringBuilder codeContent,
             object userData)
         {
-            string dataTableName = (string) userData;
+            var dataTableName = (string)userData;
 
             codeContent.Replace("__DATA_TABLE_CREATE_TIME__",
                 DateTime.UtcNow.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"));
@@ -165,7 +151,7 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         private static string DataTableNameProperties()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             var files = Directory.GetFiles(DataTablePath, "*.txt");
             foreach (var fileName in files)
             {
@@ -178,30 +164,22 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         private static string GenerateDataTableProperties(DataTableProcessor dataTableProcessor)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            bool firstProperty = true;
-            for (int i = 0; i < dataTableProcessor.RawColumnCount; i++)
+            var stringBuilder = new StringBuilder();
+            var firstProperty = true;
+            for (var i = 0; i < dataTableProcessor.RawColumnCount; i++)
             {
                 if (dataTableProcessor.IsCommentColumn(i))
-                {
                     // 注释列
                     continue;
-                }
 
                 if (dataTableProcessor.IsIdColumn(i))
-                {
                     // 编号列
                     continue;
-                }
 
                 if (firstProperty)
-                {
                     firstProperty = false;
-                }
                 else
-                {
                     stringBuilder.AppendLine().AppendLine();
-                }
 
                 stringBuilder
                     .AppendLine("        /// <summary>")
@@ -220,7 +198,7 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         private static string GenerateDataTableParser(DataTableProcessor dataTableProcessor)
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder
                 .AppendLine("        public override bool ParseDataRow(string dataRowString, object userData)")
                 .AppendLine("        {")
@@ -234,7 +212,7 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 .AppendLine()
                 .AppendLine("            int index = 0;");
 
-            for (int i = 0; i < dataTableProcessor.RawColumnCount; i++)
+            for (var i = 0; i < dataTableProcessor.RawColumnCount; i++)
             {
                 if (dataTableProcessor.IsCommentColumn(i))
                 {
@@ -252,17 +230,13 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
                 if (dataTableProcessor.IsSystem(i))
                 {
-                    string languageKeyword = dataTableProcessor.GetLanguageKeyword(i);
+                    var languageKeyword = dataTableProcessor.GetLanguageKeyword(i);
                     if (languageKeyword == "string")
-                    {
                         stringBuilder.AppendFormat("            {0} = columnStrings[index++];",
                             dataTableProcessor.GetName(i)).AppendLine();
-                    }
                     else
-                    {
                         stringBuilder.AppendFormat("            {0} = {1}.Parse(columnStrings[index++]);",
                             dataTableProcessor.GetName(i), languageKeyword).AppendLine();
-                    }
                 }
                 else
                 {
@@ -286,13 +260,11 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                     "                using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))")
                 .AppendLine("                {");
 
-            for (int i = 0; i < dataTableProcessor.RawColumnCount; i++)
+            for (var i = 0; i < dataTableProcessor.RawColumnCount; i++)
             {
                 if (dataTableProcessor.IsCommentColumn(i))
-                {
                     // 注释列
                     continue;
-                }
 
                 if (dataTableProcessor.IsIdColumn(i))
                 {
@@ -301,18 +273,14 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                     continue;
                 }
 
-                string languageKeyword = dataTableProcessor.GetLanguageKeyword(i);
+                var languageKeyword = dataTableProcessor.GetLanguageKeyword(i);
                 if (languageKeyword == "int" || languageKeyword == "uint" || languageKeyword == "long" ||
                     languageKeyword == "ulong")
-                {
                     stringBuilder.AppendFormat("                    {0} = binaryReader.Read7BitEncoded{1}();",
                         dataTableProcessor.GetName(i), dataTableProcessor.GetType(i).Name).AppendLine();
-                }
                 else
-                {
                     stringBuilder.AppendFormat("                    {0} = binaryReader.Read{1}();",
                         dataTableProcessor.GetName(i), dataTableProcessor.GetType(i).Name).AppendLine();
-                }
             }
 
             stringBuilder
@@ -328,39 +296,30 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         private static string GenerateDataTablePropertyArray(DataTableProcessor dataTableProcessor)
         {
-            List<PropertyCollection> propertyCollections = new List<PropertyCollection>();
-            for (int i = 0; i < dataTableProcessor.RawColumnCount; i++)
+            var propertyCollections = new List<PropertyCollection>();
+            for (var i = 0; i < dataTableProcessor.RawColumnCount; i++)
             {
                 if (dataTableProcessor.IsCommentColumn(i))
-                {
                     // 注释列
                     continue;
-                }
 
                 if (dataTableProcessor.IsIdColumn(i))
-                {
                     // 编号列
                     continue;
-                }
 
-                string name = dataTableProcessor.GetName(i);
-                if (!EndWithNumberRegex.IsMatch(name))
-                {
-                    continue;
-                }
+                var name = dataTableProcessor.GetName(i);
+                if (!EndWithNumberRegex.IsMatch(name)) continue;
 
-                string propertyCollectionName = EndWithNumberRegex.Replace(name, string.Empty);
-                int id = int.Parse(EndWithNumberRegex.Match(name).Value);
+                var propertyCollectionName = EndWithNumberRegex.Replace(name, string.Empty);
+                var id = int.Parse(EndWithNumberRegex.Match(name).Value);
 
                 PropertyCollection propertyCollection = null;
-                foreach (PropertyCollection pc in propertyCollections)
-                {
+                foreach (var pc in propertyCollections)
                     if (pc.Name == propertyCollectionName)
                     {
                         propertyCollection = pc;
                         break;
                     }
-                }
 
                 if (propertyCollection == null)
                 {
@@ -372,18 +331,14 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 propertyCollection.AddItem(id, name);
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
-            bool firstProperty = true;
-            foreach (PropertyCollection propertyCollection in propertyCollections)
+            var stringBuilder = new StringBuilder();
+            var firstProperty = true;
+            foreach (var propertyCollection in propertyCollections)
             {
                 if (firstProperty)
-                {
                     firstProperty = false;
-                }
                 else
-                {
                     stringBuilder.AppendLine().AppendLine();
-                }
 
                 stringBuilder
                     .AppendFormat("        private KeyValuePair<int, {1}>[] m_{0} = null;", propertyCollection.Name,
@@ -429,36 +384,29 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                     .Append("        }");
             }
 
-            if (propertyCollections.Count > 0)
-            {
-                stringBuilder.AppendLine().AppendLine();
-            }
+            if (propertyCollections.Count > 0) stringBuilder.AppendLine().AppendLine();
 
             stringBuilder
                 .AppendLine("        private void GeneratePropertyArray()")
                 .AppendLine("        {");
 
             firstProperty = true;
-            foreach (PropertyCollection propertyCollection in propertyCollections)
+            foreach (var propertyCollection in propertyCollections)
             {
                 if (firstProperty)
-                {
                     firstProperty = false;
-                }
                 else
-                {
                     stringBuilder.AppendLine().AppendLine();
-                }
 
                 stringBuilder
                     .AppendFormat("            m_{0} = new KeyValuePair<int, {1}>[]", propertyCollection.Name,
                         propertyCollection.LanguageKeyword).AppendLine()
                     .AppendLine("            {");
 
-                int itemCount = propertyCollection.ItemCount;
-                for (int i = 0; i < itemCount; i++)
+                var itemCount = propertyCollection.ItemCount;
+                for (var i = 0; i < itemCount; i++)
                 {
-                    KeyValuePair<int, string> item = propertyCollection.GetItem(i);
+                    var item = propertyCollection.GetItem(i);
                     stringBuilder.AppendFormat("                new KeyValuePair<int, {0}>({1}, {2}),",
                         propertyCollection.LanguageKeyword, item.Key.ToString(), item.Value).AppendLine();
                 }
@@ -475,39 +423,26 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
         private sealed class PropertyCollection
         {
-            private readonly string m_Name;
-            private readonly string m_LanguageKeyword;
             private readonly List<KeyValuePair<int, string>> m_Items;
 
             public PropertyCollection(string name, string languageKeyword)
             {
-                m_Name = name;
-                m_LanguageKeyword = languageKeyword;
+                Name = name;
+                LanguageKeyword = languageKeyword;
                 m_Items = new List<KeyValuePair<int, string>>();
             }
 
-            public string Name
-            {
-                get { return m_Name; }
-            }
+            public string Name { get; }
 
-            public string LanguageKeyword
-            {
-                get { return m_LanguageKeyword; }
-            }
+            public string LanguageKeyword { get; }
 
-            public int ItemCount
-            {
-                get { return m_Items.Count; }
-            }
+            public int ItemCount => m_Items.Count;
 
             public KeyValuePair<int, string> GetItem(int index)
             {
                 if (index < 0 || index >= m_Items.Count)
-                {
                     throw new GameFrameworkException(
                         GameFramework.Utility.Text.Format("GetItem with invalid index '{0}'.", index));
-                }
 
                 return m_Items[index];
             }

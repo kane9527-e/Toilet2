@@ -13,11 +13,23 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(ConfigComponent))]
     internal sealed class ConfigComponentInspector : GameFrameworkInspector
     {
-        private SerializedProperty m_EnableLoadConfigUpdateEvent = null;
-        private SerializedProperty m_EnableLoadConfigDependencyAssetEvent = null;
-        private SerializedProperty m_CachedBytesSize = null;
+        private SerializedProperty m_CachedBytesSize;
 
-        private HelperInfo<ConfigHelperBase> m_ConfigHelperInfo = new HelperInfo<ConfigHelperBase>("Config");
+        private readonly HelperInfo<ConfigHelperBase> m_ConfigHelperInfo = new HelperInfo<ConfigHelperBase>("Config");
+        private SerializedProperty m_EnableLoadConfigDependencyAssetEvent;
+        private SerializedProperty m_EnableLoadConfigUpdateEvent;
+
+        private void OnEnable()
+        {
+            m_EnableLoadConfigUpdateEvent = serializedObject.FindProperty("m_EnableLoadConfigUpdateEvent");
+            m_EnableLoadConfigDependencyAssetEvent =
+                serializedObject.FindProperty("m_EnableLoadConfigDependencyAssetEvent");
+            m_CachedBytesSize = serializedObject.FindProperty("m_CachedBytesSize");
+
+            m_ConfigHelperInfo.Init(serializedObject);
+
+            RefreshTypeNames();
+        }
 
         public override void OnInspectorGUI()
         {
@@ -25,7 +37,7 @@ namespace UnityGameFramework.Editor
 
             serializedObject.Update();
 
-            ConfigComponent t = (ConfigComponent)target;
+            var t = (ConfigComponent)target;
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
@@ -50,17 +62,6 @@ namespace UnityGameFramework.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-
-            RefreshTypeNames();
-        }
-
-        private void OnEnable()
-        {
-            m_EnableLoadConfigUpdateEvent = serializedObject.FindProperty("m_EnableLoadConfigUpdateEvent");
-            m_EnableLoadConfigDependencyAssetEvent = serializedObject.FindProperty("m_EnableLoadConfigDependencyAssetEvent");
-            m_CachedBytesSize = serializedObject.FindProperty("m_CachedBytesSize");
-
-            m_ConfigHelperInfo.Init(serializedObject);
 
             RefreshTypeNames();
         }

@@ -6,10 +6,11 @@ namespace BetterSearchWindow
 {
     public class BetterAdvancedDropdown<TPayload> : AdvancedDropdown
     {
-        private AdvancedDropdownItem<TPayload> root;
-        private Action<TPayload> onItemSelectedCallback;
-        
-        public BetterAdvancedDropdown(AdvancedDropdownState state, AdvancedDropdownItem<TPayload> root, Action<TPayload> onItemSelectedCallback) : base(state)
+        private readonly Action<TPayload> onItemSelectedCallback;
+        private readonly AdvancedDropdownItem<TPayload> root;
+
+        public BetterAdvancedDropdown(AdvancedDropdownState state, AdvancedDropdownItem<TPayload> root,
+            Action<TPayload> onItemSelectedCallback) : base(state)
         {
             this.root = root;
             this.onItemSelectedCallback = onItemSelectedCallback;
@@ -26,16 +27,20 @@ namespace BetterSearchWindow
             onItemSelectedCallback?.Invoke(payloadItem.payload);
         }
 
-        public static void Show(Rect buttonRect, AdvancedDropdownItem<TPayload> root, Action<TPayload> onItemSelectedCallback)
+        public static void Show(Rect buttonRect, AdvancedDropdownItem<TPayload> root,
+            Action<TPayload> onItemSelectedCallback)
         {
             new BetterAdvancedDropdown<TPayload>(new AdvancedDropdownState(), root, onItemSelectedCallback)
                 .Show(buttonRect);
         }
     }
-    
+
     public class AdvancedDropdownItem<TPayload> : AdvancedDropdownItem
     {
         public TPayload payload;
-        public AdvancedDropdownItem(string name) : base(name) { }
+
+        public AdvancedDropdownItem(string name) : base(name)
+        {
+        }
     }
 }

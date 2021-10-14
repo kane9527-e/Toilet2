@@ -13,25 +13,13 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
     {
         private sealed class UInt64Processor : GenericDataProcessor<ulong>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsSystem => true;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "ulong";
-                }
-            }
+            public override string LanguageKeyword => "ulong";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "ulong",
                     "uint64",
@@ -44,7 +32,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 return ulong.Parse(value);
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
                 binaryWriter.Write7BitEncodedUInt64(Parse(value));
             }

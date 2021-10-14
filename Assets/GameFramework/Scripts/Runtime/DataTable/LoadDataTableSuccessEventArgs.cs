@@ -11,17 +11,17 @@ using GameFramework.Event;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 加载数据表成功事件。
+    ///     加载数据表成功事件。
     /// </summary>
     public sealed class LoadDataTableSuccessEventArgs : GameEventArgs
     {
         /// <summary>
-        /// 加载数据表成功事件编号。
+        ///     加载数据表成功事件编号。
         /// </summary>
         public static readonly int EventId = typeof(LoadDataTableSuccessEventArgs).GetHashCode();
 
         /// <summary>
-        /// 初始化加载数据表成功事件的新实例。
+        ///     初始化加载数据表成功事件的新实例。
         /// </summary>
         public LoadDataTableSuccessEventArgs()
         {
@@ -31,51 +31,33 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取加载数据表成功事件编号。
+        ///     获取加载数据表成功事件编号。
         /// </summary>
-        public override int Id
-        {
-            get
-            {
-                return EventId;
-            }
-        }
+        public override int Id => EventId;
 
         /// <summary>
-        /// 获取数据表资源名称。
+        ///     获取数据表资源名称。
         /// </summary>
-        public string DataTableAssetName
-        {
-            get;
-            private set;
-        }
+        public string DataTableAssetName { get; private set; }
 
         /// <summary>
-        /// 获取加载持续时间。
+        ///     获取加载持续时间。
         /// </summary>
-        public float Duration
-        {
-            get;
-            private set;
-        }
+        public float Duration { get; private set; }
 
         /// <summary>
-        /// 获取用户自定义数据。
+        ///     获取用户自定义数据。
         /// </summary>
-        public object UserData
-        {
-            get;
-            private set;
-        }
+        public object UserData { get; private set; }
 
         /// <summary>
-        /// 创建加载数据表成功事件。
+        ///     创建加载数据表成功事件。
         /// </summary>
         /// <param name="e">内部事件。</param>
         /// <returns>创建的加载数据表成功事件。</returns>
         public static LoadDataTableSuccessEventArgs Create(ReadDataSuccessEventArgs e)
         {
-            LoadDataTableSuccessEventArgs loadDataTableSuccessEventArgs = ReferencePool.Acquire<LoadDataTableSuccessEventArgs>();
+            var loadDataTableSuccessEventArgs = ReferencePool.Acquire<LoadDataTableSuccessEventArgs>();
             loadDataTableSuccessEventArgs.DataTableAssetName = e.DataAssetName;
             loadDataTableSuccessEventArgs.Duration = e.Duration;
             loadDataTableSuccessEventArgs.UserData = e.UserData;
@@ -83,7 +65,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清理加载数据表成功事件。
+        ///     清理加载数据表成功事件。
         /// </summary>
         public override void Clear()
         {

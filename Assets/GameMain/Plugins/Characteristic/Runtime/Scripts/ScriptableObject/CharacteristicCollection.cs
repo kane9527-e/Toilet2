@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Characteristic.Runtime.Scripts.ScriptableObject
 {
@@ -60,7 +59,7 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
-        /// 设置数据
+        ///     设置数据
         /// </summary>
         /// <param name="unit"></param>
         /// <param name="value"></param>

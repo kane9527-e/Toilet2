@@ -5,26 +5,22 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework;
 using UnityEditor;
 
 namespace UnityGameFramework.Editor.ResourceTools
 {
     public sealed class ResourceSyncToolsController
     {
-        public ResourceSyncToolsController()
-        {
-        }
+        public event GameFrameworkAction<int, int> OnLoadingResource;
 
-        public event GameFrameworkAction<int, int> OnLoadingResource = null;
+        public event GameFrameworkAction<int, int> OnLoadingAsset;
 
-        public event GameFrameworkAction<int, int> OnLoadingAsset = null;
+        public event GameFrameworkAction OnCompleted;
 
-        public event GameFrameworkAction OnCompleted = null;
-
-        public event GameFrameworkAction<int, int, string> OnResourceDataChanged = null;
+        public event GameFrameworkAction<int, int, string> OnResourceDataChanged;
 
         public string[] GetAllAssetBundleNames()
         {
@@ -33,7 +29,7 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public string[] GetUsedAssetBundleNames()
         {
-            HashSet<string> hashSet = new HashSet<string>(GetAllAssetBundleNames());
+            var hashSet = new HashSet<string>(GetAllAssetBundleNames());
             hashSet.ExceptWith(GetUnusedAssetBundleNames());
             return hashSet.ToArray();
         }
@@ -65,28 +61,22 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public bool RemoveAllAssetBundleNames()
         {
-            HashSet<string> allAssetNames = new HashSet<string>();
-            string[] assetBundleNames = GetUsedAssetBundleNames();
-            foreach (string assetBundleName in assetBundleNames)
+            var allAssetNames = new HashSet<string>();
+            var assetBundleNames = GetUsedAssetBundleNames();
+            foreach (var assetBundleName in assetBundleNames)
             {
-                string[] assetNames = GetAssetPathsFromAssetBundle(assetBundleName);
-                foreach (string assetName in assetNames)
-                {
-                    allAssetNames.Add(assetName);
-                }
+                var assetNames = GetAssetPathsFromAssetBundle(assetBundleName);
+                foreach (var assetName in assetNames) allAssetNames.Add(assetName);
             }
 
-            int assetIndex = 0;
-            int assetCount = allAssetNames.Count;
-            foreach (string assetName in allAssetNames)
+            var assetIndex = 0;
+            var assetCount = allAssetNames.Count;
+            foreach (var assetName in allAssetNames)
             {
-                AssetImporter assetImporter = AssetImporter.GetAtPath(assetName);
+                var assetImporter = AssetImporter.GetAtPath(assetName);
                 if (assetImporter == null)
                 {
-                    if (OnCompleted != null)
-                    {
-                        OnCompleted();
-                    }
+                    if (OnCompleted != null) OnCompleted();
 
                     return false;
                 }
@@ -95,75 +85,51 @@ namespace UnityGameFramework.Editor.ResourceTools
                 assetImporter.assetBundleName = null;
                 assetImporter.SaveAndReimport();
 
-                if (OnResourceDataChanged != null)
-                {
-                    OnResourceDataChanged(++assetIndex, assetCount, assetName);
-                }
+                if (OnResourceDataChanged != null) OnResourceDataChanged(++assetIndex, assetCount, assetName);
             }
 
             RemoveUnusedAssetBundleNames();
 
-            if (OnCompleted != null)
-            {
-                OnCompleted();
-            }
+            if (OnCompleted != null) OnCompleted();
 
             return true;
         }
 
         public bool SyncToProject()
         {
-            ResourceCollection resourceCollection = new ResourceCollection();
+            var resourceCollection = new ResourceCollection();
 
-            resourceCollection.OnLoadingResource += delegate (int index, int count)
+            resourceCollection.OnLoadingResource += delegate(int index, int count)
             {
-                if (OnLoadingResource != null)
-                {
-                    OnLoadingResource(index, count);
-                }
+                if (OnLoadingResource != null) OnLoadingResource(index, count);
             };
 
-            resourceCollection.OnLoadingAsset += delegate (int index, int count)
+            resourceCollection.OnLoadingAsset += delegate(int index, int count)
             {
-                if (OnLoadingAsset != null)
-                {
-                    OnLoadingAsset(index, count);
-                }
+                if (OnLoadingAsset != null) OnLoadingAsset(index, count);
             };
 
-            resourceCollection.OnLoadCompleted += delegate ()
+            resourceCollection.OnLoadCompleted += delegate
             {
-                if (OnCompleted != null)
-                {
-                    OnCompleted();
-                }
+                if (OnCompleted != null) OnCompleted();
             };
 
-            if (!resourceCollection.Load())
-            {
-                return false;
-            }
+            if (!resourceCollection.Load()) return false;
 
-            int assetIndex = 0;
-            int assetCount = resourceCollection.AssetCount;
-            Resource[] resources = resourceCollection.GetResources();
-            foreach (Resource resource in resources)
+            var assetIndex = 0;
+            var assetCount = resourceCollection.AssetCount;
+            var resources = resourceCollection.GetResources();
+            foreach (var resource in resources)
             {
-                if (resource.IsLoadFromBinary)
-                {
-                    continue;
-                }
+                if (resource.IsLoadFromBinary) continue;
 
-                Asset[] assets = resource.GetAssets();
-                foreach (Asset asset in assets)
+                var assets = resource.GetAssets();
+                foreach (var asset in assets)
                 {
-                    AssetImporter assetImporter = AssetImporter.GetAtPath(asset.Name);
+                    var assetImporter = AssetImporter.GetAtPath(asset.Name);
                     if (assetImporter == null)
                     {
-                        if (OnCompleted != null)
-                        {
-                            OnCompleted();
-                        }
+                        if (OnCompleted != null) OnCompleted();
 
                         return false;
                     }
@@ -172,54 +138,39 @@ namespace UnityGameFramework.Editor.ResourceTools
                     assetImporter.assetBundleVariant = resource.Variant;
                     assetImporter.SaveAndReimport();
 
-                    if (OnResourceDataChanged != null)
-                    {
-                        OnResourceDataChanged(++assetIndex, assetCount, asset.Name);
-                    }
+                    if (OnResourceDataChanged != null) OnResourceDataChanged(++assetIndex, assetCount, asset.Name);
                 }
             }
 
-            if (OnCompleted != null)
-            {
-                OnCompleted();
-            }
+            if (OnCompleted != null) OnCompleted();
 
             return true;
         }
 
         public bool SyncFromProject()
         {
-            ResourceCollection resourceCollection = new ResourceCollection();
-            string[] assetBundleNames = GetUsedAssetBundleNames();
-            foreach (string assetBundleName in assetBundleNames)
+            var resourceCollection = new ResourceCollection();
+            var assetBundleNames = GetUsedAssetBundleNames();
+            foreach (var assetBundleName in assetBundleNames)
             {
-                string name = assetBundleName;
+                var name = assetBundleName;
                 string variant = null;
-                int dotPosition = assetBundleName.LastIndexOf('.');
+                var dotPosition = assetBundleName.LastIndexOf('.');
                 if (dotPosition > 0 && dotPosition < assetBundleName.Length - 1)
                 {
                     name = assetBundleName.Substring(0, dotPosition);
                     variant = assetBundleName.Substring(dotPosition + 1);
                 }
 
-                if (!resourceCollection.AddResource(name, variant, null, LoadType.LoadFromFile, false))
-                {
-                    return false;
-                }
+                if (!resourceCollection.AddResource(name, variant, null, LoadType.LoadFromFile, false)) return false;
 
-                string[] assetNames = GetAssetPathsFromAssetBundle(assetBundleName);
-                foreach (string assetName in assetNames)
+                var assetNames = GetAssetPathsFromAssetBundle(assetBundleName);
+                foreach (var assetName in assetNames)
                 {
-                    string guid = AssetDatabase.AssetPathToGUID(assetName);
-                    if (string.IsNullOrEmpty(guid))
-                    {
-                        return false;
-                    }
+                    var guid = AssetDatabase.AssetPathToGUID(assetName);
+                    if (string.IsNullOrEmpty(guid)) return false;
 
-                    if (!resourceCollection.AssignAsset(guid, name, variant))
-                    {
-                        return false;
-                    }
+                    if (!resourceCollection.AssignAsset(guid, name, variant)) return false;
                 }
             }
 

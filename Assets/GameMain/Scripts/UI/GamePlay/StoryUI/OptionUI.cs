@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Narrative.Runtime.Scripts.Nodes.OptionNode;
-using UnityEngine;
 using UnityEngine.UI;
 
 public class OptionUI : Button
@@ -27,9 +24,6 @@ public class OptionUI : Button
     {
         optionNode = node;
         var textUI = (Text)targetGraphic;
-        if (textUI && optionNode is StoryOptionNode)
-        {
-            textUI.text = ((StoryOptionNode)optionNode).OptionText;
-        }
+        if (textUI && optionNode is StoryOptionNode) textUI.text = ((StoryOptionNode)optionNode).OptionText;
     }
 }

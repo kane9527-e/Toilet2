@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using Inventory.Runtime.Scripts.Manager;
 using Inventory.Runtime.Scripts.ScriptableObject;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 
 // ReSharper disable once CheckNamespace
 namespace Inventory.Scripts.ScriptableObject
@@ -21,6 +16,31 @@ namespace Inventory.Scripts.ScriptableObject
         [SerializeField] private int maxAmount = -1; //最大数量
         [SerializeField] public UnityEvent onUseEvent;
         [SerializeField] private UnityEngine.ScriptableObject userDataObject;
+
+        #region PublicMethod
+
+        /// <summary>
+        ///     使用物品
+        /// </summary>
+        public virtual void Use()
+        {
+            // ReSharper disable once Unity.NoNullPropagation
+            //ItemUsableManager.Instance?.OpenItemUsableConfigs(this);
+            onUseEvent?.Invoke();
+        }
+
+
+        // public List<ItemUsableConfig.UsableOption> GetAllUsableOptions()
+        // {
+        //     List<ItemUsableConfig.UsableOption> usableOptions = new List<ItemUsableConfig.UsableOption>();
+        //     
+        //     foreach (var config in usableConfigs)
+        //         usableOptions.AddRange(config.UsableOptions);
+        //     return usableOptions;
+        // }
+
+        #endregion
+
         // ReSharper disable once InconsistentNaming
         //[SerializeField] private List<ItemUsableConfig> usableConfigs = new List<ItemUsableConfig>();
 
@@ -48,29 +68,5 @@ namespace Inventory.Scripts.ScriptableObject
             set => itemInfo = value;
         }
 #endif
-
-        #region PublicMethod
-
-        /// <summary>
-        /// 使用物品
-        /// </summary>
-        public virtual void Use()
-        {
-            // ReSharper disable once Unity.NoNullPropagation
-            //ItemUsableManager.Instance?.OpenItemUsableConfigs(this);
-            onUseEvent?.Invoke();
-        }
-
-
-        // public List<ItemUsableConfig.UsableOption> GetAllUsableOptions()
-        // {
-        //     List<ItemUsableConfig.UsableOption> usableOptions = new List<ItemUsableConfig.UsableOption>();
-        //     
-        //     foreach (var config in usableConfigs)
-        //         usableOptions.AddRange(config.UsableOptions);
-        //     return usableOptions;
-        // }
-
-        #endregion
     }
 }

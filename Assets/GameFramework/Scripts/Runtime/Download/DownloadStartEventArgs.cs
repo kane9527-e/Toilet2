@@ -11,17 +11,17 @@ using GameFramework.Event;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 下载开始事件。
+    ///     下载开始事件。
     /// </summary>
     public sealed class DownloadStartEventArgs : GameEventArgs
     {
         /// <summary>
-        /// 下载开始事件编号。
+        ///     下载开始事件编号。
         /// </summary>
         public static readonly int EventId = typeof(DownloadStartEventArgs).GetHashCode();
 
         /// <summary>
-        /// 初始化下载开始事件的新实例。
+        ///     初始化下载开始事件的新实例。
         /// </summary>
         public DownloadStartEventArgs()
         {
@@ -33,69 +33,43 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取下载开始事件编号。
+        ///     获取下载开始事件编号。
         /// </summary>
-        public override int Id
-        {
-            get
-            {
-                return EventId;
-            }
-        }
+        public override int Id => EventId;
 
         /// <summary>
-        /// 获取下载任务的序列编号。
+        ///     获取下载任务的序列编号。
         /// </summary>
-        public int SerialId
-        {
-            get;
-            private set;
-        }
+        public int SerialId { get; private set; }
 
         /// <summary>
-        /// 获取下载后存放路径。
+        ///     获取下载后存放路径。
         /// </summary>
-        public string DownloadPath
-        {
-            get;
-            private set;
-        }
+        public string DownloadPath { get; private set; }
 
         /// <summary>
-        /// 获取下载地址。
+        ///     获取下载地址。
         /// </summary>
-        public string DownloadUri
-        {
-            get;
-            private set;
-        }
+        public string DownloadUri { get; private set; }
 
         /// <summary>
-        /// 获取当前大小。
+        ///     获取当前大小。
         /// </summary>
-        public long CurrentLength
-        {
-            get;
-            private set;
-        }
+        public long CurrentLength { get; private set; }
 
         /// <summary>
-        /// 获取用户自定义数据。
+        ///     获取用户自定义数据。
         /// </summary>
-        public object UserData
-        {
-            get;
-            private set;
-        }
+        public object UserData { get; private set; }
 
         /// <summary>
-        /// 创建下载开始事件。
+        ///     创建下载开始事件。
         /// </summary>
         /// <param name="e">内部事件。</param>
         /// <returns>创建的下载开始事件。</returns>
         public static DownloadStartEventArgs Create(GameFramework.Download.DownloadStartEventArgs e)
         {
-            DownloadStartEventArgs downloadStartEventArgs = ReferencePool.Acquire<DownloadStartEventArgs>();
+            var downloadStartEventArgs = ReferencePool.Acquire<DownloadStartEventArgs>();
             downloadStartEventArgs.SerialId = e.SerialId;
             downloadStartEventArgs.DownloadPath = e.DownloadPath;
             downloadStartEventArgs.DownloadUri = e.DownloadUri;
@@ -105,7 +79,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清理下载开始事件。
+        ///     清理下载开始事件。
         /// </summary>
         public override void Clear()
         {

@@ -1,9 +1,10 @@
+#if UNITY_EDITOR
+
 using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [Serializable]
-
 public class NarativeStickyNote
 {
     public Rect position;
@@ -12,3 +13,4 @@ public class NarativeStickyNote
     public string contents;
     public StickyNoteFontSize fontSize;
 }
+#endif

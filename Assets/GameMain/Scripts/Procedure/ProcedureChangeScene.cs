@@ -5,7 +5,6 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.DataTable;
 using GameFramework.Event;
 using GameMain.Scripts.DataTable;
 using GameMain.Scripts.Definition.Constant;
@@ -20,10 +19,11 @@ namespace GameMain.Scripts.Procedure
 {
     public class ProcedureChangeScene : ProcedureBase
     {
-        public override bool UseNativeDialog { get; }
-        private bool m_ChangeToMenu = false;
+        private bool m_ChangeToMenu;
 
-        private bool m_IsChangeSceneComplete = false;
+        private bool m_IsChangeSceneComplete;
+
+        public override bool UseNativeDialog { get; }
         //private int m_BackgroundMusicId = 0;
 
 
@@ -47,21 +47,19 @@ namespace GameMain.Scripts.Procedure
             GameEntry.Entity.HideAllLoadedEntities();
 
             // 卸载所有场景
-            string[] loadedSceneAssetNames = GameEntry.Scene.GetLoadedSceneAssetNames();
-            for (int i = 0; i < loadedSceneAssetNames.Length; i++)
-            {
+            var loadedSceneAssetNames = GameEntry.Scene.GetLoadedSceneAssetNames();
+            for (var i = 0; i < loadedSceneAssetNames.Length; i++)
                 GameEntry.Scene.UnloadScene(loadedSceneAssetNames[i]);
-            }
 
             // 还原游戏速度
             GameEntry.Base.ResetNormalGameSpeed();
 
             int sceneId = procedureOwner.GetData<VarInt32>("NextSceneId");
-            m_ChangeToMenu = sceneId == (int) SceneId.MenuScene;
+            m_ChangeToMenu = sceneId == (int)SceneId.MenuScene;
 
 
-            IDataTable<DRScene> dtScene = GameEntry.DataTable.GetDataTable<DRScene>();
-            DRScene drScene = dtScene.GetDataRow(sceneId);
+            var dtScene = GameEntry.DataTable.GetDataTable<DRScene>();
+            var drScene = dtScene.GetDataRow(sceneId);
             if (drScene == null)
             {
                 Log.Warning("Can not load scene '{0}' from data table.", sceneId.ToString());
@@ -87,28 +85,18 @@ namespace GameMain.Scripts.Procedure
         {
             base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
 
-            if (!m_IsChangeSceneComplete)
-            {
-                return;
-            }
+            if (!m_IsChangeSceneComplete) return;
 
             if (m_ChangeToMenu)
-            {
                 ChangeState<ProcedureMenuLogic>(procedureOwner);
-            }
             else
-            {
                 ChangeState<ProcedureGameLogic>(procedureOwner);
-            }
         }
 
         private void OnLoadSceneSuccess(object sender, GameEventArgs e)
         {
-            LoadSceneSuccessEventArgs ne = (LoadSceneSuccessEventArgs) e;
-            if (ne.UserData != this)
-            {
-                return;
-            }
+            var ne = (LoadSceneSuccessEventArgs)e;
+            if (ne.UserData != this) return;
 
             Log.Info("Load scene '{0}' OK.", ne.SceneAssetName);
 
@@ -117,33 +105,24 @@ namespace GameMain.Scripts.Procedure
 
         private void OnLoadSceneFailure(object sender, GameEventArgs e)
         {
-            LoadSceneFailureEventArgs ne = (LoadSceneFailureEventArgs) e;
-            if (ne.UserData != this)
-            {
-                return;
-            }
+            var ne = (LoadSceneFailureEventArgs)e;
+            if (ne.UserData != this) return;
 
             Log.Error("Load scene '{0}' failure, error message '{1}'.", ne.SceneAssetName, ne.ErrorMessage);
         }
 
         private void OnLoadSceneUpdate(object sender, GameEventArgs e)
         {
-            LoadSceneUpdateEventArgs ne = (LoadSceneUpdateEventArgs) e;
-            if (ne.UserData != this)
-            {
-                return;
-            }
+            var ne = (LoadSceneUpdateEventArgs)e;
+            if (ne.UserData != this) return;
 
             Log.Info("Load scene '{0}' update, progress '{1}'.", ne.SceneAssetName, ne.Progress.ToString("P2"));
         }
 
         private void OnLoadSceneDependencyAsset(object sender, GameEventArgs e)
         {
-            LoadSceneDependencyAssetEventArgs ne = (LoadSceneDependencyAssetEventArgs) e;
-            if (ne.UserData != this)
-            {
-                return;
-            }
+            var ne = (LoadSceneDependencyAssetEventArgs)e;
+            if (ne.UserData != this) return;
 
             Log.Info("Load scene '{0}' dependency asset '{1}', count '{2}/{3}'.", ne.SceneAssetName,
                 ne.DependencyAssetName, ne.LoadedCount.ToString(), ne.TotalCount.ToString());

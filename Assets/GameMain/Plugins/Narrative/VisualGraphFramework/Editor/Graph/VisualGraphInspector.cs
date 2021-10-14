@@ -3,6 +3,7 @@
 // date: 2020
 // Copyright (c) Bus Stop Studios.
 ///-------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -11,43 +12,41 @@ using VisualGraphRuntime;
 
 namespace VisualGraphEditor
 {
-	[CustomEditor(typeof(VisualGraph), true)]
-	public class VisualGraphInspector : Editor
-	{
-		[OnOpenAssetAttribute(1)]
-		public static bool OpenVisualGraph(int instanceID, int line)
-		{
-			VisualGraph graph = EditorUtility.InstanceIDToObject(instanceID) as VisualGraph;
-			if (graph != null)
-			{
-				VisualGraphEditor.CreateGraphViewWindow(graph, true);
-				return true;
-			}
-			return false;
-		}
+    [CustomEditor(typeof(VisualGraph), true)]
+    public class VisualGraphInspector : Editor
+    {
+        [OnOpenAssetAttribute(1)]
+        public static bool OpenVisualGraph(int instanceID, int line)
+        {
+            var graph = EditorUtility.InstanceIDToObject(instanceID) as VisualGraph;
+            if (graph != null)
+            {
+                VisualGraphEditor.CreateGraphViewWindow(graph, true);
+                return true;
+            }
 
-		public override void OnInspectorGUI()
-		{
-			EditorGUI.EndDisabledGroup();
-			DrawDefaultInspector();
-			EditorGUI.EndDisabledGroup();
+            return false;
+        }
 
-			if (GUILayout.Button("Reset"))
-			{
-				VisualGraph graph = (VisualGraph)target;
+        public override void OnInspectorGUI()
+        {
+            EditorGUI.EndDisabledGroup();
+            DrawDefaultInspector();
+            EditorGUI.EndDisabledGroup();
 
-				graph.StartingNode = null;
-				foreach (var node in graph.Nodes)
-				{
-					DestroyImmediate(node, true);
-				}
-				graph.Nodes = new List<VisualGraphNode>();
+            if (GUILayout.Button("Reset"))
+            {
+                var graph = (VisualGraph)target;
 
-				//graph.Groups.Clear();
-				graph.BlackboardProperties.Clear();
-				
-				AssetDatabase.SaveAssets();
-			}
-		}
-	}
+                graph.StartingNode = null;
+                foreach (var node in graph.Nodes) DestroyImmediate(node, true);
+                graph.Nodes = new List<VisualGraphNode>();
+
+                //graph.Groups.Clear();
+                graph.BlackboardProperties.Clear();
+
+                AssetDatabase.SaveAssets();
+            }
+        }
+    }
 }

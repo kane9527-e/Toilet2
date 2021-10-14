@@ -15,13 +15,21 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(FileSystemComponent))]
     internal sealed class FileSystemComponentInspector : GameFrameworkInspector
     {
-        private HelperInfo<FileSystemHelperBase> m_FileSystemHelperInfo = new HelperInfo<FileSystemHelperBase>("FileSystem");
+        private readonly HelperInfo<FileSystemHelperBase> m_FileSystemHelperInfo =
+            new HelperInfo<FileSystemHelperBase>("FileSystem");
+
+        private void OnEnable()
+        {
+            m_FileSystemHelperInfo.Init(serializedObject);
+
+            RefreshTypeNames();
+        }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            FileSystemComponent t = (FileSystemComponent)target;
+            var t = (FileSystemComponent)target;
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
@@ -33,11 +41,8 @@ namespace UnityGameFramework.Editor
             {
                 EditorGUILayout.LabelField("File System Count", t.Count.ToString());
 
-                IFileSystem[] fileSystems = t.GetAllFileSystems();
-                foreach (IFileSystem fileSystem in fileSystems)
-                {
-                    DrawFileSystem(fileSystem);
-                }
+                var fileSystems = t.GetAllFileSystems();
+                foreach (var fileSystem in fileSystems) DrawFileSystem(fileSystem);
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -52,13 +57,6 @@ namespace UnityGameFramework.Editor
             RefreshTypeNames();
         }
 
-        private void OnEnable()
-        {
-            m_FileSystemHelperInfo.Init(serializedObject);
-
-            RefreshTypeNames();
-        }
-
         private void RefreshTypeNames()
         {
             m_FileSystemHelperInfo.Refresh();
@@ -67,7 +65,9 @@ namespace UnityGameFramework.Editor
 
         private void DrawFileSystem(IFileSystem fileSystem)
         {
-            EditorGUILayout.LabelField(fileSystem.FullPath, Utility.Text.Format("{0}, {1} / {2} Files", fileSystem.Access.ToString(), fileSystem.FileCount.ToString(), fileSystem.MaxFileCount.ToString()));
+            EditorGUILayout.LabelField(fileSystem.FullPath,
+                Utility.Text.Format("{0}, {1} / {2} Files", fileSystem.Access.ToString(),
+                    fileSystem.FileCount.ToString(), fileSystem.MaxFileCount.ToString()));
         }
     }
 }

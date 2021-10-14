@@ -5,42 +5,34 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
-using GameFramework.Setting;
 using System;
 using System.Collections.Generic;
+using GameFramework;
+using GameFramework.Setting;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 游戏配置组件。
+    ///     游戏配置组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Setting")]
     public sealed class SettingComponent : GameFrameworkComponent
     {
-        private ISettingManager m_SettingManager = null;
+        [SerializeField] private string m_SettingHelperTypeName = "UnityGameFramework.Runtime.DefaultSettingHelper";
 
-        [SerializeField]
-        private string m_SettingHelperTypeName = "UnityGameFramework.Runtime.DefaultSettingHelper";
+        [SerializeField] private SettingHelperBase m_CustomSettingHelper;
 
-        [SerializeField]
-        private SettingHelperBase m_CustomSettingHelper = null;
+        private ISettingManager m_SettingManager;
 
         /// <summary>
-        /// 获取游戏配置项数量。
+        ///     获取游戏配置项数量。
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return m_SettingManager.Count;
-            }
-        }
+        public int Count => m_SettingManager.Count;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -53,7 +45,7 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            SettingHelperBase settingHelper = Helper.CreateHelper(m_SettingHelperTypeName, m_CustomSettingHelper);
+            var settingHelper = Helper.CreateHelper(m_SettingHelperTypeName, m_CustomSettingHelper);
             if (settingHelper == null)
             {
                 Log.Error("Can not create setting helper.");
@@ -61,7 +53,7 @@ namespace UnityGameFramework.Runtime
             }
 
             settingHelper.name = "Setting Helper";
-            Transform transform = settingHelper.transform;
+            var transform = settingHelper.transform;
             transform.SetParent(this.transform);
             transform.localScale = Vector3.one;
 
@@ -70,14 +62,11 @@ namespace UnityGameFramework.Runtime
 
         private void Start()
         {
-            if (!m_SettingManager.Load())
-            {
-                Log.Error("Load settings failure.");
-            }
+            if (!m_SettingManager.Load()) Log.Error("Load settings failure.");
         }
 
         /// <summary>
-        /// 保存游戏配置。
+        ///     保存游戏配置。
         /// </summary>
         public void Save()
         {
@@ -85,7 +74,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有游戏配置项的名称。
+        ///     获取所有游戏配置项的名称。
         /// </summary>
         /// <returns>所有游戏配置项的名称。</returns>
         public string[] GetAllSettingNames()
@@ -94,7 +83,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有游戏配置项的名称。
+        ///     获取所有游戏配置项的名称。
         /// </summary>
         /// <param name="results">所有游戏配置项的名称。</param>
         public void GetAllSettingNames(List<string> results)
@@ -103,7 +92,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在指定游戏配置项。
+        ///     检查是否存在指定游戏配置项。
         /// </summary>
         /// <param name="settingName">要检查游戏配置项的名称。</param>
         /// <returns>指定的游戏配置项是否存在。</returns>
@@ -113,7 +102,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 移除指定游戏配置项。
+        ///     移除指定游戏配置项。
         /// </summary>
         /// <param name="settingName">要移除游戏配置项的名称。</param>
         public void RemoveSetting(string settingName)
@@ -122,7 +111,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清空所有游戏配置项。
+        ///     清空所有游戏配置项。
         /// </summary>
         public void RemoveAllSettings()
         {
@@ -130,7 +119,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取布尔值。
+        ///     从指定游戏配置项中读取布尔值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <returns>读取的布尔值。</returns>
@@ -140,7 +129,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取布尔值。
+        ///     从指定游戏配置项中读取布尔值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <param name="defaultValue">当指定的游戏配置项不存在时，返回此默认值。</param>
@@ -151,7 +140,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向指定游戏配置项写入布尔值。
+        ///     向指定游戏配置项写入布尔值。
         /// </summary>
         /// <param name="settingName">要写入游戏配置项的名称。</param>
         /// <param name="value">要写入的布尔值。</param>
@@ -161,7 +150,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取整数值。
+        ///     从指定游戏配置项中读取整数值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <returns>读取的整数值。</returns>
@@ -171,7 +160,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取整数值。
+        ///     从指定游戏配置项中读取整数值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <param name="defaultValue">当指定的游戏配置项不存在时，返回此默认值。</param>
@@ -182,7 +171,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向指定游戏配置项写入整数值。
+        ///     向指定游戏配置项写入整数值。
         /// </summary>
         /// <param name="settingName">要写入游戏配置项的名称。</param>
         /// <param name="value">要写入的整数值。</param>
@@ -192,7 +181,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取浮点数值。
+        ///     从指定游戏配置项中读取浮点数值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <returns>读取的浮点数值。</returns>
@@ -202,7 +191,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取浮点数值。
+        ///     从指定游戏配置项中读取浮点数值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <param name="defaultValue">当指定的游戏配置项不存在时，返回此默认值。</param>
@@ -213,7 +202,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向指定游戏配置项写入浮点数值。
+        ///     向指定游戏配置项写入浮点数值。
         /// </summary>
         /// <param name="settingName">要写入游戏配置项的名称。</param>
         /// <param name="value">要写入的浮点数值。</param>
@@ -223,7 +212,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取字符串值。
+        ///     从指定游戏配置项中读取字符串值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <returns>读取的字符串值。</returns>
@@ -233,7 +222,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取字符串值。
+        ///     从指定游戏配置项中读取字符串值。
         /// </summary>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
         /// <param name="defaultValue">当指定的游戏配置项不存在时，返回此默认值。</param>
@@ -244,7 +233,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向指定游戏配置项写入字符串值。
+        ///     向指定游戏配置项写入字符串值。
         /// </summary>
         /// <param name="settingName">要写入游戏配置项的名称。</param>
         /// <param name="value">要写入的字符串值。</param>
@@ -254,7 +243,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取对象。
+        ///     从指定游戏配置项中读取对象。
         /// </summary>
         /// <typeparam name="T">要读取对象的类型。</typeparam>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
@@ -265,7 +254,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取对象。
+        ///     从指定游戏配置项中读取对象。
         /// </summary>
         /// <param name="objectType">要读取对象的类型。</param>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
@@ -276,7 +265,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取对象。
+        ///     从指定游戏配置项中读取对象。
         /// </summary>
         /// <typeparam name="T">要读取对象的类型。</typeparam>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
@@ -288,7 +277,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定游戏配置项中读取对象。
+        ///     从指定游戏配置项中读取对象。
         /// </summary>
         /// <param name="objectType">要读取对象的类型。</param>
         /// <param name="settingName">要获取游戏配置项的名称。</param>
@@ -300,7 +289,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向指定游戏配置项写入对象。
+        ///     向指定游戏配置项写入对象。
         /// </summary>
         /// <typeparam name="T">要写入对象的类型。</typeparam>
         /// <param name="settingName">要写入游戏配置项的名称。</param>
@@ -311,7 +300,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向指定游戏配置项写入对象。
+        ///     向指定游戏配置项写入对象。
         /// </summary>
         /// <param name="settingName">要写入游戏配置项的名称。</param>
         /// <param name="obj">要写入的对象。</param>

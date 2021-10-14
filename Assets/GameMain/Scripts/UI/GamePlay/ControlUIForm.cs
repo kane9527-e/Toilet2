@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
@@ -12,10 +9,7 @@ public class ControlUIForm : UIFormLogic
 
     private void Awake()
     {
-        if (!GameEntry.Base)
-        {
-            OnInit(this);
-        }
+        if (!GameEntry.Base) OnInit(this);
     }
 
     protected override void OnInit(object userData)

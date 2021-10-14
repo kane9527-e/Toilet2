@@ -5,51 +5,42 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
-using GameFramework.FileSystem;
 using System;
 using System.IO;
+using GameFramework;
+using GameFramework.FileSystem;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 安卓文件系统流。
+    ///     安卓文件系统流。
     /// </summary>
     public sealed class AndroidFileSystemStream : FileSystemStream
     {
         private static readonly string SplitFlag = "!/assets/";
         private static readonly int SplitFlagLength = SplitFlag.Length;
-        private static readonly AndroidJavaObject s_AssetManager = null;
+        private static readonly AndroidJavaObject s_AssetManager;
         private static readonly IntPtr s_InternalReadMethodId = IntPtr.Zero;
-        private static readonly jvalue[] s_InternalReadArgs = null;
+        private static readonly jvalue[] s_InternalReadArgs;
 
         private readonly AndroidJavaObject m_FileStream;
         private readonly IntPtr m_FileStreamRawObject;
 
         static AndroidFileSystemStream()
         {
-            AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            if (unityPlayer == null)
-            {
-                throw new GameFrameworkException("Unity player is invalid.");
-            }
+            var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            if (unityPlayer == null) throw new GameFrameworkException("Unity player is invalid.");
 
-            AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            if (currentActivity == null)
-            {
-                throw new GameFrameworkException("Current activity is invalid.");
-            }
+            var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            if (currentActivity == null) throw new GameFrameworkException("Current activity is invalid.");
 
-            AndroidJavaObject assetManager = currentActivity.Call<AndroidJavaObject>("getAssets");
-            if (assetManager == null)
-            {
-                throw new GameFrameworkException("Asset manager is invalid.");
-            }
+            var assetManager = currentActivity.Call<AndroidJavaObject>("getAssets");
+            if (assetManager == null) throw new GameFrameworkException("Asset manager is invalid.");
 
             s_AssetManager = assetManager;
 
-            IntPtr inputStreamClassPtr = AndroidJNI.FindClass("java/io/InputStream");
+            var inputStreamClassPtr = AndroidJNI.FindClass("java/io/InputStream");
             s_InternalReadMethodId = AndroidJNIHelper.GetMethodID(inputStreamClassPtr, "read", "([BII)I");
             s_InternalReadArgs = new jvalue[3];
 
@@ -59,72 +50,49 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 初始化安卓文件系统流的新实例。
+        ///     初始化安卓文件系统流的新实例。
         /// </summary>
         /// <param name="fullPath">要加载的文件系统的完整路径。</param>
         /// <param name="access">要加载的文件系统的访问方式。</param>
         /// <param name="createNew">是否创建新的文件系统流。</param>
         public AndroidFileSystemStream(string fullPath, FileSystemAccess access, bool createNew)
         {
-            if (string.IsNullOrEmpty(fullPath))
-            {
-                throw new GameFrameworkException("Full path is invalid.");
-            }
+            if (string.IsNullOrEmpty(fullPath)) throw new GameFrameworkException("Full path is invalid.");
 
             if (access != FileSystemAccess.Read)
-            {
-                throw new GameFrameworkException(Utility.Text.Format("'{0}' is not supported in AndroidFileSystemStream.", access.ToString()));
-            }
+                throw new GameFrameworkException(
+                    Utility.Text.Format("'{0}' is not supported in AndroidFileSystemStream.", access.ToString()));
 
-            if (createNew)
-            {
-                throw new GameFrameworkException("Create new is not supported in AndroidFileSystemStream.");
-            }
+            if (createNew) throw new GameFrameworkException("Create new is not supported in AndroidFileSystemStream.");
 
-            int position = fullPath.LastIndexOf(SplitFlag, StringComparison.Ordinal);
-            if (position < 0)
-            {
-                throw new GameFrameworkException("Can not find split flag in full path.");
-            }
+            var position = fullPath.LastIndexOf(SplitFlag, StringComparison.Ordinal);
+            if (position < 0) throw new GameFrameworkException("Can not find split flag in full path.");
 
-            string fileName = fullPath.Substring(position + SplitFlagLength);
+            var fileName = fullPath.Substring(position + SplitFlagLength);
             m_FileStream = InternalOpen(fileName);
             if (m_FileStream == null)
-            {
-                throw new GameFrameworkException(Utility.Text.Format("Open file '{0}' from Android asset manager failure.", fullPath));
-            }
+                throw new GameFrameworkException(
+                    Utility.Text.Format("Open file '{0}' from Android asset manager failure.", fullPath));
 
             m_FileStreamRawObject = m_FileStream.GetRawObject();
         }
 
         /// <summary>
-        /// 获取或设置文件系统流位置。
+        ///     获取或设置文件系统流位置。
         /// </summary>
         protected override long Position
         {
-            get
-            {
-                throw new GameFrameworkException("Get position is not supported in AndroidFileSystemStream.");
-            }
-            set
-            {
-                Seek(value, SeekOrigin.Begin);
-            }
+            get => throw new GameFrameworkException("Get position is not supported in AndroidFileSystemStream.");
+            set => Seek(value, SeekOrigin.Begin);
         }
 
         /// <summary>
-        /// 获取文件系统流长度。
+        ///     获取文件系统流长度。
         /// </summary>
-        protected override long Length
-        {
-            get
-            {
-                return InternalAvailable();
-            }
-        }
+        protected override long Length => InternalAvailable();
 
         /// <summary>
-        /// 设置文件系统流长度。
+        ///     设置文件系统流长度。
         /// </summary>
         /// <param name="length">要设置的文件系统流的长度。</param>
         protected override void SetLength(long length)
@@ -133,7 +101,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 定位文件系统流位置。
+        ///     定位文件系统流位置。
         /// </summary>
         /// <param name="offset">要定位的文件系统流位置的偏移。</param>
         /// <param name="origin">要定位的文件系统流位置的方式。</param>
@@ -145,25 +113,19 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            if (origin == SeekOrigin.Begin)
-            {
-                InternalReset();
-            }
+            if (origin == SeekOrigin.Begin) InternalReset();
 
             while (offset > 0)
             {
-                long skip = InternalSkip(offset);
-                if (skip < 0)
-                {
-                    return;
-                }
+                var skip = InternalSkip(offset);
+                if (skip < 0) return;
 
                 offset -= skip;
             }
         }
 
         /// <summary>
-        /// 从文件系统流中读取一个字节。
+        ///     从文件系统流中读取一个字节。
         /// </summary>
         /// <returns>读取的字节，若已经到达文件结尾，则返回 -1。</returns>
         protected override int ReadByte()
@@ -172,7 +134,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从文件系统流中读取二进制流。
+        ///     从文件系统流中读取二进制流。
         /// </summary>
         /// <param name="buffer">存储读取文件内容的二进制流。</param>
         /// <param name="startIndex">存储读取文件内容的二进制流的起始位置。</param>
@@ -181,13 +143,13 @@ namespace UnityGameFramework.Runtime
         protected override int Read(byte[] buffer, int startIndex, int length)
         {
             byte[] result = null;
-            int bytesRead = InternalRead(length, out result);
+            var bytesRead = InternalRead(length, out result);
             Array.Copy(result, 0, buffer, startIndex, bytesRead);
             return bytesRead;
         }
 
         /// <summary>
-        /// 向文件系统流中写入一个字节。
+        ///     向文件系统流中写入一个字节。
         /// </summary>
         /// <param name="value">要写入的字节。</param>
         protected override void WriteByte(byte value)
@@ -196,7 +158,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 向文件系统流中写入二进制流。
+        ///     向文件系统流中写入二进制流。
         /// </summary>
         /// <param name="buffer">存储写入文件内容的二进制流。</param>
         /// <param name="startIndex">存储写入文件内容的二进制流的起始位置。</param>
@@ -207,7 +169,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 将文件系统流立刻更新到存储介质中。
+        ///     将文件系统流立刻更新到存储介质中。
         /// </summary>
         protected override void Flush()
         {
@@ -215,7 +177,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 关闭文件系统流。
+        ///     关闭文件系统流。
         /// </summary>
         protected override void Close()
         {
@@ -248,22 +210,20 @@ namespace UnityGameFramework.Runtime
 #if UNITY_2019_2_OR_NEWER
 #pragma warning disable CS0618
 #endif
-            IntPtr resultPtr = AndroidJNI.NewByteArray(length);
+            var resultPtr = AndroidJNI.NewByteArray(length);
 #if UNITY_2019_2_OR_NEWER
 #pragma warning restore CS0618
 #endif
-            int offset = 0;
-            int bytesLeft = length;
+            var offset = 0;
+            var bytesLeft = length;
             while (bytesLeft > 0)
             {
-                s_InternalReadArgs[0] = new jvalue() { l = resultPtr };
-                s_InternalReadArgs[1] = new jvalue() { i = offset };
-                s_InternalReadArgs[2] = new jvalue() { i = bytesLeft };
-                int bytesRead = AndroidJNI.CallIntMethod(m_FileStreamRawObject, s_InternalReadMethodId, s_InternalReadArgs);
-                if (bytesRead <= 0)
-                {
-                    break;
-                }
+                s_InternalReadArgs[0] = new jvalue { l = resultPtr };
+                s_InternalReadArgs[1] = new jvalue { i = offset };
+                s_InternalReadArgs[2] = new jvalue { i = bytesLeft };
+                var bytesRead =
+                    AndroidJNI.CallIntMethod(m_FileStreamRawObject, s_InternalReadMethodId, s_InternalReadArgs);
+                if (bytesRead <= 0) break;
 
                 offset += bytesRead;
                 bytesLeft -= bytesRead;

@@ -12,27 +12,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 {
     public sealed partial class DataTableProcessor
     {
-        private sealed class Color32Processor : DataTableProcessor.GenericDataProcessor<Color32>
+        private sealed class Color32Processor : GenericDataProcessor<Color32>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            public override bool IsSystem => false;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "Color32";
-                }
-            }
+            public override string LanguageKeyword => "Color32";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "color32",
                     "unityengine.color32"
@@ -41,13 +29,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
             public override Color32 Parse(string value)
             {
-                string[] splitedValue = value.Split(',');
-                return new Color32(byte.Parse(splitedValue[0]), byte.Parse(splitedValue[1]), byte.Parse(splitedValue[2]), byte.Parse(splitedValue[3]));
+                var splitedValue = value.Split(',');
+                return new Color32(byte.Parse(splitedValue[0]), byte.Parse(splitedValue[1]),
+                    byte.Parse(splitedValue[2]), byte.Parse(splitedValue[3]));
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
-                Color32 color32 = Parse(value);
+                var color32 = Parse(value);
                 binaryWriter.Write(color32.r);
                 binaryWriter.Write(color32.g);
                 binaryWriter.Write(color32.b);

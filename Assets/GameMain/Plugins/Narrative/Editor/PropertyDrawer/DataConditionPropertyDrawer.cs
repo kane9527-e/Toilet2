@@ -2,7 +2,6 @@
 
 using Narrative.Runtime.Scripts.ConditionConfig;
 using Narrative.Runtime.Scripts.Nodes.TriggerNode;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -37,25 +36,25 @@ namespace Narrative.Editor.PropertyDrawer
                 {
                     width = position.width,
                     x = position.x,
-                    y = keyNameRect.y + EditorGUIUtility.singleLineHeight + 2,
+                    y = keyNameRect.y + EditorGUIUtility.singleLineHeight + 2
                 };
                 var dataValueTypeRect = new Rect(position)
                 {
                     width = position.width,
                     x = position.x,
-                    y = conditionTypeRect.y + EditorGUIUtility.singleLineHeight + 2,
+                    y = conditionTypeRect.y + EditorGUIUtility.singleLineHeight + 2
                 };
                 var relationalRect = new Rect(position)
                 {
                     width = position.width / 2,
                     x = position.x,
-                    y = dataValueTypeRect.y + EditorGUIUtility.singleLineHeight + 2,
+                    y = dataValueTypeRect.y + EditorGUIUtility.singleLineHeight + 2
                 };
                 var valueRect = new Rect(position)
                 {
                     width = position.width / 2 - 10,
                     x = relationalRect.width + 56,
-                    y = relationalRect.y,
+                    y = relationalRect.y
                 };
                 var keyNameProperty = property.FindPropertyRelative("keyName");
                 EditorGUI.PropertyField(keyNameRect, keyNameProperty);

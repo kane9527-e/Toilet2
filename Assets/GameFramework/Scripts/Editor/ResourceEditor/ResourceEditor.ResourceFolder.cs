@@ -5,8 +5,8 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System.Collections.Generic;
+using GameFramework;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,7 +16,7 @@ namespace UnityGameFramework.Editor.ResourceTools
     {
         private sealed class ResourceFolder
         {
-            private static Texture s_CachedIcon = null;
+            private static Texture s_CachedIcon;
 
             private readonly List<ResourceFolder> m_Folders;
             private readonly List<ResourceItem> m_Items;
@@ -30,42 +30,20 @@ namespace UnityGameFramework.Editor.ResourceTools
                 Folder = folder;
             }
 
-            public string Name
-            {
-                get;
-                private set;
-            }
+            public string Name { get; }
 
-            public ResourceFolder Folder
-            {
-                get;
-                private set;
-            }
+            public ResourceFolder Folder { get; }
 
-            public string FromRootPath
-            {
-                get
-                {
-                    return Folder == null ? string.Empty : (Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name));
-                }
-            }
+            public string FromRootPath => Folder == null ? string.Empty :
+                Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name);
 
-            public int Depth
-            {
-                get
-                {
-                    return Folder != null ? Folder.Depth + 1 : 0;
-                }
-            }
+            public int Depth => Folder != null ? Folder.Depth + 1 : 0;
 
             public static Texture Icon
             {
                 get
                 {
-                    if (s_CachedIcon == null)
-                    {
-                        s_CachedIcon = AssetDatabase.GetCachedIcon("Assets");
-                    }
+                    if (s_CachedIcon == null) s_CachedIcon = AssetDatabase.GetCachedIcon("Assets");
 
                     return s_CachedIcon;
                 }
@@ -84,34 +62,21 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             public ResourceFolder GetFolder(string name)
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new GameFrameworkException("Resource folder name is invalid.");
-                }
+                if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Resource folder name is invalid.");
 
-                foreach (ResourceFolder folder in m_Folders)
-                {
+                foreach (var folder in m_Folders)
                     if (folder.Name == name)
-                    {
                         return folder;
-                    }
-                }
 
                 return null;
             }
 
             public ResourceFolder AddFolder(string name)
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new GameFrameworkException("Resource folder name is invalid.");
-                }
+                if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Resource folder name is invalid.");
 
-                ResourceFolder folder = GetFolder(name);
-                if (folder != null)
-                {
-                    throw new GameFrameworkException("Resource folder is already exist.");
-                }
+                var folder = GetFolder(name);
+                if (folder != null) throw new GameFrameworkException("Resource folder is already exist.");
 
                 folder = new ResourceFolder(name, this);
                 m_Folders.Add(folder);
@@ -126,29 +91,19 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             public ResourceItem GetItem(string name)
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    throw new GameFrameworkException("Resource item name is invalid.");
-                }
+                if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Resource item name is invalid.");
 
-                foreach (ResourceItem item in m_Items)
-                {
+                foreach (var item in m_Items)
                     if (item.Name == name)
-                    {
                         return item;
-                    }
-                }
 
                 return null;
             }
 
             public void AddItem(string name, Resource resource)
             {
-                ResourceItem item = GetItem(name);
-                if (item != null)
-                {
-                    throw new GameFrameworkException("Resource item is already exist.");
-                }
+                var item = GetItem(name);
+                if (item != null) throw new GameFrameworkException("Resource item is already exist.");
 
                 item = new ResourceItem(name, resource, this);
                 m_Items.Add(item);

@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using System.Reflection;
 using Narrative.Editor.Views.Nodes.BaseNodeViews;
-using Narrative.Editor.Views.Nodes;
 using Narrative.Runtime.Scripts.Nodes.DisplayNode;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -24,7 +22,7 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
             RefreshTitle();
             _node = (StoryDisplayNode)nodeTarget;
 
-            ObjectField soundField = new ObjectField();
+            var soundField = new ObjectField();
             soundField.tooltip = "Sound";
             soundField.label = "Sound";
             soundField.objectType = typeof(AudioClip);
@@ -37,7 +35,7 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
             });
             RefreshPlaySoundButton(soundField);
 
-            ObjectField backGroundImageField = new ObjectField();
+            var backGroundImageField = new ObjectField();
             backGroundImageField.tooltip = "BackGroundImage";
             backGroundImageField.label = "BackGroundImage";
             backGroundImageField.objectType = typeof(Texture2D);
@@ -74,7 +72,7 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
 
         private void RefreshTitle()
         {
-            var node = ((StoryDisplayNode)nodeTarget);
+            var node = (StoryDisplayNode)nodeTarget;
             title = string.Format("Story:{0}", node.GetLine(0));
             if (string.IsNullOrWhiteSpace(title))
                 title = nameof(StoryDisplayNode);
@@ -83,34 +81,32 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
         private void RefreshPreviewImage(VisualElement element)
         {
             foreach (var child in element.Children().ToArray())
-            {
                 if (child.GetType() == typeof(Image))
                 {
                     element.Remove(child);
                     break;
                 }
-            }
 
             if (_node.BackgroundImage != null)
             {
-                Image previewImage = new Image();
+                var previewImage = new Image();
                 previewImage.image = _node.BackgroundImage;
                 previewImage.style.alignSelf = Align.Center;
-                var defaultWidth= default_size.x;
-                var defaultHeight= default_size.y;
+                var defaultWidth = default_size.x;
+                var defaultHeight = default_size.y;
 
                 var imageWidth = previewImage.image.width;
                 var imageHeight = previewImage.image.height;
-                
+
                 var widthScaleRatio = defaultWidth / imageWidth;
                 var heightScaleRatio = defaultHeight / imageHeight;
 
                 var ratio = widthScaleRatio < heightScaleRatio ? widthScaleRatio : heightScaleRatio;
-                
-                previewImage.style.minWidth = imageWidth*ratio;
-                previewImage.style.maxWidth = imageWidth*ratio;
-                previewImage.style.minHeight =  imageHeight*ratio;
-                previewImage.style.maxHeight =  imageHeight*ratio;
+
+                previewImage.style.minWidth = imageWidth * ratio;
+                previewImage.style.maxWidth = imageWidth * ratio;
+                previewImage.style.minHeight = imageHeight * ratio;
+                previewImage.style.maxHeight = imageHeight * ratio;
                 element.Add(previewImage);
             }
         }
@@ -118,17 +114,15 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
         private void RefreshPlaySoundButton(VisualElement element)
         {
             foreach (var child in element.Children().ToArray())
-            {
                 if (child.GetType() == typeof(Button))
                 {
                     element.Remove(child);
                     break;
                 }
-            }
 
             if (_node.Sound)
             {
-                Button playSoundButton = new Button();
+                var playSoundButton = new Button();
                 playSoundButton.clickable.clicked += PlayCurrentSound;
                 playSoundButton.text = "PlaySound";
                 element.Add(playSoundButton);
@@ -137,9 +131,9 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
 
         public static void PlayClip(AudioClip clip)
         {
-            Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
-            Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
-            MethodInfo method = audioUtilClass.GetMethod(
+            var unityEditorAssembly = typeof(AudioImporter).Assembly;
+            var audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+            var method = audioUtilClass.GetMethod(
 #if UNITY_2019
                  "PlayClip",
 #elif UNITY_2020_1_OR_NEWER
@@ -147,11 +141,11 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
 #endif
                 BindingFlags.Static | BindingFlags.Public,
                 null,
-                new System.Type[]
+                new[]
                 {
                     typeof(AudioClip),
-                    typeof(Int32),
-                    typeof(Boolean)
+                    typeof(int),
+                    typeof(bool)
                 },
                 null
             );

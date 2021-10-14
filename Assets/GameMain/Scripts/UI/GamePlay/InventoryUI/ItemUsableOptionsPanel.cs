@@ -1,11 +1,6 @@
-using System;
 using System.Collections.Generic;
-using Inventory.Runtime.Scripts.Manager;
 using Inventory.Runtime.Scripts.ScriptableObject;
-using Inventory.Scripts.ScriptableObject;
 using UnityEngine;
-using UnityGameFramework.Runtime;
-using GameEntry = GameMain.Scripts.Runtime.Base.GameEntry;
 
 namespace GameMain.Scripts.UI.GamePlay.InventoryUI
 {
@@ -13,7 +8,7 @@ namespace GameMain.Scripts.UI.GamePlay.InventoryUI
     {
         [SerializeField] private RectTransform root;
         [SerializeField] private GameObject usableOptionPrefab;
-        private List<ItemUsableOptionButton> _optionButtons = new List<ItemUsableOptionButton>();
+        private readonly List<ItemUsableOptionButton> _optionButtons = new List<ItemUsableOptionButton>();
 
         public InventoryUIForm Parent { get; private set; }
 
@@ -27,7 +22,7 @@ namespace GameMain.Scripts.UI.GamePlay.InventoryUI
         {
             if (!gameObject.activeSelf)
                 gameObject.SetActive(true);
-            List<ItemUsableConfig.UsableOption> resultOptions =
+            var resultOptions =
                 new List<ItemUsableConfig.UsableOption>(config.UsableOptions);
             resultOptions.RemoveAll(option => option.ConditionConfig.Result() == false);
             CreateOrUpdateOptions(config.UsableOptions);
@@ -35,19 +30,17 @@ namespace GameMain.Scripts.UI.GamePlay.InventoryUI
 
         private void CreateOrUpdateOptions(List<ItemUsableConfig.UsableOption> usableOptions)
         {
-            for (int i = 0; i < usableOptions.Count; i++)
+            for (var i = 0; i < usableOptions.Count; i++)
             {
                 if (_optionButtons.Count < i + 1)
                     CreateUsableOptionButton();
                 var optionButton = _optionButtons[i];
 
                 if (optionButton)
-                {
                     optionButton.UpdateOption(this, usableOptions[i]);
 
-                    // optionButton.UsableOption?.Action?.RemoveListener(ClosePanel);
-                    // optionButton.UsableOption?.Action?.AddListener(ClosePanel);
-                }
+                // optionButton.UsableOption?.Action?.RemoveListener(ClosePanel);
+                // optionButton.UsableOption?.Action?.AddListener(ClosePanel);
             }
         }
 

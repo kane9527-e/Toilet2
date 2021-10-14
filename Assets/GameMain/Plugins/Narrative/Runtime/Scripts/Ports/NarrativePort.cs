@@ -1,6 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using ConditionSetting;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using UnityEngine;
 using VisualGraphRuntime;
@@ -8,7 +7,7 @@ using VisualGraphRuntime;
 [Serializable]
 public class NarrativePort : VisualGraphPort
 {
-    public ConditionSetting.ConditionConfig conditionConfig;
+    public ConditionConfig conditionConfig;
 
     public VisualGraphPortConnection Connect(NarrativeNode node)
     {

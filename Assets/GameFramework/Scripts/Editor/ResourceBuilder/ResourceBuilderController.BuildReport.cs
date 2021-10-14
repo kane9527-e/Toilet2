@@ -5,12 +5,12 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using GameFramework;
 using UnityEditor;
 
 namespace UnityGameFramework.Editor.ResourceTools
@@ -21,34 +21,37 @@ namespace UnityGameFramework.Editor.ResourceTools
         {
             private const string BuildReportName = "BuildReport.xml";
             private const string BuildLogName = "BuildLog.txt";
-
-            private string m_BuildReportName = null;
-            private string m_BuildLogName = null;
-            private string m_ProductName = null;
-            private string m_CompanyName = null;
-            private string m_GameIdentifier = null;
-            private string m_GameFrameworkVersion = null;
-            private string m_UnityVersion = null;
-            private string m_ApplicableGameVersion = null;
-            private int m_InternalResourceVersion = 0;
-            private Platform m_Platforms = Platform.Undefined;
+            private bool m_AdditionalCompressionSelected;
+            private string m_ApplicableGameVersion;
             private AssetBundleCompressionType m_AssetBundleCompression;
-            private string m_CompressionHelperTypeName;
-            private bool m_AdditionalCompressionSelected = false;
-            private bool m_ForceRebuildAssetBundleSelected = false;
-            private string m_BuildEventHandlerTypeName;
-            private string m_OutputDirectory;
             private BuildAssetBundleOptions m_BuildAssetBundleOptions = BuildAssetBundleOptions.None;
-            private StringBuilder m_LogBuilder = null;
-            private SortedDictionary<string, ResourceData> m_ResourceDatas = null;
+            private string m_BuildEventHandlerTypeName;
+            private string m_BuildLogName;
 
-            public void Initialize(string buildReportPath, string productName, string companyName, string gameIdentifier, string gameFrameworkVersion, string unityVersion, string applicableGameVersion, int internalResourceVersion,
-                Platform platforms, AssetBundleCompressionType assetBundleCompression, string compressionHelperTypeName, bool additionalCompressionSelected, bool forceRebuildAssetBundleSelected, string buildEventHandlerTypeName, string outputDirectory, BuildAssetBundleOptions buildAssetBundleOptions, SortedDictionary<string, ResourceData> resourceDatas)
+            private string m_BuildReportName;
+            private string m_CompanyName;
+            private string m_CompressionHelperTypeName;
+            private bool m_ForceRebuildAssetBundleSelected;
+            private string m_GameFrameworkVersion;
+            private string m_GameIdentifier;
+            private int m_InternalResourceVersion;
+            private StringBuilder m_LogBuilder;
+            private string m_OutputDirectory;
+            private Platform m_Platforms = Platform.Undefined;
+            private string m_ProductName;
+            private SortedDictionary<string, ResourceData> m_ResourceDatas;
+            private string m_UnityVersion;
+
+            public void Initialize(string buildReportPath, string productName, string companyName,
+                string gameIdentifier, string gameFrameworkVersion, string unityVersion, string applicableGameVersion,
+                int internalResourceVersion,
+                Platform platforms, AssetBundleCompressionType assetBundleCompression, string compressionHelperTypeName,
+                bool additionalCompressionSelected, bool forceRebuildAssetBundleSelected,
+                string buildEventHandlerTypeName, string outputDirectory,
+                BuildAssetBundleOptions buildAssetBundleOptions, SortedDictionary<string, ResourceData> resourceDatas)
             {
                 if (string.IsNullOrEmpty(buildReportPath))
-                {
                     throw new GameFrameworkException("Build report path is invalid.");
-                }
 
                 m_BuildReportName = Utility.Path.GetRegularPath(Path.Combine(buildReportPath, BuildReportName));
                 m_BuildLogName = Utility.Path.GetRegularPath(Path.Combine(buildReportPath, BuildLogName));
@@ -96,16 +99,16 @@ namespace UnityGameFramework.Editor.ResourceTools
                 XmlElement xmlElement = null;
                 XmlAttribute xmlAttribute = null;
 
-                XmlDocument xmlDocument = new XmlDocument();
+                var xmlDocument = new XmlDocument();
                 xmlDocument.AppendChild(xmlDocument.CreateXmlDeclaration("1.0", "UTF-8", null));
 
-                XmlElement xmlRoot = xmlDocument.CreateElement("UnityGameFramework");
+                var xmlRoot = xmlDocument.CreateElement("UnityGameFramework");
                 xmlDocument.AppendChild(xmlRoot);
 
-                XmlElement xmlBuildReport = xmlDocument.CreateElement("BuildReport");
+                var xmlBuildReport = xmlDocument.CreateElement("BuildReport");
                 xmlRoot.AppendChild(xmlBuildReport);
 
-                XmlElement xmlSummary = xmlDocument.CreateElement("Summary");
+                var xmlSummary = xmlDocument.CreateElement("Summary");
                 xmlBuildReport.AppendChild(xmlSummary);
 
                 xmlElement = xmlDocument.CreateElement("ProductName");
@@ -154,14 +157,14 @@ namespace UnityGameFramework.Editor.ResourceTools
                 xmlElement.InnerText = m_BuildAssetBundleOptions.ToString();
                 xmlSummary.AppendChild(xmlElement);
 
-                XmlElement xmlResources = xmlDocument.CreateElement("Resources");
+                var xmlResources = xmlDocument.CreateElement("Resources");
                 xmlAttribute = xmlDocument.CreateAttribute("Count");
                 xmlAttribute.Value = m_ResourceDatas.Count.ToString();
                 xmlResources.Attributes.SetNamedItem(xmlAttribute);
                 xmlBuildReport.AppendChild(xmlResources);
-                foreach (ResourceData resourceData in m_ResourceDatas.Values)
+                foreach (var resourceData in m_ResourceDatas.Values)
                 {
-                    XmlElement xmlResource = xmlDocument.CreateElement("Resource");
+                    var xmlResource = xmlDocument.CreateElement("Resource");
                     xmlAttribute = xmlDocument.CreateAttribute("Name");
                     xmlAttribute.Value = resourceData.Name;
                     xmlResource.Attributes.SetNamedItem(xmlAttribute);
@@ -189,7 +192,7 @@ namespace UnityGameFramework.Editor.ResourceTools
                     xmlAttribute = xmlDocument.CreateAttribute("Packed");
                     xmlAttribute.Value = resourceData.Packed.ToString();
                     xmlResource.Attributes.SetNamedItem(xmlAttribute);
-                    string[] resourceGroups = resourceData.GetResourceGroups();
+                    var resourceGroups = resourceData.GetResourceGroups();
                     if (resourceGroups.Length > 0)
                     {
                         xmlAttribute = xmlDocument.CreateAttribute("ResourceGroups");
@@ -199,15 +202,15 @@ namespace UnityGameFramework.Editor.ResourceTools
 
                     xmlResources.AppendChild(xmlResource);
 
-                    AssetData[] assetDatas = resourceData.GetAssetDatas();
-                    XmlElement xmlAssets = xmlDocument.CreateElement("Assets");
+                    var assetDatas = resourceData.GetAssetDatas();
+                    var xmlAssets = xmlDocument.CreateElement("Assets");
                     xmlAttribute = xmlDocument.CreateAttribute("Count");
                     xmlAttribute.Value = assetDatas.Length.ToString();
                     xmlAssets.Attributes.SetNamedItem(xmlAttribute);
                     xmlResource.AppendChild(xmlAssets);
-                    foreach (AssetData assetData in assetDatas)
+                    foreach (var assetData in assetDatas)
                     {
-                        XmlElement xmlAsset = xmlDocument.CreateElement("Asset");
+                        var xmlAsset = xmlDocument.CreateElement("Asset");
                         xmlAttribute = xmlDocument.CreateAttribute("Guid");
                         xmlAttribute.Value = assetData.Guid;
                         xmlAsset.Attributes.SetNamedItem(xmlAttribute);
@@ -221,17 +224,17 @@ namespace UnityGameFramework.Editor.ResourceTools
                         xmlAttribute.Value = assetData.HashCode.ToString();
                         xmlAsset.Attributes.SetNamedItem(xmlAttribute);
                         xmlAssets.AppendChild(xmlAsset);
-                        string[] dependencyAssetNames = assetData.GetDependencyAssetNames();
+                        var dependencyAssetNames = assetData.GetDependencyAssetNames();
                         if (dependencyAssetNames.Length > 0)
                         {
-                            XmlElement xmlDependencyAssets = xmlDocument.CreateElement("DependencyAssets");
+                            var xmlDependencyAssets = xmlDocument.CreateElement("DependencyAssets");
                             xmlAttribute = xmlDocument.CreateAttribute("Count");
                             xmlAttribute.Value = dependencyAssetNames.Length.ToString();
                             xmlDependencyAssets.Attributes.SetNamedItem(xmlAttribute);
                             xmlAsset.AppendChild(xmlDependencyAssets);
-                            foreach (string dependencyAssetName in dependencyAssetNames)
+                            foreach (var dependencyAssetName in dependencyAssetNames)
                             {
-                                XmlElement xmlDependencyAsset = xmlDocument.CreateElement("DependencyAsset");
+                                var xmlDependencyAsset = xmlDocument.CreateElement("DependencyAsset");
                                 xmlAttribute = xmlDocument.CreateAttribute("Name");
                                 xmlAttribute.Value = dependencyAssetName;
                                 xmlDependencyAsset.Attributes.SetNamedItem(xmlAttribute);
@@ -240,11 +243,11 @@ namespace UnityGameFramework.Editor.ResourceTools
                         }
                     }
 
-                    XmlElement xmlCodes = xmlDocument.CreateElement("Codes");
+                    var xmlCodes = xmlDocument.CreateElement("Codes");
                     xmlResource.AppendChild(xmlCodes);
-                    foreach (ResourceCode resourceCode in resourceData.GetCodes())
+                    foreach (var resourceCode in resourceData.GetCodes())
                     {
-                        XmlElement xmlCode = xmlDocument.CreateElement(resourceCode.Platform.ToString());
+                        var xmlCode = xmlDocument.CreateElement(resourceCode.Platform.ToString());
                         xmlAttribute = xmlDocument.CreateAttribute("Length");
                         xmlAttribute.Value = resourceCode.Length.ToString();
                         xmlCode.Attributes.SetNamedItem(xmlAttribute);

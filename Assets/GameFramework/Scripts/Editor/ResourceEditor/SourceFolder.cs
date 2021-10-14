@@ -5,8 +5,8 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System.Collections.Generic;
+using GameFramework;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,10 +14,10 @@ namespace UnityGameFramework.Editor.ResourceTools
 {
     public sealed class SourceFolder
     {
-        private static Texture s_CachedIcon = null;
+        private static Texture s_CachedIcon;
+        private readonly List<SourceAsset> m_Assets;
 
         private readonly List<SourceFolder> m_Folders;
-        private readonly List<SourceAsset> m_Assets;
 
         public SourceFolder(string name, SourceFolder folder)
         {
@@ -28,42 +28,20 @@ namespace UnityGameFramework.Editor.ResourceTools
             Folder = folder;
         }
 
-        public string Name
-        {
-            get;
-            private set;
-        }
+        public string Name { get; }
 
-        public SourceFolder Folder
-        {
-            get;
-            private set;
-        }
+        public SourceFolder Folder { get; }
 
-        public string FromRootPath
-        {
-            get
-            {
-                return Folder == null ? string.Empty : (Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name));
-            }
-        }
+        public string FromRootPath => Folder == null ? string.Empty :
+            Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name);
 
-        public int Depth
-        {
-            get
-            {
-                return Folder != null ? Folder.Depth + 1 : 0;
-            }
-        }
+        public int Depth => Folder != null ? Folder.Depth + 1 : 0;
 
         public static Texture Icon
         {
             get
             {
-                if (s_CachedIcon == null)
-                {
-                    s_CachedIcon = AssetDatabase.GetCachedIcon("Assets");
-                }
+                if (s_CachedIcon == null) s_CachedIcon = AssetDatabase.GetCachedIcon("Assets");
 
                 return s_CachedIcon;
             }
@@ -82,34 +60,21 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public SourceFolder GetFolder(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new GameFrameworkException("Source folder name is invalid.");
-            }
+            if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Source folder name is invalid.");
 
-            foreach (SourceFolder folder in m_Folders)
-            {
+            foreach (var folder in m_Folders)
                 if (folder.Name == name)
-                {
                     return folder;
-                }
-            }
 
             return null;
         }
 
         public SourceFolder AddFolder(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new GameFrameworkException("Source folder name is invalid.");
-            }
+            if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Source folder name is invalid.");
 
-            SourceFolder folder = GetFolder(name);
-            if (folder != null)
-            {
-                throw new GameFrameworkException("Source folder is already exist.");
-            }
+            var folder = GetFolder(name);
+            if (folder != null) throw new GameFrameworkException("Source folder is already exist.");
 
             folder = new SourceFolder(name, this);
             m_Folders.Add(folder);
@@ -124,44 +89,26 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public SourceAsset GetAsset(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new GameFrameworkException("Source asset name is invalid.");
-            }
+            if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Source asset name is invalid.");
 
-            foreach (SourceAsset asset in m_Assets)
-            {
+            foreach (var asset in m_Assets)
                 if (asset.Name == name)
-                {
                     return asset;
-                }
-            }
 
             return null;
         }
 
         public SourceAsset AddAsset(string guid, string path, string name)
         {
-            if (string.IsNullOrEmpty(guid))
-            {
-                throw new GameFrameworkException("Source asset guid is invalid.");
-            }
+            if (string.IsNullOrEmpty(guid)) throw new GameFrameworkException("Source asset guid is invalid.");
 
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new GameFrameworkException("Source asset path is invalid.");
-            }
+            if (string.IsNullOrEmpty(path)) throw new GameFrameworkException("Source asset path is invalid.");
 
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new GameFrameworkException("Source asset name is invalid.");
-            }
+            if (string.IsNullOrEmpty(name)) throw new GameFrameworkException("Source asset name is invalid.");
 
-            SourceAsset asset = GetAsset(name);
+            var asset = GetAsset(name);
             if (asset != null)
-            {
                 throw new GameFrameworkException(Utility.Text.Format("Source asset '{0}' is already exist.", name));
-            }
 
             asset = new SourceAsset(guid, path, name, this);
             m_Assets.Add(asset);

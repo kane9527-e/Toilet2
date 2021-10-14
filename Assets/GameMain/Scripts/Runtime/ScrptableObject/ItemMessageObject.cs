@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using GameMain.Scripts.UI.GamePlay.MessageUIForm;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GameMain.Scripts.Runtime.ScrptableObject
 {

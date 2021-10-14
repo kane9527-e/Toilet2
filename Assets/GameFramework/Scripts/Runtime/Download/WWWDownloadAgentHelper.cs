@@ -6,7 +6,6 @@
 //------------------------------------------------------------
 
 #if !UNITY_2018_3_OR_NEWER
-
 using GameFramework;
 using GameFramework.Download;
 using System;
@@ -24,8 +23,10 @@ namespace UnityGameFramework.Runtime
         private int m_LastDownloadedSize = 0;
         private bool m_Disposed = false;
 
-        private EventHandler<DownloadAgentHelperUpdateBytesEventArgs> m_DownloadAgentHelperUpdateBytesEventHandler = null;
-        private EventHandler<DownloadAgentHelperUpdateLengthEventArgs> m_DownloadAgentHelperUpdateLengthEventHandler = null;
+        private EventHandler<DownloadAgentHelperUpdateBytesEventArgs> m_DownloadAgentHelperUpdateBytesEventHandler =
+ null;
+        private EventHandler<DownloadAgentHelperUpdateLengthEventArgs> m_DownloadAgentHelperUpdateLengthEventHandler =
+ null;
         private EventHandler<DownloadAgentHelperCompleteEventArgs> m_DownloadAgentHelperCompleteEventHandler = null;
         private EventHandler<DownloadAgentHelperErrorEventArgs> m_DownloadAgentHelperErrorEventHandler = null;
 
@@ -207,7 +208,8 @@ namespace UnityGameFramework.Runtime
             if (deltaLength > 0)
             {
                 m_LastDownloadedSize = m_WWW.bytesDownloaded;
-                DownloadAgentHelperUpdateLengthEventArgs downloadAgentHelperUpdateLengthEventArgs = DownloadAgentHelperUpdateLengthEventArgs.Create(deltaLength);
+                DownloadAgentHelperUpdateLengthEventArgs downloadAgentHelperUpdateLengthEventArgs =
+ DownloadAgentHelperUpdateLengthEventArgs.Create(deltaLength);
                 m_DownloadAgentHelperUpdateLengthEventHandler(this, downloadAgentHelperUpdateLengthEventArgs);
                 ReferencePool.Release(downloadAgentHelperUpdateLengthEventArgs);
             }
@@ -224,18 +226,21 @@ namespace UnityGameFramework.Runtime
 
             if (!string.IsNullOrEmpty(m_WWW.error))
             {
-                DownloadAgentHelperErrorEventArgs dodwnloadAgentHelperErrorEventArgs = DownloadAgentHelperErrorEventArgs.Create(m_WWW.error.StartsWith(RangeNotSatisfiableErrorCode.ToString(), StringComparison.Ordinal), m_WWW.error);
+                DownloadAgentHelperErrorEventArgs dodwnloadAgentHelperErrorEventArgs =
+ DownloadAgentHelperErrorEventArgs.Create(m_WWW.error.StartsWith(RangeNotSatisfiableErrorCode.ToString(), StringComparison.Ordinal), m_WWW.error);
                 m_DownloadAgentHelperErrorEventHandler(this, dodwnloadAgentHelperErrorEventArgs);
                 ReferencePool.Release(dodwnloadAgentHelperErrorEventArgs);
             }
             else
             {
                 byte[] bytes = m_WWW.bytes;
-                DownloadAgentHelperUpdateBytesEventArgs downloadAgentHelperUpdateBytesEventArgs = DownloadAgentHelperUpdateBytesEventArgs.Create(bytes, 0, bytes.Length);
+                DownloadAgentHelperUpdateBytesEventArgs downloadAgentHelperUpdateBytesEventArgs =
+ DownloadAgentHelperUpdateBytesEventArgs.Create(bytes, 0, bytes.Length);
                 m_DownloadAgentHelperUpdateBytesEventHandler(this, downloadAgentHelperUpdateBytesEventArgs);
                 ReferencePool.Release(downloadAgentHelperUpdateBytesEventArgs);
 
-                DownloadAgentHelperCompleteEventArgs downloadAgentHelperCompleteEventArgs = DownloadAgentHelperCompleteEventArgs.Create(bytes.LongLength);
+                DownloadAgentHelperCompleteEventArgs downloadAgentHelperCompleteEventArgs =
+ DownloadAgentHelperCompleteEventArgs.Create(bytes.LongLength);
                 m_DownloadAgentHelperCompleteEventHandler(this, downloadAgentHelperCompleteEventArgs);
                 ReferencePool.Release(downloadAgentHelperCompleteEventArgs);
             }

@@ -1,8 +1,6 @@
 using Narrative.Runtime.Scripts.Graph;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using VisualGraphEditor;
 
 namespace Narrative.Editor.Scripts
 {
@@ -16,7 +14,7 @@ namespace Narrative.Editor.Scripts
 #endif
         public static bool OpenVisualGraph(int instanceID, int line)
         {
-            NarrativeGraph graph = EditorUtility.InstanceIDToObject(instanceID) as NarrativeGraph;
+            var graph = EditorUtility.InstanceIDToObject(instanceID) as NarrativeGraph;
             if (graph != null)
             {
                 NarrativeGraphEditor.CreateGraphViewWindow(graph, true);

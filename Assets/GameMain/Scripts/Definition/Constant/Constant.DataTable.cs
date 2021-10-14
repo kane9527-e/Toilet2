@@ -11,14 +11,14 @@ namespace GameMain.Scripts.Definition.Constant
     {
         public static class DataTable
         {
-            public static readonly string[] DataTableNames = new string[]
+            public static readonly string[] DataTableNames =
             {
                 "Entity",
                 "Music",
                 "Scene",
                 "Sound",
                 "UIForm",
-                "UISound",
+                "UISound"
             };
         }
     }

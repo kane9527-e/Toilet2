@@ -19,7 +19,7 @@ public static class JsonSerializer
 {
     public static JsonElement Serialize(object obj)
     {
-        JsonElement elem = new JsonElement();
+        var elem = new JsonElement();
 
         elem.type = obj.GetType().AssemblyQualifiedName;
 #if UNITY_EDITOR

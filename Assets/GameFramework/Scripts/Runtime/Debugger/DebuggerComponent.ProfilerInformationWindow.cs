@@ -24,7 +24,8 @@ namespace UnityGameFramework.Runtime
                 {
                     DrawItem("Supported", Profiler.supported.ToString());
                     DrawItem("Enabled", Profiler.enabled.ToString());
-                    DrawItem("Enable Binary Log", Profiler.enableBinaryLog ? Utility.Text.Format("True, {0}", Profiler.logFile) : "False");
+                    DrawItem("Enable Binary Log",
+                        Profiler.enableBinaryLog ? Utility.Text.Format("True, {0}", Profiler.logFile) : "False");
 #if UNITY_2019_3_OR_NEWER
                     DrawItem("Enable Allocation Callstacks", Profiler.enableAllocationCallstacks.ToString());
 #endif
@@ -43,7 +44,8 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Used Heap Size", GetByteLengthString(Profiler.usedHeapSizeLong));
                     DrawItem("Total Allocated Memory", GetByteLengthString(Profiler.GetTotalAllocatedMemoryLong()));
                     DrawItem("Total Reserved Memory", GetByteLengthString(Profiler.GetTotalReservedMemoryLong()));
-                    DrawItem("Total Unused Reserved Memory", GetByteLengthString(Profiler.GetTotalUnusedReservedMemoryLong()));
+                    DrawItem("Total Unused Reserved Memory",
+                        GetByteLengthString(Profiler.GetTotalUnusedReservedMemoryLong()));
 #else
                     DrawItem("Mono Used Size", GetByteLengthString(Profiler.GetMonoUsedSize()));
                     DrawItem("Mono Heap Size", GetByteLengthString(Profiler.GetMonoHeapSize()));
@@ -53,7 +55,8 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Total Unused Reserved Memory", GetByteLengthString(Profiler.GetTotalUnusedReservedMemory()));
 #endif
 #if UNITY_2018_1_OR_NEWER
-                    DrawItem("Allocated Memory For Graphics Driver", GetByteLengthString(Profiler.GetAllocatedMemoryForGraphicsDriver()));
+                    DrawItem("Allocated Memory For Graphics Driver",
+                        GetByteLengthString(Profiler.GetAllocatedMemoryForGraphicsDriver()));
 #endif
 #if UNITY_5_5_OR_NEWER
                     DrawItem("Temp Allocator Size", GetByteLengthString(Profiler.GetTempAllocatorSize()));

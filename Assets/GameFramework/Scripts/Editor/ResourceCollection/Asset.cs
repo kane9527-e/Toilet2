@@ -11,7 +11,7 @@ using UnityEditor;
 namespace UnityGameFramework.Editor.ResourceTools
 {
     /// <summary>
-    /// 资源。
+    ///     资源。
     /// </summary>
     public sealed class Asset : IComparable<Asset>
     {
@@ -21,25 +21,11 @@ namespace UnityGameFramework.Editor.ResourceTools
             Resource = resource;
         }
 
-        public string Guid
-        {
-            get;
-            private set;
-        }
+        public string Guid { get; }
 
-        public string Name
-        {
-            get
-            {
-                return AssetDatabase.GUIDToAssetPath(Guid);
-            }
-        }
+        public string Name => AssetDatabase.GUIDToAssetPath(Guid);
 
-        public Resource Resource
-        {
-            get;
-            set;
-        }
+        public Resource Resource { get; set; }
 
         public int CompareTo(Asset asset)
         {

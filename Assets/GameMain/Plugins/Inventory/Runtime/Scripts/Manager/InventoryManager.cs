@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using Inventory.Runtime.Scripts.ScriptableObject;
 using Inventory.Scripts.ScriptableObject;
 using UnityEngine;
@@ -9,6 +8,28 @@ namespace Inventory.Runtime.Scripts.Manager
     [DisallowMultipleComponent]
     public class InventoryManager : MonoBehaviour
     {
+        #region Field
+
+        [SerializeField] private InventoryPackage currentPackage; //当前背包
+
+        #endregion
+
+        #region Property
+
+        public InventoryPackage Package => currentPackage;
+
+        #endregion
+
+        #region MonoBehaviour
+
+        private void Awake()
+        {
+            if (Instance == this)
+                DontDestroyOnLoad(gameObject);
+        }
+
+        #endregion
+
         #region Singleton
 
         private static InventoryManager _instance;
@@ -27,18 +48,6 @@ namespace Inventory.Runtime.Scripts.Manager
                 return _instance;
             }
         }
-
-        #endregion
-
-        #region Field
-
-        [SerializeField] private InventoryPackage currentPackage; //当前背包
-
-        #endregion
-
-        #region Property
-
-        public InventoryPackage Package => currentPackage;
 
         #endregion
 
@@ -61,16 +70,6 @@ namespace Inventory.Runtime.Scripts.Manager
             get => Package.onItemUse;
             set => Package.onItemUse = value;
         } //当物品使用
-
-        #endregion
-
-        #region MonoBehaviour
-
-        private void Awake()
-        {
-            if (Instance == this)
-                DontDestroyOnLoad(this.gameObject);
-        }
 
         #endregion
 

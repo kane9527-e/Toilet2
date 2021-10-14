@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using Narrative.Runtime.Scripts.Nodes.DisplayNode;
 using UI.GamePlay.StoryUI;

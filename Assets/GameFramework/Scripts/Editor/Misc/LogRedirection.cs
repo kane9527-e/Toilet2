@@ -6,7 +6,6 @@
 //------------------------------------------------------------
 
 #if !UNITY_2019_1_OR_NEWER
-
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -91,7 +90,8 @@ namespace UnityGameFramework.Editor
                 return null;
             }
 
-            FieldInfo consoleWindowFieldInfo = consoleWindowType.GetField("ms_ConsoleWindow", BindingFlags.Static | BindingFlags.NonPublic);
+            FieldInfo consoleWindowFieldInfo =
+ consoleWindowType.GetField("ms_ConsoleWindow", BindingFlags.Static | BindingFlags.NonPublic);
             if (consoleWindowFieldInfo == null)
             {
                 return null;
@@ -108,7 +108,8 @@ namespace UnityGameFramework.Editor
                 return null;
             }
 
-            FieldInfo activeTextFieldInfo = consoleWindowType.GetField("m_ActiveText", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo activeTextFieldInfo =
+ consoleWindowType.GetField("m_ActiveText", BindingFlags.Instance | BindingFlags.NonPublic);
             if (activeTextFieldInfo == null)
             {
                 return null;

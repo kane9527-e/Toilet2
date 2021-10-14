@@ -11,11 +11,10 @@ namespace UnityGameFramework.Runtime
     {
         private sealed class FpsCounter
         {
-            private float m_UpdateInterval;
-            private float m_CurrentFps;
-            private int m_Frames;
             private float m_Accumulator;
+            private int m_Frames;
             private float m_TimeLeft;
+            private float m_UpdateInterval;
 
             public FpsCounter(float updateInterval)
             {
@@ -31,10 +30,7 @@ namespace UnityGameFramework.Runtime
 
             public float UpdateInterval
             {
-                get
-                {
-                    return m_UpdateInterval;
-                }
+                get => m_UpdateInterval;
                 set
                 {
                     if (value <= 0f)
@@ -48,13 +44,7 @@ namespace UnityGameFramework.Runtime
                 }
             }
 
-            public float CurrentFps
-            {
-                get
-                {
-                    return m_CurrentFps;
-                }
-            }
+            public float CurrentFps { get; private set; }
 
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
@@ -64,7 +54,7 @@ namespace UnityGameFramework.Runtime
 
                 if (m_TimeLeft <= 0f)
                 {
-                    m_CurrentFps = m_Accumulator > 0f ? m_Frames / m_Accumulator : 0f;
+                    CurrentFps = m_Accumulator > 0f ? m_Frames / m_Accumulator : 0f;
                     m_Frames = 0;
                     m_Accumulator = 0f;
                     m_TimeLeft += m_UpdateInterval;
@@ -73,7 +63,7 @@ namespace UnityGameFramework.Runtime
 
             private void Reset()
             {
-                m_CurrentFps = 0f;
+                CurrentFps = 0f;
                 m_Frames = 0;
                 m_Accumulator = 0f;
                 m_TimeLeft = 0f;

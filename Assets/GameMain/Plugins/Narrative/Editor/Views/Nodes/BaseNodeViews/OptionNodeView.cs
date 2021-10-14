@@ -1,20 +1,25 @@
 using System.Linq;
 using Narrative.Editor.Views.Nodes.BaseNodeViews;
 using Narrative.Runtime.Scripts.EventConfig;
+using Narrative.Runtime.Scripts.Nodes.BaseNode;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 using VisualGraphEditor;
+using VisualGraphRuntime;
 
 // ReSharper disable once CheckNamespace
 namespace Narrative.Editor.Views.Nodes
 {
     [CustomNodeView(typeof(OptionNode))]
-    public class OptionNodeView :  NarrativeNodeView
+    public class OptionNodeView : NarrativeNodeView
     {
         private OptionNode _node;
+
         public override void DrawNode()
         {
-            _node = ((OptionNode)nodeTarget);
+            _node = (OptionNode)nodeTarget;
 
             if (NodeDataView == null)
             {
@@ -24,12 +29,12 @@ namespace Narrative.Editor.Views.Nodes
 
 
             mainContainer.Add(NodeDataView);
-            Toggle onceToggle = new Toggle();
+            var onceToggle = new Toggle();
             onceToggle.text = "Once";
             onceToggle.value = _node.Once;
             onceToggle.RegisterValueChangedCallback(evt => _node.Once = evt.newValue);
-            
-            ObjectField eventConfigField = new ObjectField();
+
+            var eventConfigField = new ObjectField();
             eventConfigField.style.flexDirection = FlexDirection.Column;
             eventConfigField.tooltip = "EventConfig";
             eventConfigField.objectType = typeof(EventConfig);
@@ -44,13 +49,30 @@ namespace Narrative.Editor.Views.Nodes
             NodeDataView.Add(eventConfigField);
         }
 
+        public override bool CompatiblePortCondition(Direction direction, VisualGraphNode targetPortNode)
+        {
+            if (direction == Direction.Input)
+            {
+                if (typeof(DisplayNode).IsInstanceOfType(targetPortNode))
+                {
+                    var displayNode = (DisplayNode)targetPortNode;
+                    var displayNodeView = (NarrativeNodeView)displayNode.graphElement;
+                    if (!displayNodeView.OutputsHasConnect)
+                        return true; //If the target display node, the output is not connected to the node
+                    return
+                        displayNodeView.OutputsHasType(nodeTarget
+                            .GetType()); //check target display node outputs has OptionType？
+                }
+            }
+
+            return true;
+        }
+
         private void RefreshEventInspectorGUI(VisualElement view, EventConfig config)
         {
             foreach (var child in view.Children().ToArray())
-            {
                 if (child is IMGUIContainer)
                     view.Remove(child);
-            }
 
             if (config)
             {

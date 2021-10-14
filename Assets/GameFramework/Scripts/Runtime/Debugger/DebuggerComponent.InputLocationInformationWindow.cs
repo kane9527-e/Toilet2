@@ -20,14 +20,8 @@ namespace UnityGameFramework.Runtime
                 {
                     GUILayout.BeginHorizontal();
                     {
-                        if (GUILayout.Button("Enable", GUILayout.Height(30f)))
-                        {
-                            Input.location.Start();
-                        }
-                        if (GUILayout.Button("Disable", GUILayout.Height(30f)))
-                        {
-                            Input.location.Stop();
-                        }
+                        if (GUILayout.Button("Enable", GUILayout.Height(30f))) Input.location.Start();
+                        if (GUILayout.Button("Disable", GUILayout.Height(30f))) Input.location.Stop();
                     }
                     GUILayout.EndHorizontal();
 

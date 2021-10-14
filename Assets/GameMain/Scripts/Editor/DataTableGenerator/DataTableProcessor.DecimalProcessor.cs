@@ -11,27 +11,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 {
     public sealed partial class DataTableProcessor
     {
-        private sealed class DecimalProcessor : DataTableProcessor.GenericDataProcessor<decimal>
+        private sealed class DecimalProcessor : GenericDataProcessor<decimal>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsSystem => true;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "decimal";
-                }
-            }
+            public override string LanguageKeyword => "decimal";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "decimal",
                     "system.decimal"
@@ -43,7 +31,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 return decimal.Parse(value);
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
                 binaryWriter.Write(Parse(value));
             }

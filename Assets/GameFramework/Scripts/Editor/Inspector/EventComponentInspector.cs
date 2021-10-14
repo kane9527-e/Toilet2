@@ -13,6 +13,10 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(EventComponent))]
     internal sealed class EventComponentInspector : GameFrameworkInspector
     {
+        private void OnEnable()
+        {
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -23,7 +27,7 @@ namespace UnityGameFramework.Editor
                 return;
             }
 
-            EventComponent t = (EventComponent)target;
+            var t = (EventComponent)target;
 
             if (IsPrefabInHierarchy(t.gameObject))
             {
@@ -32,10 +36,6 @@ namespace UnityGameFramework.Editor
             }
 
             Repaint();
-        }
-
-        private void OnEnable()
-        {
         }
     }
 }

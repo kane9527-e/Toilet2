@@ -13,25 +13,13 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
     {
         private sealed class Int64Processor : GenericDataProcessor<long>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsSystem => true;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "long";
-                }
-            }
+            public override string LanguageKeyword => "long";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "long",
                     "int64",
@@ -44,7 +32,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 return long.Parse(value);
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
                 binaryWriter.Write7BitEncodedInt64(Parse(value));
             }

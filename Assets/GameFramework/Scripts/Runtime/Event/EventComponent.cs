@@ -5,46 +5,34 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using System;
 using GameFramework;
 using GameFramework.Event;
-using System;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 事件组件。
+    ///     事件组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Event")]
     public sealed class EventComponent : GameFrameworkComponent
     {
-        private IEventManager m_EventManager = null;
+        private IEventManager m_EventManager;
 
         /// <summary>
-        /// 获取事件处理函数的数量。
+        ///     获取事件处理函数的数量。
         /// </summary>
-        public int EventHandlerCount
-        {
-            get
-            {
-                return m_EventManager.EventHandlerCount;
-            }
-        }
+        public int EventHandlerCount => m_EventManager.EventHandlerCount;
 
         /// <summary>
-        /// 获取事件数量。
+        ///     获取事件数量。
         /// </summary>
-        public int EventCount
-        {
-            get
-            {
-                return m_EventManager.EventCount;
-            }
-        }
+        public int EventCount => m_EventManager.EventCount;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -54,7 +42,6 @@ namespace UnityGameFramework.Runtime
             if (m_EventManager == null)
             {
                 Log.Fatal("Event manager is invalid.");
-                return;
             }
         }
 
@@ -63,7 +50,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取事件处理函数的数量。
+        ///     获取事件处理函数的数量。
         /// </summary>
         /// <param name="id">事件类型编号。</param>
         /// <returns>事件处理函数的数量。</returns>
@@ -73,7 +60,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在事件处理函数。
+        ///     检查是否存在事件处理函数。
         /// </summary>
         /// <param name="id">事件类型编号。</param>
         /// <param name="handler">要检查的事件处理函数。</param>
@@ -84,7 +71,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 订阅事件处理回调函数。
+        ///     订阅事件处理回调函数。
         /// </summary>
         /// <param name="id">事件类型编号。</param>
         /// <param name="handler">要订阅的事件处理回调函数。</param>
@@ -94,7 +81,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 取消订阅事件处理回调函数。
+        ///     取消订阅事件处理回调函数。
         /// </summary>
         /// <param name="id">事件类型编号。</param>
         /// <param name="handler">要取消订阅的事件处理回调函数。</param>
@@ -104,7 +91,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 设置默认事件处理函数。
+        ///     设置默认事件处理函数。
         /// </summary>
         /// <param name="handler">要设置的默认事件处理函数。</param>
         public void SetDefaultHandler(EventHandler<GameEventArgs> handler)
@@ -113,7 +100,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 抛出事件，这个操作是线程安全的，即使不在主线程中抛出，也可保证在主线程中回调事件处理函数，但事件会在抛出后的下一帧分发。
+        ///     抛出事件，这个操作是线程安全的，即使不在主线程中抛出，也可保证在主线程中回调事件处理函数，但事件会在抛出后的下一帧分发。
         /// </summary>
         /// <param name="sender">事件发送者。</param>
         /// <param name="e">事件内容。</param>
@@ -123,7 +110,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 抛出事件立即模式，这个操作不是线程安全的，事件会立刻分发。
+        ///     抛出事件立即模式，这个操作不是线程安全的，事件会立刻分发。
         /// </summary>
         /// <param name="sender">事件发送者。</param>
         /// <param name="e">事件内容。</param>

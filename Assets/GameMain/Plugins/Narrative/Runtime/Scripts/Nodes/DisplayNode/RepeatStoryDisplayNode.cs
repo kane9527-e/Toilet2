@@ -1,15 +1,12 @@
 // ReSharper disable once CheckNamespace
 
-using Narrative.Runtime.Scripts.Graph;
 using Narrative.Runtime.Scripts.MonoBehaviour;
 using TextVariable;
-using UnityEngine.Rendering;
+using UnityEngine;
+using VisualGraphRuntime;
 
 namespace Narrative.Runtime.Scripts.Nodes.DisplayNode
 {
-    using VisualGraphRuntime;
-    using UnityEngine;
-
     [NodeName("DisplayNode/RepeatStory Node")]
     public class RepeatStoryDisplayNode : StoryDisplayNode
     {

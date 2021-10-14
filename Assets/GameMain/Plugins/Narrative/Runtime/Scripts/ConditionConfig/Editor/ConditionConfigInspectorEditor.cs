@@ -14,7 +14,8 @@ namespace ConditionSetting.Editor
             base.OnInspectorGUI();
             if (GUILayout.Button("Test Result"))
             {
-                var resultMsg = new GUIContent(string.Format("Condition Result:{0}", ((ConditionConfig)target).Result()));
+                var resultMsg =
+                    new GUIContent(string.Format("Condition Result:{0}", ((ConditionConfig)target).Result()));
                 EditorWindow.mouseOverWindow.ShowNotification(resultMsg);
             }
         }

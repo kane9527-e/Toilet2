@@ -1,5 +1,5 @@
-using Narrative.Runtime.Scripts.Nodes.DisplayNode;
 using Narrative.Editor.Views.Nodes.BaseNodeViews;
+using Narrative.Runtime.Scripts.Nodes.DisplayNode;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 using UnityEngine.Video;
@@ -11,14 +11,14 @@ namespace Narrative.Editor.Views.Nodes.DisplayNodeViews
     [CustomNodeView(typeof(VideoDisplayNode))]
     public class VideoDisplayNodeView : DisplayNodeView
     {
-        public override bool ShowNodeProperties => false;
         private VideoDisplayNode _node;
+        public override bool ShowNodeProperties => false;
 
         public override void DrawNode()
         {
             DrawNodeDataView();
             _node = (VideoDisplayNode)nodeTarget;
-            ObjectField videoField = new ObjectField();
+            var videoField = new ObjectField();
             videoField.tooltip = "VideoClip";
             videoField.label = "VideoClip";
             videoField.objectType = typeof(VideoClip);

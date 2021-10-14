@@ -5,124 +5,129 @@
  *	Dedication : I dedicate this code to Gabriel, who makes kickass extensions. Now go out and use awesome icons!
  */
 
+using System;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
 namespace EditorInternalInspector
 {
-	using UnityEngine;
-	using UnityEditor;
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Reflection;
-	using System.Threading;
+    internal struct BuiltinIcon : IEquatable<BuiltinIcon>, IComparable<BuiltinIcon>
+    {
+        public GUIContent icon;
+        public GUIContent name;
 
-	struct BuiltinIcon : System.IEquatable<BuiltinIcon>, System.IComparable<BuiltinIcon>
-	{
-		public GUIContent icon;
-		public GUIContent name;
+        public override bool Equals(object o)
+        {
+            return o is BuiltinIcon && Equals((BuiltinIcon)o);
+        }
 
-		public override bool Equals(object o) {
-			return o is BuiltinIcon && this.Equals((BuiltinIcon)o);
-		}
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
 
-		public override int GetHashCode() {
-			return name.GetHashCode();
-		}
+        public bool Equals(BuiltinIcon o)
+        {
+            return name.text == o.name.text;
+        }
 
-		public bool Equals(BuiltinIcon o) {
-			return this.name.text == o.name.text;
-		}
+        public int CompareTo(BuiltinIcon o)
+        {
+            return name.text.CompareTo(o.name.text);
+        }
+    }
 
-		public int CompareTo(BuiltinIcon o) {
-			return this.name.text.CompareTo(o.name.text);
-		}
-	}
+    public class UnityInternalIcons : EditorWindow
+    {
+        private readonly List<BuiltinIcon> _icons = new List<BuiltinIcon>();
+        private GUIContent _refresh_button;
+        private Vector2 _scroll_pos;
 
-	public class UnityInternalIcons : EditorWindow
-	{
-		List<BuiltinIcon> _icons = new List<BuiltinIcon>();
-		Vector2 _scroll_pos;
-		GUIContent _refresh_button;
+        private void OnEnable()
+        {
+            _refresh_button = new GUIContent(EditorGUIUtility.IconContent("d_preAudioLoopOff").image,
+                "Refresh : Icons are only loaded in memory when the appropriate window is opened.");
 
-		[MenuItem("Window/编辑器扩展/Unity内置图标检查器")]
-		public static void ShowWindow()
-		{
-			UnityInternalIcons w = EditorWindow.GetWindow<UnityInternalIcons>();
-			UnityInternalIconHelperUII.SetWindowTitle(w, "Unity内置图标检查器");
-		}
+            FindIcons();
+        }
 
-		void OnEnable()
-		{
-			_refresh_button = new GUIContent(EditorGUIUtility.IconContent("d_preAudioLoopOff").image,
-				"Refresh : Icons are only loaded in memory when the appropriate window is opened.");
+        private void OnGUI()
+        {
+            _scroll_pos = EditorGUILayout.BeginScrollView(_scroll_pos);
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            if (GUILayout.Button(_refresh_button, EditorStyles.toolbarButton)) FindIcons();
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.LabelField("总共找到 " + _icons.Count + " 个图标");
+            EditorGUILayout.EndHorizontal();
 
-			FindIcons();
-		}
+            EditorGUILayout.LabelField("双击复制图标名称", UnityInternalIconHelperUII.GetMiniGreyLabelStyle());
 
-		/* Find all textures and filter them to narrow the search. */
-		void FindIcons()
-		{
-			_icons.Clear();
+            EditorGUILayout.Space();
 
-			Texture2D[] t = Resources.FindObjectsOfTypeAll<Texture2D>();
-			foreach(Texture2D x in t) {
-				if (x.name.Length == 0)
-					continue;
+            EditorGUIUtility.labelWidth = 100;
+            for (var i = 0; i < _icons.Count; ++i)
+            {
+                EditorGUILayout.LabelField(_icons[i].icon, _icons[i].name);
 
-				if (x.hideFlags != HideFlags.HideAndDontSave && x.hideFlags != (HideFlags.HideInInspector | HideFlags.HideAndDontSave))
-					continue;
+                if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition) &&
+                    Event.current.type == EventType.MouseDown && Event.current.clickCount > 1)
+                {
+                    EditorGUIUtility.systemCopyBuffer = _icons[i].name.text;
+                    Debug.Log(_icons[i].name.text + " 已拷贝到剪贴板.");
+                }
+            }
 
-				if (!EditorUtility.IsPersistent(x))
-					continue;
+            EditorGUILayout.EndScrollView();
+        }
 
-				/* This is the *only* way I have found to confirm the icons are indeed unity builtin. Unfortunately
-				 * it uses LogError instead of LogWarning or throwing an Exception I can catch. So make it shut up. */
-				UnityInternalIconHelperUII.DisableLogging();
-				GUIContent gc = EditorGUIUtility.IconContent(x.name);
-				UnityInternalIconHelperUII.EnableLogging();
+        [MenuItem("Window/编辑器扩展/Unity内置图标检查器")]
+        public static void ShowWindow()
+        {
+            var w = GetWindow<UnityInternalIcons>();
+            UnityInternalIconHelperUII.SetWindowTitle(w, "Unity内置图标检查器");
+        }
 
-				if (gc == null)
-					continue;
-				if (gc.image == null)
-					continue;
+        /* Find all textures and filter them to narrow the search. */
+        private void FindIcons()
+        {
+            _icons.Clear();
 
-				_icons.Add(new BuiltinIcon() {
-					icon = gc,
-					name = new GUIContent(x.name)
-				});
-			}
+            var t = Resources.FindObjectsOfTypeAll<Texture2D>();
+            foreach (var x in t)
+            {
+                if (x.name.Length == 0)
+                    continue;
 
-			_icons.Sort();
-			Resources.UnloadUnusedAssets();
-			System.GC.Collect();
-			Repaint();
-		}
-			
-		void OnGUI()
-		{
-			_scroll_pos = EditorGUILayout.BeginScrollView(_scroll_pos);
-			EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-			if (GUILayout.Button(_refresh_button, EditorStyles.toolbarButton)) {
-				FindIcons();
-			}
-			GUILayout.FlexibleSpace();
-			EditorGUILayout.LabelField("总共找到 " + _icons.Count + " 个图标");
-			EditorGUILayout.EndHorizontal();
+                if (x.hideFlags != HideFlags.HideAndDontSave &&
+                    x.hideFlags != (HideFlags.HideInInspector | HideFlags.HideAndDontSave))
+                    continue;
 
-			EditorGUILayout.LabelField("双击复制图标名称", UnityInternalIconHelperUII.GetMiniGreyLabelStyle());
+                if (!EditorUtility.IsPersistent(x))
+                    continue;
 
-			EditorGUILayout.Space();
+                /* This is the *only* way I have found to confirm the icons are indeed unity builtin. Unfortunately
+                 * it uses LogError instead of LogWarning or throwing an Exception I can catch. So make it shut up. */
+                UnityInternalIconHelperUII.DisableLogging();
+                var gc = EditorGUIUtility.IconContent(x.name);
+                UnityInternalIconHelperUII.EnableLogging();
 
-			EditorGUIUtility.labelWidth = 100;
-			for (int i = 0; i < _icons.Count; ++i) {
-				EditorGUILayout.LabelField(_icons[i].icon, _icons[i].name);
+                if (gc == null)
+                    continue;
+                if (gc.image == null)
+                    continue;
 
-				if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown && Event.current.clickCount > 1) {
-					EditorGUIUtility.systemCopyBuffer = _icons[i].name.text;
-					Debug.Log(_icons[i].name.text + " 已拷贝到剪贴板.");
-				}
-			}
+                _icons.Add(new BuiltinIcon
+                {
+                    icon = gc,
+                    name = new GUIContent(x.name)
+                });
+            }
 
-			EditorGUILayout.EndScrollView();
-		}
-	}
+            _icons.Sort();
+            Resources.UnloadUnusedAssets();
+            GC.Collect();
+            Repaint();
+        }
+    }
 }

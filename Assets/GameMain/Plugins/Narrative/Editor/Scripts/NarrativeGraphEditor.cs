@@ -1,23 +1,52 @@
-using UnityEditor;
-using UnityEngine;
-using System;
-using System.Reflection;
 using Narrative.Runtime.Scripts.Graph;
+using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
-using VisualGraphRuntime;
-using Object = UnityEngine.Object;
 
 public class NarrativeGraphEditor : EditorWindow
 {
-    private Component visualGraphComponent;
+    private NarrativeGraphEditor editorWindow;
     private NarrativeGraphView graphView;
     private NarrativeGraph narrativeGraph;
-    private UnityEngine.Object objectSelection; // Used for enter/exit playmode
-    private NarrativeGraphEditor editorWindow;
+    private Object objectSelection; // Used for enter/exit playmode
+    private Component visualGraphComponent;
 
     /// <summary>
-    /// Create a Visual Graph Window to support a VisualGraph object
+    ///     TODO: When this works we can highlight the node that is active great for
+    ///     runtime cases and viewing things like FSM
+    /// </summary>
+    private void Update()
+    {
+        if (Application.isPlaying)
+            if (graphView != null)
+                graphView.Update();
+    }
+
+    /// <summary>
+    ///     Create visual elements using Unity GraphView (Experiemental)
+    /// </summary>
+    private void OnEnable()
+    {
+        EditorApplication.playModeStateChanged += LogPlayModeState;
+        OnRecover();
+    }
+
+    private void OnDisable()
+    {
+        EditorApplication.playModeStateChanged -= LogPlayModeState;
+    }
+
+    /// <summary>
+    ///     When the GUI changes update the view (this positions the blackboard and minimap)
+    /// </summary>
+    private void OnGUI()
+    {
+        if (graphView != null) graphView.OnGUI();
+    }
+
+    /// <summary>
+    ///     Create a Visual Graph Window to support a VisualGraph object
     /// </summary>
     /// <param name="narrativeGraph"></param>
     /// <param name="forceSet"></param>
@@ -30,20 +59,6 @@ public class NarrativeGraphEditor : EditorWindow
         window.SetVisualGraph(narrativeGraph, forceSet);
         window.editorWindow = window;
         return window;
-    }
-
-    /// <summary>
-    /// Create visual elements using Unity GraphView (Experiemental)
-    /// </summary>
-    private void OnEnable()
-    {
-        EditorApplication.playModeStateChanged += LogPlayModeState;
-        OnRecover();
-    }
-
-    private void OnDisable()
-    {
-        EditorApplication.playModeStateChanged -= LogPlayModeState;
     }
 
     private void OnRecover()
@@ -89,7 +104,7 @@ public class NarrativeGraphEditor : EditorWindow
     }
 
     /// <summary>
-    /// Change the Visual Graph
+    ///     Change the Visual Graph
     /// </summary>
     /// <param name="_visualGraph"></param>
     private void SetVisualGraph(NarrativeGraph _visualGraph, bool forceSet = false)
@@ -110,17 +125,17 @@ public class NarrativeGraphEditor : EditorWindow
     }
 
     /// <summary>
-    /// Window toolbar
+    ///     Window toolbar
     /// </summary>
     private void GenerateToolbar()
     {
         var toolbar = new Toolbar();
 
-        ToolbarToggle minimap_toggle = new ToolbarToggle();
+        var minimap_toggle = new ToolbarToggle();
         minimap_toggle.text = "Show MiniMap";
         minimap_toggle.SetValueWithoutNotify(true);
         minimap_toggle.RegisterCallback<ChangeEvent<bool>>(
-            (evt) => { graphView.Minimap.visible = evt.newValue; }
+            evt => { graphView.Minimap.visible = evt.newValue; }
         );
         toolbar.Add(minimap_toggle);
 
@@ -136,39 +151,13 @@ public class NarrativeGraphEditor : EditorWindow
     }
 
     /// <summary>
-    /// When the GUI changes update the view (this positions the blackboard and minimap)
-    /// </summary>
-    private void OnGUI()
-    {
-        if (graphView != null)
-        {
-            graphView.OnGUI();
-        }
-    }
-
-    /// <summary>
-    /// TODO: When this works we can highlight the node that is active great for
-    ///		  runtime cases and viewing things like FSM
-    /// </summary>
-    private void Update()
-    {
-        if (Application.isPlaying)
-        {
-            if (graphView != null)
-            {
-                graphView.Update();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Handle selection change. This will check the active object to see if it is a
-    /// VisualGraph Scriptable object. If it is not then it will see if the selected
-    /// object is a GameObject. If the selection is a GameObject then we iterate over
-    /// all MonoBehaviour (scripts) to see if one is a has a VisualGraphMonoBehaviour<>.
-    /// If we find a Component that is a VisualGraphMonoBehaviour<> then we first check
-    /// if there is an InternalGraph (which is used during runtime) otherwise we will
-    /// use the Graph itself (needs to change when runtime is invoked in the editor)
+    ///     Handle selection change. This will check the active object to see if it is a
+    ///     VisualGraph Scriptable object. If it is not then it will see if the selected
+    ///     object is a GameObject. If the selection is a GameObject then we iterate over
+    ///     all MonoBehaviour (scripts) to see if one is a has a VisualGraphMonoBehaviour<>.
+    ///     If we find a Component that is a VisualGraphMonoBehaviour<> then we first check
+    ///     if there is an InternalGraph (which is used during runtime) otherwise we will
+    ///     use the Graph itself (needs to change when runtime is invoked in the editor)
     /// </summary>
     // void OnSelectionChange()
     // {
@@ -237,7 +226,7 @@ public class NarrativeGraphEditor : EditorWindow
 
         // Add Toolbar to Window
         GenerateToolbar();
-        graphView.CreateMinimap(this.position.width);
+        graphView.CreateMinimap(position.width);
         //graphView.CreateBlackboard();
     }
 }

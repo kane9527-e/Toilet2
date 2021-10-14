@@ -5,47 +5,49 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
-using GameFramework.Config;
 using System;
 using System.IO;
 using System.Text;
+using GameFramework;
+using GameFramework.Config;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认全局配置辅助器。
+    ///     默认全局配置辅助器。
     /// </summary>
     public class DefaultConfigHelper : ConfigHelperBase
     {
-        private static readonly string[] ColumnSplitSeparator = new string[] { "\t" };
-        private static readonly string BytesAssetExtension = ".bytes";
         private const int ColumnCount = 4;
+        private static readonly string[] ColumnSplitSeparator = { "\t" };
+        private static readonly string BytesAssetExtension = ".bytes";
 
-        private ResourceComponent m_ResourceComponent = null;
+        private ResourceComponent m_ResourceComponent;
+
+        private void Start()
+        {
+            m_ResourceComponent = GameEntry.GetComponent<ResourceComponent>();
+            if (m_ResourceComponent == null) Log.Fatal("Resource component is invalid.");
+        }
 
         /// <summary>
-        /// 读取全局配置。
+        ///     读取全局配置。
         /// </summary>
         /// <param name="configManager">全局配置管理器。</param>
         /// <param name="configAssetName">全局配置资源名称。</param>
         /// <param name="configAsset">全局配置资源。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否读取全局配置成功。</returns>
-        public override bool ReadData(IConfigManager configManager, string configAssetName, object configAsset, object userData)
+        public override bool ReadData(IConfigManager configManager, string configAssetName, object configAsset,
+            object userData)
         {
-            TextAsset configTextAsset = configAsset as TextAsset;
+            var configTextAsset = configAsset as TextAsset;
             if (configTextAsset != null)
             {
                 if (configAssetName.EndsWith(BytesAssetExtension, StringComparison.Ordinal))
-                {
                     return configManager.ParseData(configTextAsset.bytes, userData);
-                }
-                else
-                {
-                    return configManager.ParseData(configTextAsset.text, userData);
-                }
+                return configManager.ParseData(configTextAsset.text, userData);
             }
 
             Log.Warning("Config asset '{0}' is invalid.", configAssetName);
@@ -53,7 +55,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取全局配置。
+        ///     读取全局配置。
         /// </summary>
         /// <param name="configManager">全局配置管理器。</param>
         /// <param name="configAssetName">全局配置资源名称。</param>
@@ -62,20 +64,16 @@ namespace UnityGameFramework.Runtime
         /// <param name="length">全局配置二进制流的长度。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否读取全局配置成功。</returns>
-        public override bool ReadData(IConfigManager configManager, string configAssetName, byte[] configBytes, int startIndex, int length, object userData)
+        public override bool ReadData(IConfigManager configManager, string configAssetName, byte[] configBytes,
+            int startIndex, int length, object userData)
         {
             if (configAssetName.EndsWith(BytesAssetExtension, StringComparison.Ordinal))
-            {
                 return configManager.ParseData(configBytes, startIndex, length, userData);
-            }
-            else
-            {
-                return configManager.ParseData(Utility.Converter.GetString(configBytes, startIndex, length), userData);
-            }
+            return configManager.ParseData(Utility.Converter.GetString(configBytes, startIndex, length), userData);
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configManager">全局配置管理器。</param>
         /// <param name="configString">要解析的全局配置字符串。</param>
@@ -85,27 +83,26 @@ namespace UnityGameFramework.Runtime
         {
             try
             {
-                int position = 0;
+                var position = 0;
                 string configLineString = null;
                 while ((configLineString = configString.ReadLine(ref position)) != null)
                 {
-                    if (configLineString[0] == '#')
-                    {
-                        continue;
-                    }
+                    if (configLineString[0] == '#') continue;
 
-                    string[] splitedLine = configLineString.Split(ColumnSplitSeparator, StringSplitOptions.None);
+                    var splitedLine = configLineString.Split(ColumnSplitSeparator, StringSplitOptions.None);
                     if (splitedLine.Length != ColumnCount)
                     {
-                        Log.Warning("Can not parse config line string '{0}' which column count is invalid.", configLineString);
+                        Log.Warning("Can not parse config line string '{0}' which column count is invalid.",
+                            configLineString);
                         return false;
                     }
 
-                    string configName = splitedLine[1];
-                    string configValue = splitedLine[3];
+                    var configName = splitedLine[1];
+                    var configValue = splitedLine[3];
                     if (!configManager.AddConfig(configName, configValue))
                     {
-                        Log.Warning("Can not add config with config name '{0}' which may be invalid or duplicate.", configName);
+                        Log.Warning("Can not add config with config name '{0}' which may be invalid or duplicate.",
+                            configName);
                         return false;
                     }
                 }
@@ -120,7 +117,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configManager">全局配置管理器。</param>
         /// <param name="configBytes">要解析的全局配置二进制流。</param>
@@ -128,21 +125,24 @@ namespace UnityGameFramework.Runtime
         /// <param name="length">全局配置二进制流的长度。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析全局配置成功。</returns>
-        public override bool ParseData(IConfigManager configManager, byte[] configBytes, int startIndex, int length, object userData)
+        public override bool ParseData(IConfigManager configManager, byte[] configBytes, int startIndex, int length,
+            object userData)
         {
             try
             {
-                using (MemoryStream memoryStream = new MemoryStream(configBytes, startIndex, length, false))
+                using (var memoryStream = new MemoryStream(configBytes, startIndex, length, false))
                 {
-                    using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
+                    using (var binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
                     {
                         while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length)
                         {
-                            string configName = binaryReader.ReadString();
-                            string configValue = binaryReader.ReadString();
+                            var configName = binaryReader.ReadString();
+                            var configValue = binaryReader.ReadString();
                             if (!configManager.AddConfig(configName, configValue))
                             {
-                                Log.Warning("Can not add config with config name '{0}' which may be invalid or duplicate.", configName);
+                                Log.Warning(
+                                    "Can not add config with config name '{0}' which may be invalid or duplicate.",
+                                    configName);
                                 return false;
                             }
                         }
@@ -159,23 +159,13 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 释放全局配置资源。
+        ///     释放全局配置资源。
         /// </summary>
         /// <param name="configManager">全局配置管理器。</param>
         /// <param name="configAsset">要释放的全局配置资源。</param>
         public override void ReleaseDataAsset(IConfigManager configManager, object configAsset)
         {
             m_ResourceComponent.UnloadAsset(configAsset);
-        }
-
-        private void Start()
-        {
-            m_ResourceComponent = GameEntry.GetComponent<ResourceComponent>();
-            if (m_ResourceComponent == null)
-            {
-                Log.Fatal("Resource component is invalid.");
-                return;
-            }
         }
     }
 }

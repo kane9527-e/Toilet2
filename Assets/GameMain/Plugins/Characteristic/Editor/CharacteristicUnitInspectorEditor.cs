@@ -76,6 +76,7 @@ namespace Characteristic.Editor
                 ((CharacteristicUnit)target).Reset();
                 Repaint();
             }
+
             serializedObject.ApplyModifiedProperties();
         }
     }

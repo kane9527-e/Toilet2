@@ -11,36 +11,31 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 基础组件。
+    ///     基础组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/ReferencePool")]
     public sealed class ReferencePoolComponent : GameFrameworkComponent
     {
-        [SerializeField]
-        private ReferenceStrictCheckType m_EnableStrictCheck = ReferenceStrictCheckType.AlwaysEnable;
+        [SerializeField] private ReferenceStrictCheckType m_EnableStrictCheck = ReferenceStrictCheckType.AlwaysEnable;
 
         /// <summary>
-        /// 获取或设置是否开启强制检查。
+        ///     获取或设置是否开启强制检查。
         /// </summary>
         public bool EnableStrictCheck
         {
-            get
-            {
-                return ReferencePool.EnableStrictCheck;
-            }
+            get => ReferencePool.EnableStrictCheck;
             set
             {
                 ReferencePool.EnableStrictCheck = value;
                 if (value)
-                {
-                    Log.Info("Strict checking is enabled for the Reference Pool. It will drastically affect the performance.");
-                }
+                    Log.Info(
+                        "Strict checking is enabled for the Reference Pool. It will drastically affect the performance.");
             }
         }
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {

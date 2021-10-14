@@ -6,7 +6,6 @@ using ConditionSetting;
 using Narrative.Runtime.Scripts.MonoBehaviour;
 using Narrative.Runtime.Scripts.Nodes.TriggerNode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace Narrative.Runtime.Scripts.ConditionConfig
@@ -20,7 +19,6 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
         {
             var r = false;
             foreach (var condition in dataConditions)
-            {
                 switch (condition.ConditionType)
                 {
                     case ConditionType.And:
@@ -32,7 +30,6 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
                         if (r) return true;
                         break;
                 }
-            }
 
             return r;
         }
@@ -100,7 +97,7 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
                             return Convert.ToInt32(dataBase.GetBool(key)) > Convert.ToInt32(boolValue);
                             break;
                         case DataValueType.String:
-                            return String.Compare(dataBase.GetString(key), stringValue,
+                            return string.Compare(dataBase.GetString(key), stringValue,
                                 StringComparison.Ordinal) > 0;
                             break;
 #pragma warning restore 162
@@ -122,7 +119,7 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
                             return Convert.ToInt32(dataBase.GetBool(key)) >= Convert.ToInt32(boolValue);
                             break;
                         case DataValueType.String:
-                            return String.Compare(dataBase.GetString(key), stringValue,
+                            return string.Compare(dataBase.GetString(key), stringValue,
                                 StringComparison.Ordinal) >= 0;
                             break;
 #pragma warning restore 162
@@ -144,7 +141,7 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
                             return Convert.ToInt32(dataBase.GetBool(key)) < Convert.ToInt32(boolValue);
                             break;
                         case DataValueType.String:
-                            return String.Compare(dataBase.GetString(key), stringValue,
+                            return string.Compare(dataBase.GetString(key), stringValue,
                                 StringComparison.Ordinal) < 0;
                             break;
 #pragma warning restore 162
@@ -166,7 +163,7 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
                             return Convert.ToInt32(dataBase.GetBool(key)) <= Convert.ToInt32(boolValue);
                             break;
                         case DataValueType.String:
-                            return String.Compare(dataBase.GetString(key), stringValue,
+                            return string.Compare(dataBase.GetString(key), stringValue,
                                 StringComparison.Ordinal) <= 0;
                             break;
 #pragma warning restore 162
@@ -185,6 +182,6 @@ namespace Narrative.Runtime.Scripts.ConditionConfig
         Greater,
         GreaterEqual,
         Less,
-        LessEqual,
+        LessEqual
     }
 }

@@ -11,7 +11,7 @@ using UnityEngine;
 namespace UnityGameFramework.Editor
 {
     /// <summary>
-    /// 帮助相关的实用函数。
+    ///     帮助相关的实用函数。
     /// </summary>
     public static class Help
     {

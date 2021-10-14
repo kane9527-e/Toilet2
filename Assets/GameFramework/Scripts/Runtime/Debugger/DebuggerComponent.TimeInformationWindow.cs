@@ -19,7 +19,9 @@ namespace UnityGameFramework.Runtime
                 GUILayout.Label("<b>Time Information</b>");
                 GUILayout.BeginVertical("box");
                 {
-                    DrawItem("Time Scale", Utility.Text.Format("{0} [{1}]", Time.timeScale.ToString(), GetTimeScaleDescription(Time.timeScale)));
+                    DrawItem("Time Scale",
+                        Utility.Text.Format("{0} [{1}]", Time.timeScale.ToString(),
+                            GetTimeScaleDescription(Time.timeScale)));
                     DrawItem("Realtime Since Startup", Time.realtimeSinceStartup.ToString());
                     DrawItem("Time Since Level Load", Time.timeSinceLevelLoad.ToString());
                     DrawItem("Time", Time.time.ToString());
@@ -54,20 +56,11 @@ namespace UnityGameFramework.Runtime
 
             private string GetTimeScaleDescription(float timeScale)
             {
-                if (timeScale <= 0f)
-                {
-                    return "Pause";
-                }
+                if (timeScale <= 0f) return "Pause";
 
-                if (timeScale < 1f)
-                {
-                    return "Slower";
-                }
+                if (timeScale < 1f) return "Slower";
 
-                if (timeScale > 1f)
-                {
-                    return "Faster";
-                }
+                if (timeScale > 1f) return "Faster";
 
                 return "Normal";
             }

@@ -1,6 +1,6 @@
+using System;
 using ConditionSetting;
-using ConditionSetting.Editor;
-using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,12 +12,13 @@ public class NarrativePortView : VisualGraphPortView
 {
     public override void CreateView(VisualGraphPort port)
     {
-        VisualElement port_data = new VisualElement();
+        
+        var port_data = new VisualElement();
         port_data.AddToClassList("port_data");
         Add(port_data);
-        NarrativePort narrativePort = (NarrativePort)port;
+        var narrativePort = (NarrativePort)port;
 
-        ObjectField conditionField = new ObjectField("Condition");
+        var conditionField = new ObjectField("Condition");
         conditionField.objectType = typeof(ConditionConfig);
         conditionField.labelElement.style.marginRight = -90;
         conditionField.value = narrativePort.conditionConfig;

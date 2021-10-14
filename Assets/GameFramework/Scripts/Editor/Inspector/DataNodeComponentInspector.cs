@@ -14,6 +14,10 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(DataNodeComponent))]
     internal sealed class DataNodeComponentInspector : GameFrameworkInspector
     {
+        private void OnEnable()
+        {
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -24,28 +28,18 @@ namespace UnityGameFramework.Editor
                 return;
             }
 
-            DataNodeComponent t = (DataNodeComponent)target;
+            var t = (DataNodeComponent)target;
 
-            if (IsPrefabInHierarchy(t.gameObject))
-            {
-                DrawDataNode(t.Root);
-            }
+            if (IsPrefabInHierarchy(t.gameObject)) DrawDataNode(t.Root);
 
             Repaint();
-        }
-
-        private void OnEnable()
-        {
         }
 
         private void DrawDataNode(IDataNode dataNode)
         {
             EditorGUILayout.LabelField(dataNode.FullName, dataNode.ToDataString());
-            IDataNode[] child = dataNode.GetAllChild();
-            foreach (IDataNode c in child)
-            {
-                DrawDataNode(c);
-            }
+            var child = dataNode.GetAllChild();
+            foreach (var c in child) DrawDataNode(c);
         }
     }
 }

@@ -15,6 +15,10 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(FsmComponent))]
     internal sealed class FsmComponentInspector : GameFrameworkInspector
     {
+        private void OnEnable()
+        {
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -25,29 +29,28 @@ namespace UnityGameFramework.Editor
                 return;
             }
 
-            FsmComponent t = (FsmComponent)target;
+            var t = (FsmComponent)target;
 
             if (IsPrefabInHierarchy(t.gameObject))
             {
                 EditorGUILayout.LabelField("FSM Count", t.Count.ToString());
 
-                FsmBase[] fsms = t.GetAllFsms();
-                foreach (FsmBase fsm in fsms)
-                {
-                    DrawFsm(fsm);
-                }
+                var fsms = t.GetAllFsms();
+                foreach (var fsm in fsms) DrawFsm(fsm);
             }
 
             Repaint();
         }
 
-        private void OnEnable()
-        {
-        }
-
         private void DrawFsm(FsmBase fsm)
         {
-            EditorGUILayout.LabelField(fsm.FullName, fsm.IsRunning ? Utility.Text.Format("{0}, {1} s", fsm.CurrentStateName, fsm.CurrentStateTime.ToString("F1")) : (fsm.IsDestroyed ? "Destroyed" : "Not Running"));
+            EditorGUILayout.LabelField(fsm.FullName,
+                fsm.IsRunning
+                    ?
+                    Utility.Text.Format("{0}, {1} s", fsm.CurrentStateName, fsm.CurrentStateTime.ToString("F1"))
+                    : fsm.IsDestroyed
+                        ? "Destroyed"
+                        : "Not Running");
         }
     }
 }

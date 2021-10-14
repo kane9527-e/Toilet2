@@ -3,6 +3,7 @@
 // date: 2020
 // Copyright (c) Bus Stop Studios.
 ///-------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,11 +17,9 @@ namespace VisualGraphEditor
 {
     public class BlackboardView
     {
-        public VisualGraphView visualGraphView;
+        private readonly Dictionary<Type, Type> blackboardFieldTypes = new Dictionary<Type, Type>();
         private VisualGraph visualGraph;
-        public Blackboard blackboard { get; private set; }
-
-        private Dictionary<System.Type, System.Type> blackboardFieldTypes = new Dictionary<Type, Type>();
+        public VisualGraphView visualGraphView;
 
         public BlackboardView()
         {
@@ -31,23 +30,21 @@ namespace VisualGraphEditor
             blackboard.addItemRequested = AddItemRequested;
             blackboard.editTextRequested = EditTextRequested;
 
-            var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies)
             {
                 var types = assembly.GetTypes();
                 foreach (var type in types)
-                {
-                    if (type.IsSubclassOf(typeof(BlackboardFieldView)) == true && type.IsAbstract == false)
+                    if (type.IsSubclassOf(typeof(BlackboardFieldView)) && type.IsAbstract == false)
                     {
-                        BlackboardPropertyTypeAttribute attrib = type.GetCustomAttribute<BlackboardPropertyTypeAttribute>();
-                        if (attrib != null)
-                        {
-                            blackboardFieldTypes.Add(attrib.type, type);
-                        }
+                        var attrib = type.GetCustomAttribute<BlackboardPropertyTypeAttribute>();
+                        if (attrib != null) blackboardFieldTypes.Add(attrib.type, type);
                     }
-                }
             }
         }
+
+        public Blackboard blackboard { get; }
+
         public void ClearBlackboard()
         {
             blackboard.Clear();
@@ -58,12 +55,8 @@ namespace VisualGraphEditor
             blackboard.Clear();
             this.visualGraph = visualGraph;
             foreach (var property in visualGraph.BlackboardProperties)
-            {
                 if (blackboardFieldTypes.ContainsKey(property.GetType()))
-                {
                     AddBlackboardProperty(blackboardFieldTypes[property.GetType()], property);
-                }
-            }
         }
 
         public void EditTextRequested(Blackboard blackboard, VisualElement visualElement, string newText)
@@ -75,12 +68,11 @@ namespace VisualGraphEditor
             {
                 Undo.RecordObject(visualGraph, "Edit Blackboard Text");
 
-                int count = 0;
-                string propertyName = newText;
+                var count = 0;
+                var propertyName = newText;
                 foreach (var boardProperty in visualGraph.BlackboardProperties)
-                {
-                    if (boardProperty.Name == propertyName) count++;
-                }
+                    if (boardProperty.Name == propertyName)
+                        count++;
                 if (count > 0) propertyName += $"({count})";
 
                 property.Name = propertyName;
@@ -90,46 +82,45 @@ namespace VisualGraphEditor
             }
         }
 
-        void AddItemRequested(Blackboard blackboard)
+        private void AddItemRequested(Blackboard blackboard)
         {
             if (visualGraph == null) return;
 
             var menu = new GenericMenu();
             foreach (var type in blackboardFieldTypes)
             {
-                BlackboardPropertyTypeAttribute attrib = type.Value.GetCustomAttribute<BlackboardPropertyTypeAttribute>();
+                var attrib = type.Value.GetCustomAttribute<BlackboardPropertyTypeAttribute>();
                 if (attrib != null)
-                {
                     menu.AddItem(new GUIContent(attrib.menuName), false, () => CreateBlackboardProperty(type.Value));
-                }
             }
 
             menu.ShowAsContext();
         }
 
-        void CreateBlackboardProperty(Type type)
+        private void CreateBlackboardProperty(Type type)
         {
-            BlackboardPropertyTypeAttribute attrib = type.GetCustomAttribute<BlackboardPropertyTypeAttribute>();
+            var attrib = type.GetCustomAttribute<BlackboardPropertyTypeAttribute>();
 
             Undo.RecordObject(visualGraph, "Add Blackboard Property");
 
-            int count = 0;
-            string propertyName = attrib.menuName;
+            var count = 0;
+            var propertyName = attrib.menuName;
             foreach (var boardProperty in visualGraph.BlackboardProperties)
-            {
-                if (boardProperty.Name == propertyName) count++;
-            }
+                if (boardProperty.Name == propertyName)
+                    count++;
             if (count > 0) propertyName += $"({count})";
 
-            Type propertyType = attrib.type;
-            AbstractBlackboardProperty property = Activator.CreateInstance(propertyType) as AbstractBlackboardProperty;
+            var propertyType = attrib.type;
+            var property = Activator.CreateInstance(propertyType) as AbstractBlackboardProperty;
             property.name = attrib.type.Name;
             property.Name = propertyName;
-            property.guid = System.Guid.NewGuid().ToString();
+            property.guid = Guid.NewGuid().ToString();
             visualGraph.BlackboardProperties.Add(property);
 
-            if (property.name == null || property.name.Trim() == "") property.name = ObjectNames.NicifyVariableName(property.name);
-            if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(visualGraph))) AssetDatabase.AddObjectToAsset(property, visualGraph);
+            if (property.name == null || property.name.Trim() == "")
+                property.name = ObjectNames.NicifyVariableName(property.name);
+            if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(visualGraph)))
+                AssetDatabase.AddObjectToAsset(property, visualGraph);
 
             AddBlackboardProperty(type, property);
 
@@ -137,7 +128,7 @@ namespace VisualGraphEditor
             AssetDatabase.SaveAssets();
         }
 
-        void OnRemoveBlackboardProperty(BlackboardFieldView field)
+        private void OnRemoveBlackboardProperty(BlackboardFieldView field)
         {
             Undo.RecordObject(visualGraph, "Remove Blackboard Property");
 
@@ -150,9 +141,9 @@ namespace VisualGraphEditor
             EditorUtility.SetDirty(visualGraph);
         }
 
-        void AddBlackboardProperty(Type type, AbstractBlackboardProperty property)
+        private void AddBlackboardProperty(Type type, AbstractBlackboardProperty property)
         {
-            BlackboardFieldView propertyView = Activator.CreateInstance(type) as BlackboardFieldView;
+            var propertyView = Activator.CreateInstance(type) as BlackboardFieldView;
             propertyView.blackboardView = this;
             propertyView.CreateView(visualGraph, property);
             propertyView.onRemoveBlackboardProperty += OnRemoveBlackboardProperty;

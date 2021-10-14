@@ -5,103 +5,54 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.UI;
 using System;
+using GameFramework.UI;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 界面。
+    ///     界面。
     /// </summary>
     public sealed class UIForm : MonoBehaviour, IUIForm
     {
-        private int m_SerialId;
-        private string m_UIFormAssetName;
-        private IUIGroup m_UIGroup;
-        private int m_DepthInUIGroup;
-        private bool m_PauseCoveredUIForm;
-        private UIFormLogic m_UIFormLogic;
-
         /// <summary>
-        /// 获取界面序列编号。
+        ///     获取界面逻辑。
         /// </summary>
-        public int SerialId
-        {
-            get
-            {
-                return m_SerialId;
-            }
-        }
+        public UIFormLogic Logic { get; private set; }
 
         /// <summary>
-        /// 获取界面资源名称。
+        ///     获取界面序列编号。
         /// </summary>
-        public string UIFormAssetName
-        {
-            get
-            {
-                return m_UIFormAssetName;
-            }
-        }
+        public int SerialId { get; private set; }
 
         /// <summary>
-        /// 获取界面实例。
+        ///     获取界面资源名称。
         /// </summary>
-        public object Handle
-        {
-            get
-            {
-                return gameObject;
-            }
-        }
+        public string UIFormAssetName { get; private set; }
 
         /// <summary>
-        /// 获取界面所属的界面组。
+        ///     获取界面实例。
         /// </summary>
-        public IUIGroup UIGroup
-        {
-            get
-            {
-                return m_UIGroup;
-            }
-        }
+        public object Handle => gameObject;
 
         /// <summary>
-        /// 获取界面深度。
+        ///     获取界面所属的界面组。
         /// </summary>
-        public int DepthInUIGroup
-        {
-            get
-            {
-                return m_DepthInUIGroup;
-            }
-        }
+        public IUIGroup UIGroup { get; private set; }
 
         /// <summary>
-        /// 获取是否暂停被覆盖的界面。
+        ///     获取界面深度。
         /// </summary>
-        public bool PauseCoveredUIForm
-        {
-            get
-            {
-                return m_PauseCoveredUIForm;
-            }
-        }
+        public int DepthInUIGroup { get; private set; }
 
         /// <summary>
-        /// 获取界面逻辑。
+        ///     获取是否暂停被覆盖的界面。
         /// </summary>
-        public UIFormLogic Logic
-        {
-            get
-            {
-                return m_UIFormLogic;
-            }
-        }
+        public bool PauseCoveredUIForm { get; private set; }
 
         /// <summary>
-        /// 初始化界面。
+        ///     初始化界面。
         /// </summary>
         /// <param name="serialId">界面序列编号。</param>
         /// <param name="uiFormAssetName">界面资源名称。</param>
@@ -109,21 +60,19 @@ namespace UnityGameFramework.Runtime
         /// <param name="pauseCoveredUIForm">是否暂停被覆盖的界面。</param>
         /// <param name="isNewInstance">是否是新实例。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void OnInit(int serialId, string uiFormAssetName, IUIGroup uiGroup, bool pauseCoveredUIForm, bool isNewInstance, object userData)
+        public void OnInit(int serialId, string uiFormAssetName, IUIGroup uiGroup, bool pauseCoveredUIForm,
+            bool isNewInstance, object userData)
         {
-            m_SerialId = serialId;
-            m_UIFormAssetName = uiFormAssetName;
-            m_UIGroup = uiGroup;
-            m_DepthInUIGroup = 0;
-            m_PauseCoveredUIForm = pauseCoveredUIForm;
+            SerialId = serialId;
+            UIFormAssetName = uiFormAssetName;
+            UIGroup = uiGroup;
+            DepthInUIGroup = 0;
+            PauseCoveredUIForm = pauseCoveredUIForm;
 
-            if (!isNewInstance)
-            {
-                return;
-            }
+            if (!isNewInstance) return;
 
-            m_UIFormLogic = GetComponent<UIFormLogic>();
-            if (m_UIFormLogic == null)
+            Logic = GetComponent<UIFormLogic>();
+            if (Logic == null)
             {
                 Log.Error("UI form '{0}' can not get UI form logic.", uiFormAssetName);
                 return;
@@ -131,51 +80,54 @@ namespace UnityGameFramework.Runtime
 
             try
             {
-                m_UIFormLogic.OnInit(userData);
+                Logic.OnInit(userData);
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnInit with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnInit with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面回收。
+        ///     界面回收。
         /// </summary>
         public void OnRecycle()
         {
             try
             {
-                m_UIFormLogic.OnRecycle();
+                Logic.OnRecycle();
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnRecycle with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnRecycle with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
 
-            m_SerialId = 0;
-            m_DepthInUIGroup = 0;
-            m_PauseCoveredUIForm = true;
+            SerialId = 0;
+            DepthInUIGroup = 0;
+            PauseCoveredUIForm = true;
         }
 
         /// <summary>
-        /// 界面打开。
+        ///     界面打开。
         /// </summary>
         /// <param name="userData">用户自定义数据。</param>
         public void OnOpen(object userData)
         {
             try
             {
-                m_UIFormLogic.OnOpen(userData);
+                Logic.OnOpen(userData);
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnOpen with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnOpen with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面关闭。
+        ///     界面关闭。
         /// </summary>
         /// <param name="isShutdown">是否是关闭界面管理器时触发。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -183,92 +135,98 @@ namespace UnityGameFramework.Runtime
         {
             try
             {
-                m_UIFormLogic.OnClose(isShutdown, userData);
+                Logic.OnClose(isShutdown, userData);
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnClose with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnClose with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面暂停。
+        ///     界面暂停。
         /// </summary>
         public void OnPause()
         {
             try
             {
-                m_UIFormLogic.OnPause();
+                Logic.OnPause();
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnPause with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnPause with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面暂停恢复。
+        ///     界面暂停恢复。
         /// </summary>
         public void OnResume()
         {
             try
             {
-                m_UIFormLogic.OnResume();
+                Logic.OnResume();
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnResume with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnResume with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面遮挡。
+        ///     界面遮挡。
         /// </summary>
         public void OnCover()
         {
             try
             {
-                m_UIFormLogic.OnCover();
+                Logic.OnCover();
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnCover with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnCover with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面遮挡恢复。
+        ///     界面遮挡恢复。
         /// </summary>
         public void OnReveal()
         {
             try
             {
-                m_UIFormLogic.OnReveal();
+                Logic.OnReveal();
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnReveal with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnReveal with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面激活。
+        ///     界面激活。
         /// </summary>
         /// <param name="userData">用户自定义数据。</param>
         public void OnRefocus(object userData)
         {
             try
             {
-                m_UIFormLogic.OnRefocus(userData);
+                Logic.OnRefocus(userData);
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnRefocus with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnRefocus with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面轮询。
+        ///     界面轮询。
         /// </summary>
         /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
         /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
@@ -276,29 +234,31 @@ namespace UnityGameFramework.Runtime
         {
             try
             {
-                m_UIFormLogic.OnUpdate(elapseSeconds, realElapseSeconds);
+                Logic.OnUpdate(elapseSeconds, realElapseSeconds);
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnUpdate with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnUpdate with exception '{2}'.", SerialId.ToString(), UIFormAssetName,
+                    exception.ToString());
             }
         }
 
         /// <summary>
-        /// 界面深度改变。
+        ///     界面深度改变。
         /// </summary>
         /// <param name="uiGroupDepth">界面组深度。</param>
         /// <param name="depthInUIGroup">界面在界面组中的深度。</param>
         public void OnDepthChanged(int uiGroupDepth, int depthInUIGroup)
         {
-            m_DepthInUIGroup = depthInUIGroup;
+            DepthInUIGroup = depthInUIGroup;
             try
             {
-                m_UIFormLogic.OnDepthChanged(uiGroupDepth, depthInUIGroup);
+                Logic.OnDepthChanged(uiGroupDepth, depthInUIGroup);
             }
             catch (Exception exception)
             {
-                Log.Error("UI form '[{0}]{1}' OnDepthChanged with exception '{2}'.", m_SerialId.ToString(), m_UIFormAssetName, exception.ToString());
+                Log.Error("UI form '[{0}]{1}' OnDepthChanged with exception '{2}'.", SerialId.ToString(),
+                    UIFormAssetName, exception.ToString());
             }
         }
     }

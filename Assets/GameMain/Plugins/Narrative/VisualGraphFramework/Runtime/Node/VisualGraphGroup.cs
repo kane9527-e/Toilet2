@@ -5,7 +5,7 @@ using UnityEngine;
 namespace VisualGraphRuntime
 {
     /// <summary>
-    /// Not supported at this time
+    ///     Not supported at this time
     /// </summary>
     [Serializable]
     public class VisualGraphGroup

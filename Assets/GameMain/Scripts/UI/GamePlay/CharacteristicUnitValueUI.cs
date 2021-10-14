@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Characteristic.Runtime.Scripts.Manager;
 using Characteristic.Runtime.Scripts.ScriptableObject;
 using UnityEngine;
@@ -58,7 +55,7 @@ public class CharacteristicUnitValueUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 更新UI
+    ///     更新UI
     /// </summary>
     public void UpdateValueUI()
     {

@@ -5,28 +5,28 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
-using GameFramework.Localization;
 using System;
 using System.IO;
 using System.Text;
+using GameFramework;
+using GameFramework.Localization;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认本地化辅助器。
+    ///     默认本地化辅助器。
     /// </summary>
     public class DefaultLocalizationHelper : LocalizationHelperBase
     {
-        private static readonly string[] ColumnSplitSeparator = new string[] { "\t" };
-        private static readonly string BytesAssetExtension = ".bytes";
         private const int ColumnCount = 4;
+        private static readonly string[] ColumnSplitSeparator = { "\t" };
+        private static readonly string BytesAssetExtension = ".bytes";
 
-        private ResourceComponent m_ResourceComponent = null;
+        private ResourceComponent m_ResourceComponent;
 
         /// <summary>
-        /// 获取系统语言。
+        ///     获取系统语言。
         /// </summary>
         public override Language SystemLanguage
         {
@@ -82,27 +82,29 @@ namespace UnityGameFramework.Runtime
             }
         }
 
+        private void Start()
+        {
+            m_ResourceComponent = GameEntry.GetComponent<ResourceComponent>();
+            if (m_ResourceComponent == null) Log.Fatal("Resource component is invalid.");
+        }
+
         /// <summary>
-        /// 读取字典。
+        ///     读取字典。
         /// </summary>
         /// <param name="localizationManager">本地化管理器。</param>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
         /// <param name="dictionaryAsset">字典资源。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否读取字典成功。</returns>
-        public override bool ReadData(ILocalizationManager localizationManager, string dictionaryAssetName, object dictionaryAsset, object userData)
+        public override bool ReadData(ILocalizationManager localizationManager, string dictionaryAssetName,
+            object dictionaryAsset, object userData)
         {
-            TextAsset dictionaryTextAsset = dictionaryAsset as TextAsset;
+            var dictionaryTextAsset = dictionaryAsset as TextAsset;
             if (dictionaryTextAsset != null)
             {
                 if (dictionaryAssetName.EndsWith(BytesAssetExtension, StringComparison.Ordinal))
-                {
                     return localizationManager.ParseData(dictionaryTextAsset.bytes, userData);
-                }
-                else
-                {
-                    return localizationManager.ParseData(dictionaryTextAsset.text, userData);
-                }
+                return localizationManager.ParseData(dictionaryTextAsset.text, userData);
             }
 
             Log.Warning("Dictionary asset '{0}' is invalid.", dictionaryAssetName);
@@ -110,7 +112,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取字典。
+        ///     读取字典。
         /// </summary>
         /// <param name="localizationManager">本地化管理器。</param>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
@@ -119,50 +121,48 @@ namespace UnityGameFramework.Runtime
         /// <param name="length">字典二进制流的长度。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否读取字典成功。</returns>
-        public override bool ReadData(ILocalizationManager localizationManager, string dictionaryAssetName, byte[] dictionaryBytes, int startIndex, int length, object userData)
+        public override bool ReadData(ILocalizationManager localizationManager, string dictionaryAssetName,
+            byte[] dictionaryBytes, int startIndex, int length, object userData)
         {
             if (dictionaryAssetName.EndsWith(BytesAssetExtension, StringComparison.Ordinal))
-            {
                 return localizationManager.ParseData(dictionaryBytes, startIndex, length, userData);
-            }
-            else
-            {
-                return localizationManager.ParseData(Utility.Converter.GetString(dictionaryBytes, startIndex, length), userData);
-            }
+            return localizationManager.ParseData(Utility.Converter.GetString(dictionaryBytes, startIndex, length),
+                userData);
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="localizationManager">本地化管理器。</param>
         /// <param name="dictionaryString">要解析的字典字符串。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析字典成功。</returns>
-        public override bool ParseData(ILocalizationManager localizationManager, string dictionaryString, object userData)
+        public override bool ParseData(ILocalizationManager localizationManager, string dictionaryString,
+            object userData)
         {
             try
             {
-                int position = 0;
+                var position = 0;
                 string dictionaryLineString = null;
                 while ((dictionaryLineString = dictionaryString.ReadLine(ref position)) != null)
                 {
-                    if (dictionaryLineString[0] == '#')
-                    {
-                        continue;
-                    }
+                    if (dictionaryLineString[0] == '#') continue;
 
-                    string[] splitedLine = dictionaryLineString.Split(ColumnSplitSeparator, StringSplitOptions.None);
+                    var splitedLine = dictionaryLineString.Split(ColumnSplitSeparator, StringSplitOptions.None);
                     if (splitedLine.Length != ColumnCount)
                     {
-                        Log.Warning("Can not parse dictionary line string '{0}' which column count is invalid.", dictionaryLineString);
+                        Log.Warning("Can not parse dictionary line string '{0}' which column count is invalid.",
+                            dictionaryLineString);
                         return false;
                     }
 
-                    string dictionaryKey = splitedLine[1];
-                    string dictionaryValue = splitedLine[3];
+                    var dictionaryKey = splitedLine[1];
+                    var dictionaryValue = splitedLine[3];
                     if (!localizationManager.AddRawString(dictionaryKey, dictionaryValue))
                     {
-                        Log.Warning("Can not add raw string with dictionary key '{0}' which may be invalid or duplicate.", dictionaryKey);
+                        Log.Warning(
+                            "Can not add raw string with dictionary key '{0}' which may be invalid or duplicate.",
+                            dictionaryKey);
                         return false;
                     }
                 }
@@ -177,7 +177,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析字典。
+        ///     解析字典。
         /// </summary>
         /// <param name="localizationManager">本地化管理器。</param>
         /// <param name="dictionaryBytes">要解析的字典二进制流。</param>
@@ -185,21 +185,24 @@ namespace UnityGameFramework.Runtime
         /// <param name="length">字典二进制流的长度。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析字典成功。</returns>
-        public override bool ParseData(ILocalizationManager localizationManager, byte[] dictionaryBytes, int startIndex, int length, object userData)
+        public override bool ParseData(ILocalizationManager localizationManager, byte[] dictionaryBytes, int startIndex,
+            int length, object userData)
         {
             try
             {
-                using (MemoryStream memoryStream = new MemoryStream(dictionaryBytes, startIndex, length, false))
+                using (var memoryStream = new MemoryStream(dictionaryBytes, startIndex, length, false))
                 {
-                    using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
+                    using (var binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
                     {
                         while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length)
                         {
-                            string dictionaryKey = binaryReader.ReadString();
-                            string dictionaryValue = binaryReader.ReadString();
+                            var dictionaryKey = binaryReader.ReadString();
+                            var dictionaryValue = binaryReader.ReadString();
                             if (!localizationManager.AddRawString(dictionaryKey, dictionaryValue))
                             {
-                                Log.Warning("Can not add raw string with dictionary key '{0}' which may be invalid or duplicate.", dictionaryKey);
+                                Log.Warning(
+                                    "Can not add raw string with dictionary key '{0}' which may be invalid or duplicate.",
+                                    dictionaryKey);
                                 return false;
                             }
                         }
@@ -216,23 +219,13 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 释放字典资源。
+        ///     释放字典资源。
         /// </summary>
         /// <param name="localizationManager">本地化管理器。</param>
         /// <param name="dictionaryAsset">要释放的字典资源。</param>
         public override void ReleaseDataAsset(ILocalizationManager localizationManager, object dictionaryAsset)
         {
             m_ResourceComponent.UnloadAsset(dictionaryAsset);
-        }
-
-        private void Start()
-        {
-            m_ResourceComponent = GameEntry.GetComponent<ResourceComponent>();
-            if (m_ResourceComponent == null)
-            {
-                Log.Fatal("Resource component is invalid.");
-                return;
-            }
         }
     }
 }

@@ -15,7 +15,7 @@ namespace UnityGameFramework.Runtime
     {
         private sealed class ObjectPoolInformationWindow : ScrollableDebuggerWindowBase
         {
-            private ObjectPoolComponent m_ObjectPoolComponent = null;
+            private ObjectPoolComponent m_ObjectPoolComponent;
 
             public override void Initialize(params object[] args)
             {
@@ -23,7 +23,6 @@ namespace UnityGameFramework.Runtime
                 if (m_ObjectPoolComponent == null)
                 {
                     Log.Fatal("Object pool component is invalid.");
-                    return;
                 }
             }
 
@@ -35,11 +34,8 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Object Pool Count", m_ObjectPoolComponent.Count.ToString());
                 }
                 GUILayout.EndVertical();
-                ObjectPoolBase[] objectPools = m_ObjectPoolComponent.GetAllObjectPools(true);
-                for (int i = 0; i < objectPools.Length; i++)
-                {
-                    DrawObjectPool(objectPools[i]);
-                }
+                var objectPools = m_ObjectPoolComponent.GetAllObjectPools(true);
+                for (var i = 0; i < objectPools.Length; i++) DrawObjectPool(objectPools[i]);
             }
 
             private void DrawObjectPool(ObjectPoolBase objectPool)
@@ -55,12 +51,13 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Can Release Count", objectPool.CanReleaseCount.ToString());
                     DrawItem("Expire Time", objectPool.ExpireTime.ToString());
                     DrawItem("Priority", objectPool.Priority.ToString());
-                    ObjectInfo[] objectInfos = objectPool.GetAllObjectInfos();
+                    var objectInfos = objectPool.GetAllObjectInfos();
                     GUILayout.BeginHorizontal();
                     {
                         GUILayout.Label("<b>Name</b>");
                         GUILayout.Label("<b>Locked</b>", GUILayout.Width(60f));
-                        GUILayout.Label(objectPool.AllowMultiSpawn ? "<b>Count</b>" : "<b>In Use</b>", GUILayout.Width(60f));
+                        GUILayout.Label(objectPool.AllowMultiSpawn ? "<b>Count</b>" : "<b>In Use</b>",
+                            GUILayout.Width(60f));
                         GUILayout.Label("<b>Flag</b>", GUILayout.Width(60f));
                         GUILayout.Label("<b>Priority</b>", GUILayout.Width(60f));
                         GUILayout.Label("<b>Last Use Time</b>", GUILayout.Width(120f));
@@ -68,25 +65,28 @@ namespace UnityGameFramework.Runtime
                     GUILayout.EndHorizontal();
 
                     if (objectInfos.Length > 0)
-                    {
-                        for (int i = 0; i < objectInfos.Length; i++)
+                        for (var i = 0; i < objectInfos.Length; i++)
                         {
                             GUILayout.BeginHorizontal();
                             {
-                                GUILayout.Label(string.IsNullOrEmpty(objectInfos[i].Name) ? "<None>" : objectInfos[i].Name);
+                                GUILayout.Label(string.IsNullOrEmpty(objectInfos[i].Name)
+                                    ? "<None>"
+                                    : objectInfos[i].Name);
                                 GUILayout.Label(objectInfos[i].Locked.ToString(), GUILayout.Width(60f));
-                                GUILayout.Label(objectPool.AllowMultiSpawn ? objectInfos[i].SpawnCount.ToString() : objectInfos[i].IsInUse.ToString(), GUILayout.Width(60f));
+                                GUILayout.Label(
+                                    objectPool.AllowMultiSpawn
+                                        ? objectInfos[i].SpawnCount.ToString()
+                                        : objectInfos[i].IsInUse.ToString(), GUILayout.Width(60f));
                                 GUILayout.Label(objectInfos[i].CustomCanReleaseFlag.ToString(), GUILayout.Width(60f));
                                 GUILayout.Label(objectInfos[i].Priority.ToString(), GUILayout.Width(60f));
-                                GUILayout.Label(objectInfos[i].LastUseTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"), GUILayout.Width(120f));
+                                GUILayout.Label(
+                                    objectInfos[i].LastUseTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),
+                                    GUILayout.Width(120f));
                             }
                             GUILayout.EndHorizontal();
                         }
-                    }
                     else
-                    {
                         GUILayout.Label("<i>Object Pool is Empty ...</i>");
-                    }
                 }
                 GUILayout.EndVertical();
             }

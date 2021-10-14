@@ -6,15 +6,13 @@
 //------------------------------------------------------------
 
 using System.Collections;
-using GameFramework.DataTable;
-using GameFramework.UI;
 using GameMain.Scripts.DataTable;
+using GameMain.Scripts.Definition.Constant;
 using GameMain.Scripts.Procedure;
 using GameMain.Scripts.Runtime.Utility;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using Constant = GameMain.Scripts.Definition.Constant.Constant;
 using GameEntry = GameMain.Scripts.Runtime.Base.GameEntry;
 
 namespace GameMain.Scripts.UI.Extensions
@@ -23,8 +21,8 @@ namespace GameMain.Scripts.UI.Extensions
     {
         public static IEnumerator FadeToAlpha(this CanvasGroup canvasGroup, float alpha, float duration)
         {
-            float time = 0f;
-            float originalAlpha = canvasGroup.alpha;
+            var time = 0f;
+            var originalAlpha = canvasGroup.alpha;
             while (time < duration)
             {
                 time += Time.deltaTime;
@@ -37,8 +35,8 @@ namespace GameMain.Scripts.UI.Extensions
 
         public static IEnumerator SmoothValue(this Slider slider, float value, float duration)
         {
-            float time = 0f;
-            float originalValue = slider.value;
+            var time = 0f;
+            var originalValue = slider.value;
             while (time < duration)
             {
                 time += Time.deltaTime;
@@ -56,24 +54,15 @@ namespace GameMain.Scripts.UI.Extensions
 
         public static bool HasUIForm(this UIComponent uiComponent, int uiFormId, string uiGroupName = null)
         {
-            IDataTable<DRUIForm> dtUIForm = GameEntry.DataTable.GetDataTable<DRUIForm>();
-            DRUIForm drUIForm = dtUIForm.GetDataRow(uiFormId);
-            if (drUIForm == null)
-            {
-                return false;
-            }
+            var dtUIForm = GameEntry.DataTable.GetDataTable<DRUIForm>();
+            var drUIForm = dtUIForm.GetDataRow(uiFormId);
+            if (drUIForm == null) return false;
 
-            string assetName = AssetUtility.GetUIFormAsset(drUIForm.AssetName);
-            if (string.IsNullOrEmpty(uiGroupName))
-            {
-                return uiComponent.HasUIForm(assetName);
-            }
+            var assetName = AssetUtility.GetUIFormAsset(drUIForm.AssetName);
+            if (string.IsNullOrEmpty(uiGroupName)) return uiComponent.HasUIForm(assetName);
 
-            IUIGroup uiGroup = uiComponent.GetUIGroup(uiGroupName);
-            if (uiGroup == null)
-            {
-                return false;
-            }
+            var uiGroup = uiComponent.GetUIGroup(uiGroupName);
+            if (uiGroup == null) return false;
 
             return uiGroup.HasUIForm(assetName);
         }
@@ -85,37 +74,25 @@ namespace GameMain.Scripts.UI.Extensions
 
         public static UGuiForm GetUIForm(this UIComponent uiComponent, int uiFormId, string uiGroupName = null)
         {
-            IDataTable<DRUIForm> dtUIForm = GameEntry.DataTable.GetDataTable<DRUIForm>();
-            DRUIForm drUIForm = dtUIForm.GetDataRow(uiFormId);
-            if (drUIForm == null)
-            {
-                return null;
-            }
+            var dtUIForm = GameEntry.DataTable.GetDataTable<DRUIForm>();
+            var drUIForm = dtUIForm.GetDataRow(uiFormId);
+            if (drUIForm == null) return null;
 
-            string assetName = AssetUtility.GetUIFormAsset(drUIForm.AssetName);
+            var assetName = AssetUtility.GetUIFormAsset(drUIForm.AssetName);
             UIForm uiForm = null;
             if (string.IsNullOrEmpty(uiGroupName))
             {
                 uiForm = uiComponent.GetUIForm(assetName);
-                if (uiForm == null)
-                {
-                    return null;
-                }
+                if (uiForm == null) return null;
 
                 return (UGuiForm)uiForm.Logic;
             }
 
-            IUIGroup uiGroup = uiComponent.GetUIGroup(uiGroupName);
-            if (uiGroup == null)
-            {
-                return null;
-            }
+            var uiGroup = uiComponent.GetUIGroup(uiGroupName);
+            if (uiGroup == null) return null;
 
             uiForm = (UIForm)uiGroup.GetUIForm(assetName);
-            if (uiForm == null)
-            {
-                return null;
-            }
+            if (uiForm == null) return null;
 
             return (UGuiForm)uiForm.Logic;
         }
@@ -132,50 +109,38 @@ namespace GameMain.Scripts.UI.Extensions
 
         public static int? OpenUIForm(this UIComponent uiComponent, int uiFormId, object userData = null)
         {
-            IDataTable<DRUIForm> dtUIForm = GameEntry.DataTable.GetDataTable<DRUIForm>();
-            DRUIForm drUIForm = dtUIForm.GetDataRow(uiFormId);
+            var dtUIForm = GameEntry.DataTable.GetDataTable<DRUIForm>();
+            var drUIForm = dtUIForm.GetDataRow(uiFormId);
             if (drUIForm == null)
             {
                 Log.Warning("Can not load UI form '{0}' from data table.", uiFormId.ToString());
                 return null;
             }
 
-            string assetName = AssetUtility.GetUIFormAsset(drUIForm.AssetName);
+            var assetName = AssetUtility.GetUIFormAsset(drUIForm.AssetName);
             if (!drUIForm.AllowMultiInstance)
             {
-                if (uiComponent.IsLoadingUIForm(assetName))
-                {
-                    return null;
-                }
+                if (uiComponent.IsLoadingUIForm(assetName)) return null;
 
-                if (uiComponent.HasUIForm(assetName))
-                {
-                    return null;
-                }
+                if (uiComponent.HasUIForm(assetName)) return null;
             }
 
-            return uiComponent.OpenUIForm(assetName, drUIForm.UIGroupName, Constant.AssetPriority.UIFormAsset, drUIForm.PauseCoveredUIForm, userData);
+            return uiComponent.OpenUIForm(assetName, drUIForm.UIGroupName, Constant.AssetPriority.UIFormAsset,
+                drUIForm.PauseCoveredUIForm, userData);
         }
 
         public static void OpenDialog(this UIComponent uiComponent, DialogParams dialogParams)
         {
             if (((ProcedureBase)GameEntry.Procedure.CurrentProcedure).UseNativeDialog)
-            {
                 OpenNativeDialog(dialogParams);
-            }
             else
-            {
                 uiComponent.OpenUIForm(UIFormId.DialogForm, dialogParams);
-            }
         }
 
         private static void OpenNativeDialog(DialogParams dialogParams)
         {
             // TODO：这里应该弹出原生对话框，先简化实现为直接按确认按钮
-            if (dialogParams.OnClickConfirm != null)
-            {
-                dialogParams.OnClickConfirm(dialogParams.UserData);
-            }
+            if (dialogParams.OnClickConfirm != null) dialogParams.OnClickConfirm(dialogParams.UserData);
         }
     }
 }

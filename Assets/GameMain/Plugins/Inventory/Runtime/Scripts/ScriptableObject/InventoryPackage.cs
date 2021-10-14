@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Inventory.Scripts.ScriptableObject;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace Inventory.Runtime.Scripts.ScriptableObject
@@ -31,7 +30,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         // }
 
         /// <summary>
-        /// 检测是否有物品
+        ///     检测是否有物品
         /// </summary>
         /// <param name="item"></param>
         /// <param name="amount"></param>
@@ -43,7 +42,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
-        /// 减少物品
+        ///     减少物品
         /// </summary>
         public void ReduceItem(InventoryItem item)
         {
@@ -59,7 +58,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
-        /// 增加物品
+        ///     增加物品
         /// </summary>
         public void AddItem(InventoryItem item)
         {
@@ -79,7 +78,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
-        /// 使用物品
+        ///     使用物品
         /// </summary>
         /// <param name="item"></param>
         public void UseItem(InventoryItem item)
@@ -99,14 +98,14 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         [SerializeField] private InventoryItem item;
         [SerializeField] private int amount;
 
-        public InventoryItem Item => item;
-        public int Amount => amount;
-
         private ItemStack(InventoryItem item, int amount)
         {
             this.item = item;
             this.amount = amount;
         }
+
+        public InventoryItem Item => item;
+        public int Amount => amount;
 
         #region Method
 
@@ -118,7 +117,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
 
         public void AddCount()
         {
-            if (item.MAXAmount <= 0 || (item.MAXAmount > 0 && amount < item.MAXAmount))
+            if (item.MAXAmount <= 0 || item.MAXAmount > 0 && amount < item.MAXAmount)
                 amount++;
         }
 

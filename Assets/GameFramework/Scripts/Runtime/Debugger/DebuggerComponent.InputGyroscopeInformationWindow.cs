@@ -20,14 +20,8 @@ namespace UnityGameFramework.Runtime
                 {
                     GUILayout.BeginHorizontal();
                     {
-                        if (GUILayout.Button("Enable", GUILayout.Height(30f)))
-                        {
-                            Input.gyro.enabled = true;
-                        }
-                        if (GUILayout.Button("Disable", GUILayout.Height(30f)))
-                        {
-                            Input.gyro.enabled = false;
-                        }
+                        if (GUILayout.Button("Enable", GUILayout.Height(30f))) Input.gyro.enabled = true;
+                        if (GUILayout.Button("Disable", GUILayout.Height(30f))) Input.gyro.enabled = false;
                     }
                     GUILayout.EndHorizontal();
 

@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 // ReSharper disable once CheckNamespace
 namespace Narrative.Editor.PropertyDrawer
 {
-    [CustomPropertyDrawer(typeof(SetDataEvent),true)]
+    [CustomPropertyDrawer(typeof(SetDataEvent), true)]
     public class SetDataEventPropertyDrawer : UnityEditor.PropertyDrawer
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -21,7 +21,7 @@ namespace Narrative.Editor.PropertyDrawer
             var valueTypeField = new PropertyField(valueTypeProperty);
             container.Add(actionTypeField);
             container.Add(valueTypeField);
- 
+
 
             var propertyName = string.Empty;
             switch ((DataValueType)valueTypeProperty.enumValueIndex)
@@ -71,19 +71,19 @@ namespace Narrative.Editor.PropertyDrawer
                 {
                     width = position.width,
                     x = position.x,
-                    y = keyNameRect.y + EditorGUIUtility.singleLineHeight + 2,
+                    y = keyNameRect.y + EditorGUIUtility.singleLineHeight + 2
                 };
                 var valueTypeRect = new Rect(position)
                 {
                     width = position.width,
                     x = position.x,
-                    y = actionTypeRect.y + EditorGUIUtility.singleLineHeight + 2,
+                    y = actionTypeRect.y + EditorGUIUtility.singleLineHeight + 2
                 };
                 var valueRect = new Rect(position)
                 {
                     width = position.width,
                     x = position.x,
-                    y = valueTypeRect.y + EditorGUIUtility.singleLineHeight + 2,
+                    y = valueTypeRect.y + EditorGUIUtility.singleLineHeight + 2
                 };
 
                 var keyNameProperty = property.FindPropertyRelative("keyName");
@@ -92,7 +92,7 @@ namespace Narrative.Editor.PropertyDrawer
                 EditorGUI.PropertyField(actionTypeRect, actionTypeProperty);
                 var valueTypeProperty = property.FindPropertyRelative("valueType");
                 EditorGUI.PropertyField(valueTypeRect, valueTypeProperty);
-                
+
                 var propertyName = string.Empty;
                 switch ((DataValueType)valueTypeProperty.enumValueIndex)
                 {
@@ -109,10 +109,11 @@ namespace Narrative.Editor.PropertyDrawer
                         propertyName = "stringValue";
                         break;
                 }
-                
+
                 var valueProperty = property.FindPropertyRelative(propertyName);
-                EditorGUI.PropertyField(valueRect,valueProperty);
+                EditorGUI.PropertyField(valueRect, valueProperty);
             }
+
             EditorGUI.EndProperty();
         }
     }

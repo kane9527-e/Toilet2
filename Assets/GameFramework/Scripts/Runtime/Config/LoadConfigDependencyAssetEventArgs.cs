@@ -11,17 +11,17 @@ using GameFramework.Event;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 加载全局配置时加载依赖资源事件。
+    ///     加载全局配置时加载依赖资源事件。
     /// </summary>
     public sealed class LoadConfigDependencyAssetEventArgs : GameEventArgs
     {
         /// <summary>
-        /// 加载全局配置失败事件编号。
+        ///     加载全局配置失败事件编号。
         /// </summary>
         public static readonly int EventId = typeof(LoadConfigDependencyAssetEventArgs).GetHashCode();
 
         /// <summary>
-        /// 初始化加载全局配置时加载依赖资源事件的新实例。
+        ///     初始化加载全局配置时加载依赖资源事件的新实例。
         /// </summary>
         public LoadConfigDependencyAssetEventArgs()
         {
@@ -33,69 +33,43 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取加载全局配置失败事件编号。
+        ///     获取加载全局配置失败事件编号。
         /// </summary>
-        public override int Id
-        {
-            get
-            {
-                return EventId;
-            }
-        }
+        public override int Id => EventId;
 
         /// <summary>
-        /// 获取全局配置资源名称。
+        ///     获取全局配置资源名称。
         /// </summary>
-        public string ConfigAssetName
-        {
-            get;
-            private set;
-        }
+        public string ConfigAssetName { get; private set; }
 
         /// <summary>
-        /// 获取被加载的依赖资源名称。
+        ///     获取被加载的依赖资源名称。
         /// </summary>
-        public string DependencyAssetName
-        {
-            get;
-            private set;
-        }
+        public string DependencyAssetName { get; private set; }
 
         /// <summary>
-        /// 获取当前已加载依赖资源数量。
+        ///     获取当前已加载依赖资源数量。
         /// </summary>
-        public int LoadedCount
-        {
-            get;
-            private set;
-        }
+        public int LoadedCount { get; private set; }
 
         /// <summary>
-        /// 获取总共加载依赖资源数量。
+        ///     获取总共加载依赖资源数量。
         /// </summary>
-        public int TotalCount
-        {
-            get;
-            private set;
-        }
+        public int TotalCount { get; private set; }
 
         /// <summary>
-        /// 获取用户自定义数据。
+        ///     获取用户自定义数据。
         /// </summary>
-        public object UserData
-        {
-            get;
-            private set;
-        }
+        public object UserData { get; private set; }
 
         /// <summary>
-        /// 创建加载全局配置时加载依赖资源事件。
+        ///     创建加载全局配置时加载依赖资源事件。
         /// </summary>
         /// <param name="e">内部事件。</param>
         /// <returns>创建的加载全局配置时加载依赖资源事件。</returns>
         public static LoadConfigDependencyAssetEventArgs Create(ReadDataDependencyAssetEventArgs e)
         {
-            LoadConfigDependencyAssetEventArgs loadConfigDependencyAssetEventArgs = ReferencePool.Acquire<LoadConfigDependencyAssetEventArgs>();
+            var loadConfigDependencyAssetEventArgs = ReferencePool.Acquire<LoadConfigDependencyAssetEventArgs>();
             loadConfigDependencyAssetEventArgs.ConfigAssetName = e.DataAssetName;
             loadConfigDependencyAssetEventArgs.DependencyAssetName = e.DependencyAssetName;
             loadConfigDependencyAssetEventArgs.LoadedCount = e.LoadedCount;
@@ -105,7 +79,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清理加载全局配置时加载依赖资源事件。
+        ///     清理加载全局配置时加载依赖资源事件。
         /// </summary>
         public override void Clear()
         {

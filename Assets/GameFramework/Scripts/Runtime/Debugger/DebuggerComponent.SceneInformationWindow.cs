@@ -22,7 +22,7 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Scene Count", SceneManager.sceneCount.ToString());
                     DrawItem("Scene Count In Build Settings", SceneManager.sceneCountInBuildSettings.ToString());
 
-                    Scene activeScene = SceneManager.GetActiveScene();
+                    var activeScene = SceneManager.GetActiveScene();
 #if UNITY_2018_3_OR_NEWER
                     DrawItem("Active Scene Handle", activeScene.handle.ToString());
 #endif

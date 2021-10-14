@@ -3,23 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace BetterSearchWindow
 {
     public class BetterSearchTree<T>
     {
+        private readonly List<BetterSearchTree<T>> children;
         private GUIContent label;
-        private List<BetterSearchTree<T>> children;
-        private T payload;
-        private bool IsLeaf => payload != null;
+        private readonly T payload;
 
         public BetterSearchTree()
         {
             children = new List<BetterSearchTree<T>>();
         }
-        
+
         protected BetterSearchTree(GUIContent label)
         {
             this.label = label;
@@ -32,6 +30,8 @@ namespace BetterSearchWindow
             this.payload = payload;
         }
 
+        private bool IsLeaf => payload != null;
+
         protected GUIContent InheritLabel(string newText)
         {
             return new GUIContent(label)
@@ -42,7 +42,7 @@ namespace BetterSearchWindow
 
         public virtual BetterSearchTree<T> AddLeaf(GUIContent path, T payload)
         {
-            this.label = path;
+            label = path;
             Append(payload, path.text);
             return this;
         }
@@ -51,15 +51,15 @@ namespace BetterSearchWindow
         {
             return AddLeaf(new GUIContent(path), payload);
         }
-        
+
         protected virtual void Append(T destinationPayload, string path)
         {
             // Trim any whitespaces or slashes to get rid of empty entries
             // path = path.Trim(' ', '/');
             bool isEnd;
             string name;
-            string nextPath = StepPath(path, out isEnd, out name);
-            
+            var nextPath = StepPath(path, out isEnd, out name);
+
             // Get the position of the first slash, signaling the next entry in the path
             // int nextChildIndex = path.IndexOf('/');
 
@@ -106,14 +106,11 @@ namespace BetterSearchWindow
 
             // Case 3: We already have a child with the name of the provided tree so we need
             // to insert each sub child individually
-            foreach (var c in child.children)
-            {
-                subChild.Insert(c);
-            }
+            foreach (var c in child.children) subChild.Insert(c);
         }
-        
+
         /// <summary>
-        /// Get a child of the given name.
+        ///     Get a child of the given name.
         /// </summary>
         /// <param name="name">The name of the child to get</param>
         /// <returns></returns>
@@ -126,7 +123,7 @@ namespace BetterSearchWindow
         {
             bool isEnd;
             string name;
-            string nextPath = StepPath(path, out isEnd, out name);
+            var nextPath = StepPath(path, out isEnd, out name);
             var child = GetChild(name);
             if (child == null) return null;
 
@@ -140,7 +137,7 @@ namespace BetterSearchWindow
             if (item != null) item.label.image = icon;
             return this;
         }
-        
+
         public virtual BetterSearchTree<T> SetIcon(string path, string icon)
         {
             return SetIcon(path, GetIcon(icon));
@@ -150,25 +147,22 @@ namespace BetterSearchWindow
         {
             return EditorGUIUtility.IconContent(iconName).image as Texture2D;
         }
-        
+
         /// <summary>
-        /// Convert the tree to a list of search tree entries that can be used by Unity's GraphView SearchWindow.
+        ///     Convert the tree to a list of search tree entries that can be used by Unity's GraphView SearchWindow.
         /// </summary>
         /// <param name="rootName">The name of the root group. This is the "title" of the search window</param>
         /// <returns></returns>
         public virtual List<SearchTreeEntry> ToSearchTreeEntries(string rootName)
         {
             var entries = new List<SearchTreeEntry>();
-            entries.Add(new SearchTreeGroupEntry(new GUIContent(rootName), 0));
+            entries.Add(new SearchTreeGroupEntry(new GUIContent(rootName)));
 
-            foreach (var child in children)
-            {
-                AddTreeEntry(entries, child, 1);
-            }
+            foreach (var child in children) AddTreeEntry(entries, child, 1);
 
             return entries;
         }
-        
+
         protected virtual void AddTreeEntry(List<SearchTreeEntry> entries, BetterSearchTree<T> tree, int level)
         {
             // Add Leaf element
@@ -186,22 +180,16 @@ namespace BetterSearchWindow
             {
                 var group = new SearchTreeGroupEntry(new GUIContent(tree.label.text), level);
                 entries.Add(group);
-        
+
                 // Add children
-                foreach (var child in tree.children)
-                {
-                    AddTreeEntry(entries, child, level + 1);
-                }
+                foreach (var child in tree.children) AddTreeEntry(entries, child, level + 1);
             }
         }
 
         public virtual AdvancedDropdownItem<T> ToAdvancedDropdown(string rootName)
         {
             var root = new AdvancedDropdownItem<T>(rootName);
-            foreach (var child in children)
-            {
-                child.AddAdvancedDropdownChildren(root);
-            }
+            foreach (var child in children) child.AddAdvancedDropdownChildren(root);
             return root;
         }
 
@@ -209,7 +197,7 @@ namespace BetterSearchWindow
         {
             BetterAdvancedDropdown<T>.Show(buttonRect, ToAdvancedDropdown(rootName), onItemSelectedCallback);
         }
-        
+
         protected virtual void AddAdvancedDropdownChildren(AdvancedDropdownItem<T> parent)
         {
             var item = new AdvancedDropdownItem<T>(label.text);
@@ -221,11 +209,8 @@ namespace BetterSearchWindow
                 parent.AddChild(item);
                 return;
             }
-            
-            foreach (var child in children)
-            {
-                child.AddAdvancedDropdownChildren(item);
-            }
+
+            foreach (var child in children) child.AddAdvancedDropdownChildren(item);
             parent.AddChild(item);
         }
 
@@ -235,7 +220,7 @@ namespace BetterSearchWindow
             path = path.Trim(' ', '/');
 
             // Get the position of the first slash, signaling the next entry in the path
-            int nextChildIndex = path.IndexOf('/');
+            var nextChildIndex = path.IndexOf('/');
 
             // if there is no slash it means we have reached the end of the path
             if (nextChildIndex < 0)

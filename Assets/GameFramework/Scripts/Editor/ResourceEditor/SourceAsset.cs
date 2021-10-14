@@ -17,10 +17,7 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public SourceAsset(string guid, string path, string name, SourceFolder folder)
         {
-            if (folder == null)
-            {
-                throw new GameFrameworkException("Source asset folder is invalid.");
-            }
+            if (folder == null) throw new GameFrameworkException("Source asset folder is invalid.");
 
             Guid = guid;
             Path = path;
@@ -29,54 +26,24 @@ namespace UnityGameFramework.Editor.ResourceTools
             m_CachedIcon = null;
         }
 
-        public string Guid
-        {
-            get;
-            private set;
-        }
+        public string Guid { get; }
 
-        public string Path
-        {
-            get;
-            private set;
-        }
+        public string Path { get; }
 
-        public string Name
-        {
-            get;
-            private set;
-        }
+        public string Name { get; }
 
-        public SourceFolder Folder
-        {
-            get;
-            private set;
-        }
+        public SourceFolder Folder { get; }
 
-        public string FromRootPath
-        {
-            get
-            {
-                return Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name);
-            }
-        }
+        public string FromRootPath =>
+            Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name);
 
-        public int Depth
-        {
-            get
-            {
-                return Folder != null ? Folder.Depth + 1 : 0;
-            }
-        }
+        public int Depth => Folder != null ? Folder.Depth + 1 : 0;
 
         public Texture Icon
         {
             get
             {
-                if (m_CachedIcon == null)
-                {
-                    m_CachedIcon = AssetDatabase.GetCachedIcon(Path);
-                }
+                if (m_CachedIcon == null) m_CachedIcon = AssetDatabase.GetCachedIcon(Path);
 
                 return m_CachedIcon;
             }

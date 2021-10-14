@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using Narrative.Editor.Views;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -10,7 +7,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VisualGraphEditor;
 using VisualGraphRuntime;
-using Object = UnityEngine.Object;
 
 namespace Project.NodeSystem.Editor
 {
@@ -19,12 +15,12 @@ namespace Project.NodeSystem.Editor
         #region Manipulators
 
         /// <summary>
-        /// Ajoute un onglet "Add Group" dans le menu contextuel (clic droit)
+        ///     Ajoute un onglet "Add Group" dans le menu contextuel (clic droit)
         /// </summary>
         /// <returns></returns>
         public static IManipulator AddGroupContextualMenu(NarrativeGraphView graphView)
         {
-            ContextualMenuManipulator cmm = new ContextualMenuManipulator
+            var cmm = new ContextualMenuManipulator
             (
                 menuEvent => menuEvent.menu.AppendAction("Add Group ",
                     actionEvent => CreateGroupBlock(graphView,
@@ -35,12 +31,12 @@ namespace Project.NodeSystem.Editor
 
 
         /// <summary>
-        /// Ajoute un onglet "Add Sticky Node" dans le menu contextuel (clic droit)
+        ///     Ajoute un onglet "Add Sticky Node" dans le menu contextuel (clic droit)
         /// </summary>
         /// <returns></returns>
         public static IManipulator AddStickyNoteContextualMenu(NarrativeGraphView graphView)
         {
-            ContextualMenuManipulator cmm = new ContextualMenuManipulator
+            var cmm = new ContextualMenuManipulator
             (
                 menuEvent => menuEvent.menu.AppendAction("Add Sticky Note ",
                     actionEvent => CreateStickyNote(graphView,
@@ -61,7 +57,7 @@ namespace Project.NodeSystem.Editor
             var narrativeGraph = view.NarrativeGraph;
             if (!narrativeGraph) return null;
             Undo.RecordObject(narrativeGraph, "Create Node");
-            VisualGraphGroup block = new VisualGraphGroup()
+            var block = new VisualGraphGroup
             {
                 title = "New Graph Group",
                 position = new Rect(position, new Vector2(200, 300))
@@ -77,7 +73,7 @@ namespace Project.NodeSystem.Editor
             var narrativeGraph = view.NarrativeGraph;
             if (!narrativeGraph) return null;
             Undo.RecordObject(narrativeGraph, "Create Node");
-            VisualGraphGroup block = new VisualGraphGroup()
+            var block = new VisualGraphGroup
             {
                 title = "New Graph Group",
                 position = new Rect(position, new Vector2(200, 300))
@@ -107,10 +103,10 @@ namespace Project.NodeSystem.Editor
         public static void RefreshGroupBlockNodes(NarrativeGraphView graphView, VisualGraphGroupView groupView,
             VisualGraphGroup graphGroup)
         {
-            HashSet<GraphElement> nodes = new HashSet<GraphElement>();
+            var nodes = new HashSet<GraphElement>();
             foreach (var node_guid in graphGroup.node_guids)
             {
-                VisualGraphNode node = graphView.NarrativeGraph.FindNodeByGuid(node_guid);
+                var node = graphView.NarrativeGraph.FindNodeByGuid(node_guid);
                 if (node != null)
                     nodes.Add(node.graphElement as GraphElement);
             }
@@ -124,7 +120,7 @@ namespace Project.NodeSystem.Editor
         #region StickyNote
 
         /// <summary>
-        /// Cr�e une StickyNote dans la GraphView
+        ///     Cr�e une StickyNote dans la GraphView
         /// </summary>
         /// <param name="title"></param>
         /// <param name="localMousePosition"></param>
@@ -133,7 +129,7 @@ namespace Project.NodeSystem.Editor
         {
             var narrativeGraph = view.NarrativeGraph;
             if (!narrativeGraph) return null;
-            NarativeStickyNote note = new NarativeStickyNote
+            var note = new NarativeStickyNote
             {
                 title = "Note",
                 theme = StickyNoteTheme.Classic,
@@ -145,14 +141,13 @@ namespace Project.NodeSystem.Editor
             //Change la couleur du groupe dans la Minimap
             //note.ChangeColorInMinimap("#CCAA33");
             //note.AddStyle("Note");
-            if (view.NarrativeGraph)
-                view.NarrativeGraph.StickyNotes.Add(note);
+            view?.StickyNotes.Add(note);
             AddStickyNote(view, note);
             return note;
         }
 
         /// <summary>
-        /// Cr�e une StickyNote dans la GraphView
+        ///     Cr�e une StickyNote dans la GraphView
         /// </summary>
         /// <param name="title"></param>
         /// <param name="localMousePosition"></param>
@@ -162,7 +157,7 @@ namespace Project.NodeSystem.Editor
         {
             var narrativeGraph = view.NarrativeGraph;
             if (!narrativeGraph) return null;
-            NarativeStickyNote note = new NarativeStickyNote
+            var note = new NarativeStickyNote
             {
                 title = "Note",
                 theme = StickyNoteTheme.Classic,
@@ -174,14 +169,13 @@ namespace Project.NodeSystem.Editor
             //Change la couleur du groupe dans la Minimap
             //note.ChangeColorInMinimap("#CCAA33");
             //note.AddStyle("Note");
-            if (view.NarrativeGraph)
-                view.NarrativeGraph.StickyNotes.Add(note);
+                view?.StickyNotes.Add(note);
             return note;
         }
 
         public static void AddStickyNote(this NarrativeGraphView view, NarativeStickyNote stickyNote)
         {
-            StickyNote noteView = new StickyNote()
+            var noteView = new StickyNote
             {
                 title = stickyNote.title,
                 contents = stickyNote.contents,
@@ -196,7 +190,7 @@ namespace Project.NodeSystem.Editor
             // noteView.RegisterCallback<ChangeEvent<StickyNoteTheme>>(evt => stickyNote.theme = evt.newValue);
             noteView.RegisterCallback<StickyNoteChangeEvent>(evt =>
                 {
-                    var targetNote = ((StickyNote)evt.target);
+                    var targetNote = (StickyNote)evt.target;
                     stickyNote.position = targetNote.GetPosition();
                     stickyNote.title = targetNote.title;
                     stickyNote.contents = targetNote.contents;
@@ -216,51 +210,47 @@ namespace Project.NodeSystem.Editor
         public static Vector2 GetLocalMousePosition(this NarrativeGraphView graphView, Vector2 localMousePosition)
         {
             //Convertit localMousePosition pour l'adapter au Rect de la fen�tre
-            Vector2 graphMousePos = graphView.contentViewContainer.WorldToLocal(localMousePosition);
+            var graphMousePos = graphView.contentViewContainer.WorldToLocal(localMousePosition);
 
             return graphMousePos;
         }
 
         public static void CopyFields(Object origin, Object target)
         {
-            Type type = origin.GetType();
+            var type = origin.GetType();
             var fieldInfos = type.GetRuntimeFields();
 
             foreach (var info in fieldInfos)
-            {
-                if ((info.IsDefined(typeof(SerializeField), true)))
+                if (info.IsDefined(typeof(SerializeField), true))
                 {
                     var originValue = info.GetValue(origin);
                     info.SetValue(target, originValue);
                 }
-            }
 
-            Type basetype = type.BaseType;
+            var basetype = type.BaseType;
             var basefieldInfos = basetype.GetRuntimeFields();
             foreach (var info in basefieldInfos)
-            {
-                if ((info.IsDefined(typeof(SerializeField), true)))
+                if (info.IsDefined(typeof(SerializeField), true))
                 {
                     var originValue = info.GetValue(origin);
                     info.SetValue(target, originValue);
                 }
-            }
         }
 
 
         /// <summary>
-        /// CopyNodesConnect
+        ///     CopyNodesConnect
         /// </summary>
         /// <param name="originNodes"></param>
         /// <param name="copyNodes"></param>
         public static void CopyNodesConnect(NarrativeGraphView view, List<NarrativeNode> originNodes,
             List<NarrativeNode> copyNodes)
         {
-            for (int i = 0; i < originNodes.Count; i++)
+            for (var i = 0; i < originNodes.Count; i++)
             {
                 var oNode = originNodes[i];
 
-                for (int j = 0; j < originNodes.Count; j++)
+                for (var j = 0; j < originNodes.Count; j++)
                 {
                     if (i == j) continue;
                     var connectPortIndexes = oNode.GetConnectPortIndexes(originNodes[j]);
@@ -273,23 +263,19 @@ namespace Project.NodeSystem.Editor
             }
 
             foreach (VisualGraphNode graphNode in copyNodes)
-            {
-                foreach (VisualGraphPort graphPort in graphNode.Ports)
+            foreach (var graphPort in graphNode.Ports)
+                if (graphPort.Direction == VisualGraphPort.PortDirection.Output)
                 {
-                    if (graphPort.Direction == VisualGraphPort.PortDirection.Output)
+                    var port = graphPort.editor_port as Port;
+                    foreach (var graph_connection in
+                        graphPort.Connections)
                     {
-                        Port port = graphPort.editor_port as Port;
-                        foreach (VisualGraphPort.VisualGraphPortConnection graph_connection in
-                            graphPort.Connections)
-                        {
-                            VisualGraphPort other_port =
-                                graph_connection.Node.FindPortByGuid(graph_connection.port_guid);
-                            Port other_editor_port = other_port.editor_port as Port;
-                            view.AddElement(port.ConnectTo(other_editor_port));
-                        }
+                        var other_port =
+                            graph_connection.Node.FindPortByGuid(graph_connection.port_guid);
+                        var other_editor_port = other_port.editor_port as Port;
+                        view.AddElement(port.ConnectTo(other_editor_port));
                     }
                 }
-            }
         }
 
         public static void CopyGroupedNodes(VisualGraphGroup originGroup, VisualGraphGroup copyGroup,

@@ -3,58 +3,58 @@
 // date: 2020
 // Copyright (c) Bus Stop Studios.
 ///-------------------------------------------------------------------------------------------------
+
 using System;
 using UnityEngine;
 
 namespace VisualGraphRuntime
 {
 	/// <summary>
-	/// Base class for all Blackboard Properties
+	///     Base class for all Blackboard Properties
 	/// </summary>
 	[Serializable]
-	public abstract class AbstractBlackboardProperty : ScriptableObject
-	{
-		[HideInInspector] public bool overrideProperty; // used in the component at runtime
-		[HideInInspector] public string guid;
-		public string Name;
+    public abstract class AbstractBlackboardProperty : ScriptableObject
+    {
+        [HideInInspector] public bool overrideProperty; // used in the component at runtime
+        [HideInInspector] public string guid;
+        public string Name;
 
-		public virtual void Copy(AbstractBlackboardProperty property)
-		{
-			guid = property.guid;
-			Name = property.Name;
-		}
-	}
+        public virtual void Copy(AbstractBlackboardProperty property)
+        {
+            guid = property.guid;
+            Name = property.Name;
+        }
+    }
 
 	/// <summary>
-	/// Generic base class for all Blackboard Properties that contain the value
+	///     Generic base class for all Blackboard Properties that contain the value
 	/// </summary>
 	[Serializable]
-	public abstract class AbstractBlackboardProperty<T> : AbstractBlackboardProperty
-	{
-		[SerializeField] [HideInInspector] public T abstractData;
-		public Type PropertyType => typeof(T);
+    public abstract class AbstractBlackboardProperty<T> : AbstractBlackboardProperty
+    {
+        [SerializeField] [HideInInspector] public T abstractData;
+        public Type PropertyType => typeof(T);
 
-		public override void Copy(AbstractBlackboardProperty property)
-		{
-			base.Copy(property);
+        public virtual T Value
+        {
+            get => abstractData;
+            set
+            {
+                abstractData = value;
+                OnDataChanged();
+            }
+        }
 
-			AbstractBlackboardProperty<T> propertyT = property as AbstractBlackboardProperty<T>;
-			if (propertyT != null)
-			{
-				abstractData = propertyT.Value;
-			}
-		}
+        public override void Copy(AbstractBlackboardProperty property)
+        {
+            base.Copy(property);
 
-		protected virtual void OnDataChanged() { }
+            var propertyT = property as AbstractBlackboardProperty<T>;
+            if (propertyT != null) abstractData = propertyT.Value;
+        }
 
-		public virtual T Value
-		{
-			get => abstractData;
-			set
-			{
-				abstractData = value;
-				OnDataChanged();
-			}
-		}
-	}
+        protected virtual void OnDataChanged()
+        {
+        }
+    }
 }

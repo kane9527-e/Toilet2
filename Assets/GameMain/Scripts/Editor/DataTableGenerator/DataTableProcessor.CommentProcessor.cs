@@ -5,57 +5,28 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using System;
 using System.IO;
 
 namespace GameMain.Scripts.Editor.DataTableGenerator
 {
     public sealed partial class DataTableProcessor
     {
-        private sealed class CommentProcessor : DataTableProcessor.DataProcessor
+        private sealed class CommentProcessor : DataProcessor
         {
-            public override System.Type Type
-            {
-                get
-                {
-                    return null;
-                }
-            }
+            public override Type Type => null;
 
-            public override bool IsId
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            public override bool IsId => false;
 
-            public override bool IsComment
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsComment => true;
 
-            public override bool IsSystem
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            public override bool IsSystem => false;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return null;
-                }
-            }
+            public override string LanguageKeyword => null;
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     string.Empty,
                     "#",
@@ -63,7 +34,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 };
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
             }
         }

@@ -10,14 +10,13 @@ using System;
 namespace VisualGraphRuntime
 {
     /// <summary>
-    /// 
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class NodeNameAttribute : Attribute
     {
         public string name;
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public NodeNameAttribute(string _name)
@@ -27,15 +26,13 @@ namespace VisualGraphRuntime
     }
 
     /// <summary>
-    /// 
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class DefaultNodeTypeAttribute : Attribute
     {
         public Type type;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public DefaultNodeTypeAttribute(Type _type)
@@ -44,13 +41,12 @@ namespace VisualGraphRuntime
         }
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class DefaultPortTypeAttribute : Attribute
     {
         public Type type;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public DefaultPortTypeAttribute(Type _type)
@@ -60,9 +56,8 @@ namespace VisualGraphRuntime
     }
 
     /// <summary>
-    /// 
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class NodePortAggregateAttribute : Attribute
     {
         public enum PortAggregate
@@ -70,24 +65,23 @@ namespace VisualGraphRuntime
             None,
             Single,
             Multiple
-        };
+        }
 
         public PortAggregate InputPortAggregate = PortAggregate.Single;
         public PortAggregate OutputPortAggregate = PortAggregate.Multiple;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public NodePortAggregateAttribute(PortAggregate InputPortDynamics = PortAggregate.Single,
             PortAggregate OutputPortDynamics = PortAggregate.Multiple)
         {
-            this.InputPortAggregate = InputPortDynamics;
-            this.OutputPortAggregate = OutputPortDynamics;
+            InputPortAggregate = InputPortDynamics;
+            OutputPortAggregate = OutputPortDynamics;
         }
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class PortCapacityAttribute : Attribute
     {
         //
@@ -110,7 +104,6 @@ namespace VisualGraphRuntime
         public Capacity OutputPortCapacity = Capacity.Single;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public PortCapacityAttribute(Capacity InputPortCapacity = Capacity.Multi,
@@ -121,7 +114,7 @@ namespace VisualGraphRuntime
         }
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class GraphOrientationAttribute : Attribute
     {
         //
@@ -143,7 +136,6 @@ namespace VisualGraphRuntime
         public Orientation GrapOrientation = Orientation.Horizontal;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public GraphOrientationAttribute(Orientation GrapOrientation = Orientation.Horizontal)
@@ -152,13 +144,12 @@ namespace VisualGraphRuntime
         }
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class CustomNodeStyleAttribute : Attribute
     {
         public string style;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public CustomNodeStyleAttribute(string style)
@@ -166,20 +157,19 @@ namespace VisualGraphRuntime
             this.style = style;
         }
     }
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+
+    [AttributeUsage(AttributeTargets.Class)]
     public class CanNotConnectSameNodeAttribute : Attribute
     {
-        
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class PortTypeAttribute : Attribute
     {
-        public Type InputType = default;
-        public Type OutputType = default;
+        public Type InputType;
+        public Type OutputType;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="_name"></param>
         public PortTypeAttribute(Type InputType, Type OutputType)

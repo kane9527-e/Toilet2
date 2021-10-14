@@ -1,7 +1,5 @@
 using GameMain.Scripts.Procedure;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 
@@ -15,7 +13,7 @@ namespace GameMain.Scripts.UI
 
         #endregion
 
-        private ProcedureMenuLogic m_ProcedureMenu = null;
+        private ProcedureMenuLogic m_ProcedureMenu;
 
         protected override void OnInit(object userData)
         {
@@ -29,11 +27,10 @@ namespace GameMain.Scripts.UI
         protected internal override void OnOpen(object userData)
 #endif
         {
-            m_ProcedureMenu = (ProcedureMenuLogic) userData;
+            m_ProcedureMenu = (ProcedureMenuLogic)userData;
             if (m_ProcedureMenu == null)
             {
                 Log.Warning("ProcedureMenu is invalid when open MenuForm.");
-                return;
             }
         }
 

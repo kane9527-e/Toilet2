@@ -13,20 +13,11 @@ namespace Narrative.Editor.Scripts
         {
             var database = (NarrativeDataBase)target;
 
-            foreach (var key in database.SavedKeys)
-            {
-                EditorGUILayout.SelectableLabel(key);
-            }
+            foreach (var key in database.SavedKeys) EditorGUILayout.SelectableLabel(key);
 
-            if (GUILayout.Button("ClearDataBasePerfs"))
-            {
-                database.ClearAllData();
-            }
+            if (GUILayout.Button("ClearDataBasePerfs")) database.ClearAllData();
             //
-            if (GUILayout.Button("ClearAllPerfs"))
-            {
-                PlayerPrefs.DeleteAll();
-            }
+            if (GUILayout.Button("ClearAllPerfs")) PlayerPrefs.DeleteAll();
         }
     }
 }

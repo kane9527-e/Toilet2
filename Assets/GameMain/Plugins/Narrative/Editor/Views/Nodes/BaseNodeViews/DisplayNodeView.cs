@@ -1,9 +1,12 @@
 using System.Linq;
 using Narrative.Runtime.Scripts.EventConfig;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 using VisualGraphEditor;
+using VisualGraphRuntime;
 
 // ReSharper disable once CheckNamespace
 namespace Narrative.Editor.Views.Nodes.BaseNodeViews
@@ -12,14 +15,14 @@ namespace Narrative.Editor.Views.Nodes.BaseNodeViews
     public class DisplayNodeView : NarrativeNodeView
     {
         private DisplayNode _node;
-        
+
         public override void DrawNode()
         {
-            _node = ((DisplayNode)nodeTarget);
+            _node = (DisplayNode)nodeTarget;
 
             DrawNodeDataView();
 
-            ObjectField eventConfigField = new ObjectField();
+            var eventConfigField = new ObjectField();
             eventConfigField.tooltip = "EventConfig";
             eventConfigField.objectType = typeof(EventConfig);
             eventConfigField.value = _node.EventConfig;
@@ -34,13 +37,36 @@ namespace Narrative.Editor.Views.Nodes.BaseNodeViews
             mainContainer.Add(NodeDataView);
         }
 
-        protected void RefreshEventInspectorGUI(VisualElement view,EventConfig config)
+        public override bool CompatiblePortCondition(Direction direction, VisualGraphNode targetPortNode)
+        {
+            if (direction == Direction.Output)
+            {
+                var targetType = targetPortNode.GetType();
+                if (targetType == typeof(TriggerNode) || targetType.BaseType == typeof(TriggerNode)) return true;
+                if (targetType == typeof(BranchNode) || targetType.BaseType == typeof(BranchNode)) return true;
+                if (!OutputsHasConnect) return true;
+                if (OutputsIsExtensionNode()) return true;
+                return OutputsHasType(targetType);
+            }
+
+            if (direction == Direction.Input)
+                //if (!InputsHasConnect) return true;
+                if (targetPortNode.GetType().BaseType == typeof(DisplayNode))
+                {
+                    var displayNode = (DisplayNode)targetPortNode;
+                    if (!((NarrativeNodeView)displayNode.graphElement).OutputsHasConnect) return true;
+                    return OutputsHasType(GetType());
+                }
+
+            return true;
+        }
+
+
+        protected void RefreshEventInspectorGUI(VisualElement view, EventConfig config)
         {
             foreach (var child in view.Children().ToArray())
-            {
                 if (child is IMGUIContainer)
                     view.Remove(child);
-            }
 
             if (config)
             {

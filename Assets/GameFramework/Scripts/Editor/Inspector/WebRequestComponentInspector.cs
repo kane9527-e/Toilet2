@@ -5,10 +5,10 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System;
 using System.IO;
 using System.Text;
+using GameFramework;
 using UnityEditor;
 using UnityEngine;
 using UnityGameFramework.Runtime;
@@ -18,11 +18,23 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(WebRequestComponent))]
     internal sealed class WebRequestComponentInspector : GameFrameworkInspector
     {
-        private SerializedProperty m_InstanceRoot = null;
-        private SerializedProperty m_WebRequestAgentHelperCount = null;
-        private SerializedProperty m_Timeout = null;
+        private SerializedProperty m_InstanceRoot;
+        private SerializedProperty m_Timeout;
+        private SerializedProperty m_WebRequestAgentHelperCount;
 
-        private HelperInfo<WebRequestAgentHelperBase> m_WebRequestAgentHelperInfo = new HelperInfo<WebRequestAgentHelperBase>("WebRequestAgent");
+        private readonly HelperInfo<WebRequestAgentHelperBase> m_WebRequestAgentHelperInfo =
+            new HelperInfo<WebRequestAgentHelperBase>("WebRequestAgent");
+
+        private void OnEnable()
+        {
+            m_InstanceRoot = serializedObject.FindProperty("m_InstanceRoot");
+            m_WebRequestAgentHelperCount = serializedObject.FindProperty("m_WebRequestAgentHelperCount");
+            m_Timeout = serializedObject.FindProperty("m_Timeout");
+
+            m_WebRequestAgentHelperInfo.Init(serializedObject);
+
+            RefreshTypeNames();
+        }
 
         public override void OnInspectorGUI()
         {
@@ -30,7 +42,7 @@ namespace UnityGameFramework.Editor
 
             serializedObject.Update();
 
-            WebRequestComponent t = (WebRequestComponent)target;
+            var t = (WebRequestComponent)target;
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
@@ -38,21 +50,18 @@ namespace UnityGameFramework.Editor
 
                 m_WebRequestAgentHelperInfo.Draw();
 
-                m_WebRequestAgentHelperCount.intValue = EditorGUILayout.IntSlider("Web Request Agent Helper Count", m_WebRequestAgentHelperCount.intValue, 1, 16);
+                m_WebRequestAgentHelperCount.intValue = EditorGUILayout.IntSlider("Web Request Agent Helper Count",
+                    m_WebRequestAgentHelperCount.intValue, 1, 16);
             }
             EditorGUI.EndDisabledGroup();
 
-            float timeout = EditorGUILayout.Slider("Timeout", m_Timeout.floatValue, 0f, 120f);
+            var timeout = EditorGUILayout.Slider("Timeout", m_Timeout.floatValue, 0f, 120f);
             if (timeout != m_Timeout.floatValue)
             {
                 if (EditorApplication.isPlaying)
-                {
                     t.Timeout = timeout;
-                }
                 else
-                {
                     m_Timeout.floatValue = timeout;
-                }
             }
 
             if (EditorApplication.isPlaying && IsPrefabInHierarchy(t.gameObject))
@@ -63,37 +72,37 @@ namespace UnityGameFramework.Editor
                 EditorGUILayout.LabelField("Waiting Agent Count", t.WaitingTaskCount.ToString());
                 EditorGUILayout.BeginVertical("box");
                 {
-                    TaskInfo[] webRequestInfos = t.GetAllWebRequestInfos();
+                    var webRequestInfos = t.GetAllWebRequestInfos();
                     if (webRequestInfos.Length > 0)
                     {
-                        foreach (TaskInfo webRequestInfo in webRequestInfos)
-                        {
-                            DrawWebRequestInfo(webRequestInfo);
-                        }
+                        foreach (var webRequestInfo in webRequestInfos) DrawWebRequestInfo(webRequestInfo);
 
                         if (GUILayout.Button("Export CSV Data"))
                         {
-                            string exportFileName = EditorUtility.SaveFilePanel("Export CSV Data", string.Empty, "WebRequest Task Data.csv", string.Empty);
+                            var exportFileName = EditorUtility.SaveFilePanel("Export CSV Data", string.Empty,
+                                "WebRequest Task Data.csv", string.Empty);
                             if (!string.IsNullOrEmpty(exportFileName))
-                            {
                                 try
                                 {
-                                    int index = 0;
-                                    string[] data = new string[webRequestInfos.Length + 1];
+                                    var index = 0;
+                                    var data = new string[webRequestInfos.Length + 1];
                                     data[index++] = "WebRequest Uri,Serial Id,Tag,Priority,Status";
-                                    foreach (TaskInfo webRequestInfo in webRequestInfos)
-                                    {
-                                        data[index++] = Utility.Text.Format("{0},{1},{2},{3},{4}", webRequestInfo.Description, webRequestInfo.SerialId.ToString(), webRequestInfo.Tag ?? string.Empty, webRequestInfo.Priority.ToString(), webRequestInfo.Status.ToString());
-                                    }
+                                    foreach (var webRequestInfo in webRequestInfos)
+                                        data[index++] = Utility.Text.Format("{0},{1},{2},{3},{4}",
+                                            webRequestInfo.Description, webRequestInfo.SerialId.ToString(),
+                                            webRequestInfo.Tag ?? string.Empty, webRequestInfo.Priority.ToString(),
+                                            webRequestInfo.Status.ToString());
 
                                     File.WriteAllLines(exportFileName, data, Encoding.UTF8);
-                                    Debug.Log(Utility.Text.Format("Export web request task CSV data to '{0}' success.", exportFileName));
+                                    Debug.Log(Utility.Text.Format("Export web request task CSV data to '{0}' success.",
+                                        exportFileName));
                                 }
                                 catch (Exception exception)
                                 {
-                                    Debug.LogError(Utility.Text.Format("Export web request task CSV data to '{0}' failure, exception is '{1}'.", exportFileName, exception.ToString()));
+                                    Debug.LogError(Utility.Text.Format(
+                                        "Export web request task CSV data to '{0}' failure, exception is '{1}'.",
+                                        exportFileName, exception.ToString()));
                                 }
-                            }
                         }
                     }
                     else
@@ -116,20 +125,12 @@ namespace UnityGameFramework.Editor
             RefreshTypeNames();
         }
 
-        private void OnEnable()
-        {
-            m_InstanceRoot = serializedObject.FindProperty("m_InstanceRoot");
-            m_WebRequestAgentHelperCount = serializedObject.FindProperty("m_WebRequestAgentHelperCount");
-            m_Timeout = serializedObject.FindProperty("m_Timeout");
-
-            m_WebRequestAgentHelperInfo.Init(serializedObject);
-
-            RefreshTypeNames();
-        }
-
         private void DrawWebRequestInfo(TaskInfo webRequestInfo)
         {
-            EditorGUILayout.LabelField(webRequestInfo.Description, Utility.Text.Format("[SerialId]{0} [Tag]{1} [Priority]{2} [Status]{3}", webRequestInfo.SerialId.ToString(), webRequestInfo.Tag ?? "<None>", webRequestInfo.Priority.ToString(), webRequestInfo.Status.ToString()));
+            EditorGUILayout.LabelField(webRequestInfo.Description,
+                Utility.Text.Format("[SerialId]{0} [Tag]{1} [Priority]{2} [Status]{3}",
+                    webRequestInfo.SerialId.ToString(), webRequestInfo.Tag ?? "<None>",
+                    webRequestInfo.Priority.ToString(), webRequestInfo.Status.ToString()));
         }
 
         private void RefreshTypeNames()

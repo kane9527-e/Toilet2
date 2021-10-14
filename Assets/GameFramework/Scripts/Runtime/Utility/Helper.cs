@@ -11,12 +11,12 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 辅助器创建器相关的实用函数。
+    ///     辅助器创建器相关的实用函数。
     /// </summary>
     public static class Helper
     {
         /// <summary>
-        /// 创建辅助器。
+        ///     创建辅助器。
         /// </summary>
         /// <typeparam name="T">要创建的辅助器类型。</typeparam>
         /// <param name="helperTypeName">要创建的辅助器类型名称。</param>
@@ -28,7 +28,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建辅助器。
+        ///     创建辅助器。
         /// </summary>
         /// <typeparam name="T">要创建的辅助器类型。</typeparam>
         /// <param name="helperTypeName">要创建的辅助器类型名称。</param>
@@ -40,7 +40,7 @@ namespace UnityGameFramework.Runtime
             T helper = null;
             if (!string.IsNullOrEmpty(helperTypeName))
             {
-                System.Type helperType = Utility.Assembly.GetType(helperTypeName);
+                var helperType = Utility.Assembly.GetType(helperTypeName);
                 if (helperType == null)
                 {
                     Log.Warning("Can not find helper type '{0}'.", helperTypeName);

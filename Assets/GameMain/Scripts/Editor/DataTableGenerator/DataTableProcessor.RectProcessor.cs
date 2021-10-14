@@ -14,25 +14,13 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
     {
         private sealed class RectProcessor : GenericDataProcessor<Rect>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return false;
-                }
-            }
+            public override bool IsSystem => false;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "Rect";
-                }
-            }
+            public override string LanguageKeyword => "Rect";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "rect",
                     "unityengine.rect"
@@ -41,13 +29,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 
             public override Rect Parse(string value)
             {
-                string[] splitedValue = value.Split(',');
-                return new Rect(float.Parse(splitedValue[0]), float.Parse(splitedValue[1]), float.Parse(splitedValue[2]), float.Parse(splitedValue[3]));
+                var splitedValue = value.Split(',');
+                return new Rect(float.Parse(splitedValue[0]), float.Parse(splitedValue[1]),
+                    float.Parse(splitedValue[2]), float.Parse(splitedValue[3]));
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
-                Rect rect = Parse(value);
+                var rect = Parse(value);
                 binaryWriter.Write(rect.x);
                 binaryWriter.Write(rect.y);
                 binaryWriter.Write(rect.width);

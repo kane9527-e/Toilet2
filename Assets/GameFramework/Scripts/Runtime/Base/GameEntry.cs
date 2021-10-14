@@ -5,28 +5,29 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System;
-using System.Collections.Generic;
+using GameFramework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 游戏入口。
+    ///     游戏入口。
     /// </summary>
     public static class GameEntry
     {
-        private static readonly GameFrameworkLinkedList<GameFrameworkComponent> s_GameFrameworkComponents = new GameFrameworkLinkedList<GameFrameworkComponent>();
-
         /// <summary>
-        /// 游戏框架所在的场景编号。
+        ///     游戏框架所在的场景编号。
         /// </summary>
         internal const int GameFrameworkSceneId = 0;
 
+        private static readonly GameFrameworkLinkedList<GameFrameworkComponent> s_GameFrameworkComponents =
+            new GameFrameworkLinkedList<GameFrameworkComponent>();
+
         /// <summary>
-        /// 获取游戏框架组件。
+        ///     获取游戏框架组件。
         /// </summary>
         /// <typeparam name="T">要获取的游戏框架组件类型。</typeparam>
         /// <returns>要获取的游戏框架组件。</returns>
@@ -36,19 +37,16 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取游戏框架组件。
+        ///     获取游戏框架组件。
         /// </summary>
         /// <param name="type">要获取的游戏框架组件类型。</param>
         /// <returns>要获取的游戏框架组件。</returns>
         public static GameFrameworkComponent GetComponent(Type type)
         {
-            LinkedListNode<GameFrameworkComponent> current = s_GameFrameworkComponents.First;
+            var current = s_GameFrameworkComponents.First;
             while (current != null)
             {
-                if (current.Value.GetType() == type)
-                {
-                    return current.Value;
-                }
+                if (current.Value.GetType() == type) return current.Value;
 
                 current = current.Next;
             }
@@ -57,20 +55,17 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取游戏框架组件。
+        ///     获取游戏框架组件。
         /// </summary>
         /// <param name="typeName">要获取的游戏框架组件类型名称。</param>
         /// <returns>要获取的游戏框架组件。</returns>
         public static GameFrameworkComponent GetComponent(string typeName)
         {
-            LinkedListNode<GameFrameworkComponent> current = s_GameFrameworkComponents.First;
+            var current = s_GameFrameworkComponents.First;
             while (current != null)
             {
-                Type type = current.Value.GetType();
-                if (type.FullName == typeName || type.Name == typeName)
-                {
-                    return current.Value;
-                }
+                var type = current.Value.GetType();
+                if (type.FullName == typeName || type.Name == typeName) return current.Value;
 
                 current = current.Next;
             }
@@ -79,13 +74,13 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 关闭游戏框架。
+        ///     关闭游戏框架。
         /// </summary>
         /// <param name="shutdownType">关闭游戏框架类型。</param>
         public static void Shutdown(ShutdownType shutdownType)
         {
             Log.Info("Shutdown Game Framework ({0})...", shutdownType.ToString());
-            BaseComponent baseComponent = GetComponent<BaseComponent>();
+            var baseComponent = GetComponent<BaseComponent>();
             if (baseComponent != null)
             {
                 baseComponent.Shutdown();
@@ -94,10 +89,7 @@ namespace UnityGameFramework.Runtime
 
             s_GameFrameworkComponents.Clear();
 
-            if (shutdownType == ShutdownType.None)
-            {
-                return;
-            }
+            if (shutdownType == ShutdownType.None) return;
 
             if (shutdownType == ShutdownType.Restart)
             {
@@ -109,14 +101,13 @@ namespace UnityGameFramework.Runtime
             {
                 Application.Quit();
 #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
+                EditorApplication.isPlaying = false;
 #endif
-                return;
             }
         }
 
         /// <summary>
-        /// 注册游戏框架组件。
+        ///     注册游戏框架组件。
         /// </summary>
         /// <param name="gameFrameworkComponent">要注册的游戏框架组件。</param>
         internal static void RegisterComponent(GameFrameworkComponent gameFrameworkComponent)
@@ -127,9 +118,9 @@ namespace UnityGameFramework.Runtime
                 return;
             }
 
-            Type type = gameFrameworkComponent.GetType();
+            var type = gameFrameworkComponent.GetType();
 
-            LinkedListNode<GameFrameworkComponent> current = s_GameFrameworkComponents.First;
+            var current = s_GameFrameworkComponents.First;
             while (current != null)
             {
                 if (current.Value.GetType() == type)

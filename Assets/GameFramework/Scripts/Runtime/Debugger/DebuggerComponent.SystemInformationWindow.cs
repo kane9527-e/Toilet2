@@ -25,8 +25,10 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Device Model", SystemInfo.deviceModel);
                     DrawItem("Processor Type", SystemInfo.processorType);
                     DrawItem("Processor Count", SystemInfo.processorCount.ToString());
-                    DrawItem("Processor Frequency", Utility.Text.Format("{0} MHz", SystemInfo.processorFrequency.ToString()));
-                    DrawItem("System Memory Size", Utility.Text.Format("{0} MB", SystemInfo.systemMemorySize.ToString()));
+                    DrawItem("Processor Frequency",
+                        Utility.Text.Format("{0} MHz", SystemInfo.processorFrequency.ToString()));
+                    DrawItem("System Memory Size",
+                        Utility.Text.Format("{0} MB", SystemInfo.systemMemorySize.ToString()));
 #if UNITY_5_5_OR_NEWER
                     DrawItem("Operating System Family", SystemInfo.operatingSystemFamily.ToString());
 #endif
@@ -50,10 +52,7 @@ namespace UnityGameFramework.Runtime
 
             private string GetBatteryLevelString(float batteryLevel)
             {
-                if (batteryLevel < 0f)
-                {
-                    return "Unavailable";
-                }
+                if (batteryLevel < 0f) return "Unavailable";
 
                 return batteryLevel.ToString("P0");
             }

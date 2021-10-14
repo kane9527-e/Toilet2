@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConditionSetting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,10 +13,7 @@ namespace Narrative.Runtime.Scripts.EventConfig
 
         public virtual void Trigger()
         {
-            foreach (var @event in events)
-            {
-                @event.CheckConditionInvokeEvent();
-            }
+            foreach (var @event in events) @event.CheckConditionInvokeEvent();
         }
 
         [Serializable]
@@ -28,10 +24,7 @@ namespace Narrative.Runtime.Scripts.EventConfig
 
             public void CheckConditionInvokeEvent()
             {
-                if (conditionConfig == null || conditionConfig.Result())
-                {
-                    nodeEvent?.Invoke();
-                }
+                if (conditionConfig == null || conditionConfig.Result()) nodeEvent?.Invoke();
             }
         }
     }

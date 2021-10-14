@@ -948,13 +948,13 @@ MonoBehaviour:
   StickyNotes:
   - position:
       serializedVersion: 2
-      x: 2061
-      y: 213.5
+      x: 1978
+      y: 220.5
       width: 200
       height: 200
-    title: "\u663E\u793A\u7B26\u53F7\u56FE\u7247"
+    title: "\u8C1C\u9898\u8BBE\u8BA1"
     theme: 0
-    contents: "\u8C1C\u9898\uFF1A\u624B\u673A\u5BC6\u7801"
+    contents: <i>Write your text here...</i>
     fontSize: 1
 --- !u!114 &1689562822080992412
 MonoBehaviour:

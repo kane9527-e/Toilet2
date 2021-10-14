@@ -54,7 +54,8 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Max Texture Size", SystemInfo.maxTextureSize.ToString());
                     DrawItem("Supported Render Target Count", SystemInfo.supportedRenderTargetCount.ToString());
 #if UNITY_2019_3_OR_NEWER
-                    DrawItem("Supported Random Write Target Count", SystemInfo.supportedRandomWriteTargetCount.ToString());
+                    DrawItem("Supported Random Write Target Count",
+                        SystemInfo.supportedRandomWriteTargetCount.ToString());
 #endif
 #if UNITY_5_4_OR_NEWER
                     DrawItem("Copy Texture Support", SystemInfo.copyTextureSupport.ToString());
@@ -73,7 +74,8 @@ namespace UnityGameFramework.Runtime
 #endif
 #if UNITY_2018_3_OR_NEWER
                     DrawItem("Has Hidden Surface Removal On GPU", SystemInfo.hasHiddenSurfaceRemovalOnGPU.ToString());
-                    DrawItem("Has Dynamic Uniform Array Indexing In Fragment Shaders", SystemInfo.hasDynamicUniformArrayIndexingInFragmentShaders.ToString());
+                    DrawItem("Has Dynamic Uniform Array Indexing In Fragment Shaders",
+                        SystemInfo.hasDynamicUniformArrayIndexingInFragmentShaders.ToString());
 #endif
 #if UNITY_2019_2_OR_NEWER
                     DrawItem("Has Mip Max Level", SystemInfo.hasMipMaxLevel.ToString());
@@ -82,8 +84,10 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Uses Load Store Actions", SystemInfo.usesLoadStoreActions.ToString());
                     DrawItem("Max Compute Buffer Inputs Compute", SystemInfo.maxComputeBufferInputsCompute.ToString());
                     DrawItem("Max Compute Buffer Inputs Domain", SystemInfo.maxComputeBufferInputsDomain.ToString());
-                    DrawItem("Max Compute Buffer Inputs Fragment", SystemInfo.maxComputeBufferInputsFragment.ToString());
-                    DrawItem("Max Compute Buffer Inputs Geometry", SystemInfo.maxComputeBufferInputsGeometry.ToString());
+                    DrawItem("Max Compute Buffer Inputs Fragment",
+                        SystemInfo.maxComputeBufferInputsFragment.ToString());
+                    DrawItem("Max Compute Buffer Inputs Geometry",
+                        SystemInfo.maxComputeBufferInputsGeometry.ToString());
                     DrawItem("Max Compute Buffer Inputs Hull", SystemInfo.maxComputeBufferInputsHull.ToString());
                     DrawItem("Max Compute Buffer Inputs Vertex", SystemInfo.maxComputeBufferInputsVertex.ToString());
                     DrawItem("Max Compute Work Group Size", SystemInfo.maxComputeWorkGroupSize.ToString());
@@ -98,7 +102,8 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Supports Sparse Textures", SystemInfo.supportsSparseTextures.ToString());
                     DrawItem("Supports 3D Textures", SystemInfo.supports3DTextures.ToString());
                     DrawItem("Supports Shadows", SystemInfo.supportsShadows.ToString());
-                    DrawItem("Supports Raw Shadow Depth Sampling", SystemInfo.supportsRawShadowDepthSampling.ToString());
+                    DrawItem("Supports Raw Shadow Depth Sampling",
+                        SystemInfo.supportsRawShadowDepthSampling.ToString());
 #if !UNITY_2019_1_OR_NEWER
                     DrawItem("Supports Render To Cubemap", SystemInfo.supportsRenderToCubemap.ToString());
                     DrawItem("Supports Image Effects", SystemInfo.supportsImageEffects.ToString());
@@ -134,10 +139,12 @@ namespace UnityGameFramework.Runtime
 #endif
 #if UNITY_2018_2_OR_NEWER
                     DrawItem("Supports Mip Streaming", SystemInfo.supportsMipStreaming.ToString());
-                    DrawItem("Supports Multi-sample Auto Resolve", SystemInfo.supportsMultisampleAutoResolve.ToString());
+                    DrawItem("Supports Multi-sample Auto Resolve",
+                        SystemInfo.supportsMultisampleAutoResolve.ToString());
 #endif
 #if UNITY_2018_3_OR_NEWER
-                    DrawItem("Supports Separated Render Targets Blend", SystemInfo.supportsSeparatedRenderTargetsBlend.ToString());
+                    DrawItem("Supports Separated Render Targets Blend",
+                        SystemInfo.supportsSeparatedRenderTargetsBlend.ToString());
 #endif
 #if UNITY_2019_1_OR_NEWER
                     DrawItem("Supports Set Constant Buffer", SystemInfo.supportsSetConstantBuffer.ToString());
@@ -153,9 +160,11 @@ namespace UnityGameFramework.Runtime
                     DrawItem("Supports GPU Recorder", SystemInfo.supportsGpuRecorder.ToString());
 #endif
 #if UNITY_2020_2_OR_NEWER
-                    DrawItem("Supports Multi-sampled 2D Array Textures", SystemInfo.supportsMultisampled2DArrayTextures.ToString());
+                    DrawItem("Supports Multi-sampled 2D Array Textures",
+                        SystemInfo.supportsMultisampled2DArrayTextures.ToString());
                     DrawItem("Supports Multiview", SystemInfo.supportsMultiview.ToString());
-                    DrawItem("Supports Render Target Array Index From Vertex Shader", SystemInfo.supportsRenderTargetArrayIndexFromVertexShader.ToString());
+                    DrawItem("Supports Render Target Array Index From Vertex Shader",
+                        SystemInfo.supportsRenderTargetArrayIndexFromVertexShader.ToString());
 #endif
                 }
                 GUILayout.EndVertical();
@@ -163,7 +172,8 @@ namespace UnityGameFramework.Runtime
 
             private string GetShaderLevelString(int shaderLevel)
             {
-                return Utility.Text.Format("Shader Model {0}.{1}", (shaderLevel / 10).ToString(), (shaderLevel % 10).ToString());
+                return Utility.Text.Format("Shader Model {0}.{1}", (shaderLevel / 10).ToString(),
+                    (shaderLevel % 10).ToString());
             }
         }
     }

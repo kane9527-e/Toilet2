@@ -5,36 +5,30 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
-using GameFramework.Fsm;
 using System;
 using System.Collections.Generic;
+using GameFramework;
+using GameFramework.Fsm;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 有限状态机组件。
+    ///     有限状态机组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/FSM")]
     public sealed class FsmComponent : GameFrameworkComponent
     {
-        private IFsmManager m_FsmManager = null;
+        private IFsmManager m_FsmManager;
 
         /// <summary>
-        /// 获取有限状态机数量。
+        ///     获取有限状态机数量。
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return m_FsmManager.Count;
-            }
-        }
+        public int Count => m_FsmManager.Count;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -44,7 +38,6 @@ namespace UnityGameFramework.Runtime
             if (m_FsmManager == null)
             {
                 Log.Fatal("FSM manager is invalid.");
-                return;
             }
         }
 
@@ -53,7 +46,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在有限状态机。
+        ///     检查是否存在有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <returns>是否存在有限状态机。</returns>
@@ -63,7 +56,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在有限状态机。
+        ///     检查是否存在有限状态机。
         /// </summary>
         /// <param name="ownerType">有限状态机持有者类型。</param>
         /// <returns>是否存在有限状态机。</returns>
@@ -73,7 +66,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在有限状态机。
+        ///     检查是否存在有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="name">有限状态机名称。</param>
@@ -84,7 +77,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在有限状态机。
+        ///     检查是否存在有限状态机。
         /// </summary>
         /// <param name="ownerType">有限状态机持有者类型。</param>
         /// <param name="name">有限状态机名称。</param>
@@ -95,7 +88,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取有限状态机。
+        ///     获取有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <returns>要获取的有限状态机。</returns>
@@ -105,7 +98,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取有限状态机。
+        ///     获取有限状态机。
         /// </summary>
         /// <param name="ownerType">有限状态机持有者类型。</param>
         /// <returns>要获取的有限状态机。</returns>
@@ -115,7 +108,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取有限状态机。
+        ///     获取有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="name">有限状态机名称。</param>
@@ -126,7 +119,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取有限状态机。
+        ///     获取有限状态机。
         /// </summary>
         /// <param name="ownerType">有限状态机持有者类型。</param>
         /// <param name="name">有限状态机名称。</param>
@@ -137,7 +130,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有有限状态机。
+        ///     获取所有有限状态机。
         /// </summary>
         public FsmBase[] GetAllFsms()
         {
@@ -145,7 +138,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取所有有限状态机。
+        ///     获取所有有限状态机。
         /// </summary>
         /// <param name="results">所有有限状态机。</param>
         public void GetAllFsms(List<FsmBase> results)
@@ -154,7 +147,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建有限状态机。
+        ///     创建有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="owner">有限状态机持有者。</param>
@@ -166,7 +159,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建有限状态机。
+        ///     创建有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="name">有限状态机名称。</param>
@@ -179,7 +172,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建有限状态机。
+        ///     创建有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="owner">有限状态机持有者。</param>
@@ -191,7 +184,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建有限状态机。
+        ///     创建有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="name">有限状态机名称。</param>
@@ -204,7 +197,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 销毁有限状态机。
+        ///     销毁有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <returns>是否销毁有限状态机成功。</returns>
@@ -214,7 +207,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 销毁有限状态机。
+        ///     销毁有限状态机。
         /// </summary>
         /// <param name="ownerType">有限状态机持有者类型。</param>
         /// <returns>是否销毁有限状态机成功。</returns>
@@ -224,7 +217,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 销毁有限状态机。
+        ///     销毁有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="name">要销毁的有限状态机名称。</param>
@@ -235,7 +228,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 销毁有限状态机。
+        ///     销毁有限状态机。
         /// </summary>
         /// <param name="ownerType">有限状态机持有者类型。</param>
         /// <param name="name">要销毁的有限状态机名称。</param>
@@ -246,7 +239,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 销毁有限状态机。
+        ///     销毁有限状态机。
         /// </summary>
         /// <typeparam name="T">有限状态机持有者类型。</typeparam>
         /// <param name="fsm">要销毁的有限状态机。</param>
@@ -257,7 +250,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 销毁有限状态机。
+        ///     销毁有限状态机。
         /// </summary>
         /// <param name="fsm">要销毁的有限状态机。</param>
         /// <returns>是否销毁有限状态机成功。</returns>

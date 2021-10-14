@@ -12,24 +12,13 @@ using UnityEngine;
 namespace UnityGameFramework.Editor.ResourceTools
 {
     /// <summary>
-    /// 资源同步工具。
+    ///     资源同步工具。
     /// </summary>
     internal sealed class ResourceSyncTools : EditorWindow
     {
         private const float ButtonHeight = 60f;
         private const float ButtonSpace = 5f;
-        private ResourceSyncToolsController m_Controller = null;
-
-        [MenuItem("Game Framework/Resource Tools/Resource Sync Tools", false, 44)]
-        private static void Open()
-        {
-            ResourceSyncTools window = GetWindow<ResourceSyncTools>("Resource Sync Tools", true);
-#if UNITY_2019_3_OR_NEWER
-            window.minSize = new Vector2(400, 195f);
-#else
-            window.minSize = new Vector2(400, 205f);
-#endif
-        }
+        private ResourceSyncToolsController m_Controller;
 
         private void OnEnable()
         {
@@ -48,13 +37,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 if (GUILayout.Button("Remove All Asset Bundle Names in Project", GUILayout.Height(ButtonHeight)))
                 {
                     if (!m_Controller.RemoveAllAssetBundleNames())
-                    {
                         Debug.LogWarning("Remove All Asset Bundle Names in Project failure.");
-                    }
                     else
-                    {
                         Debug.Log("Remove All Asset Bundle Names in Project completed.");
-                    }
 
                     AssetDatabase.Refresh();
                 }
@@ -63,13 +48,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 if (GUILayout.Button("Sync ResourceCollection.xml to Project", GUILayout.Height(ButtonHeight)))
                 {
                     if (!m_Controller.SyncToProject())
-                    {
                         Debug.LogWarning("Sync ResourceCollection.xml to Project failure.");
-                    }
                     else
-                    {
                         Debug.Log("Sync ResourceCollection.xml to Project completed.");
-                    }
 
                     AssetDatabase.Refresh();
                 }
@@ -78,13 +59,9 @@ namespace UnityGameFramework.Editor.ResourceTools
                 if (GUILayout.Button("Sync ResourceCollection.xml from Project", GUILayout.Height(ButtonHeight)))
                 {
                     if (!m_Controller.SyncFromProject())
-                    {
                         Debug.LogWarning("Sync Project to ResourceCollection.xml failure.");
-                    }
                     else
-                    {
                         Debug.Log("Sync Project to ResourceCollection.xml completed.");
-                    }
 
                     AssetDatabase.Refresh();
                 }
@@ -92,14 +69,29 @@ namespace UnityGameFramework.Editor.ResourceTools
             EditorGUILayout.EndVertical();
         }
 
+        [MenuItem("Game Framework/Resource Tools/Resource Sync Tools", false, 44)]
+        private static void Open()
+        {
+            var window = GetWindow<ResourceSyncTools>("Resource Sync Tools", true);
+#if UNITY_2019_3_OR_NEWER
+            window.minSize = new Vector2(400, 195f);
+#else
+            window.minSize = new Vector2(400, 205f);
+#endif
+        }
+
         private void OnLoadingResource(int index, int count)
         {
-            EditorUtility.DisplayProgressBar("Loading Resources", Utility.Text.Format("Loading resources, {0}/{1} loaded.", index.ToString(), count.ToString()), (float)index / count);
+            EditorUtility.DisplayProgressBar("Loading Resources",
+                Utility.Text.Format("Loading resources, {0}/{1} loaded.", index.ToString(), count.ToString()),
+                (float)index / count);
         }
 
         private void OnLoadingAsset(int index, int count)
         {
-            EditorUtility.DisplayProgressBar("Loading Assets", Utility.Text.Format("Loading assets, {0}/{1} loaded.", index.ToString(), count.ToString()), (float)index / count);
+            EditorUtility.DisplayProgressBar("Loading Assets",
+                Utility.Text.Format("Loading assets, {0}/{1} loaded.", index.ToString(), count.ToString()),
+                (float)index / count);
         }
 
         private void OnCompleted()
@@ -109,7 +101,9 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private void OnResourceDataChanged(int index, int count, string assetName)
         {
-            EditorUtility.DisplayProgressBar("Processing Assets", Utility.Text.Format("({0}/{1}) {2}", index.ToString(), count.ToString(), assetName), (float)index / count);
+            EditorUtility.DisplayProgressBar("Processing Assets",
+                Utility.Text.Format("({0}/{1}) {2}", index.ToString(), count.ToString(), assetName),
+                (float)index / count);
         }
     }
 }

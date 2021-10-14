@@ -14,13 +14,21 @@ namespace UnityGameFramework.Editor
     [CustomEditor(typeof(SettingComponent))]
     internal sealed class SettingComponentInspector : GameFrameworkInspector
     {
-        private HelperInfo<SettingHelperBase> m_SettingHelperInfo = new HelperInfo<SettingHelperBase>("Setting");
+        private readonly HelperInfo<SettingHelperBase> m_SettingHelperInfo =
+            new HelperInfo<SettingHelperBase>("Setting");
+
+        private void OnEnable()
+        {
+            m_SettingHelperInfo.Init(serializedObject);
+
+            RefreshTypeNames();
+        }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            SettingComponent t = (SettingComponent)target;
+            var t = (SettingComponent)target;
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
@@ -33,24 +41,16 @@ namespace UnityGameFramework.Editor
                 EditorGUILayout.LabelField("Setting Count", t.Count >= 0 ? t.Count.ToString() : "<Unknown>");
                 if (t.Count > 0)
                 {
-                    string[] settingNames = t.GetAllSettingNames();
-                    foreach (string settingName in settingNames)
-                    {
+                    var settingNames = t.GetAllSettingNames();
+                    foreach (var settingName in settingNames)
                         EditorGUILayout.LabelField(settingName, t.GetString(settingName));
-                    }
                 }
             }
 
             if (EditorApplication.isPlaying)
             {
-                if (GUILayout.Button("Save Settings"))
-                {
-                    t.Save();
-                }
-                if (GUILayout.Button("Remove All Settings"))
-                {
-                    t.RemoveAllSettings();
-                }
+                if (GUILayout.Button("Save Settings")) t.Save();
+                if (GUILayout.Button("Remove All Settings")) t.RemoveAllSettings();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -61,13 +61,6 @@ namespace UnityGameFramework.Editor
         protected override void OnCompileComplete()
         {
             base.OnCompileComplete();
-
-            RefreshTypeNames();
-        }
-
-        private void OnEnable()
-        {
-            m_SettingHelperInfo.Init(serializedObject);
 
             RefreshTypeNames();
         }

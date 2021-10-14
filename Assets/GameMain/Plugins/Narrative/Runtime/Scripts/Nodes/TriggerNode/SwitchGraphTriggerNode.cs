@@ -1,6 +1,5 @@
 using Narrative.Runtime.Scripts.Graph;
 using Narrative.Runtime.Scripts.MonoBehaviour;
-using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using UnityEngine;
 using VisualGraphRuntime;
 
@@ -12,7 +11,7 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
     {
         [SerializeField] private NarrativeGraph targetGraph;
         [SerializeField] private BaseNode.DisplayNode targetNode;
-        
+
         public override void OnEnter()
         {
             Trigger();
@@ -20,7 +19,7 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
 
         public override void Trigger()
         {
-            NarrativeManager.Instance.StartNarrative(targetGraph,targetNode);
+            NarrativeManager.Instance.StartNarrative(targetGraph, targetNode);
         }
     }
 }

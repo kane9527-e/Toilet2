@@ -12,27 +12,15 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
 {
     public sealed partial class DataTableProcessor
     {
-        private sealed class DateTimeProcessor : DataTableProcessor.GenericDataProcessor<DateTime>
+        private sealed class DateTimeProcessor : GenericDataProcessor<DateTime>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsSystem => true;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "DateTime";
-                }
-            }
+            public override string LanguageKeyword => "DateTime";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "datetime",
                     "system.datetime"
@@ -44,7 +32,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 return DateTime.Parse(value);
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
                 binaryWriter.Write(Parse(value).Ticks);
             }

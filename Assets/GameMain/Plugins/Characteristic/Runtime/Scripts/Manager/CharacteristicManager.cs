@@ -1,12 +1,23 @@
 using Characteristic.Runtime.Scripts.ScriptableObject;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Characteristic.Runtime.Scripts.Manager
 {
     [DisallowMultipleComponent]
     public class CharacteristicManager : MonoBehaviour
     {
+        #region MonoBehaviour
+
+        private void Awake()
+        {
+            if (Instance == this)
+                DontDestroyOnLoad(gameObject);
+            if (resetOnAwake && Collection)
+                Collection.ResetAllValue();
+        }
+
+        #endregion
+
         #region Singleton
 
         private static CharacteristicManager _instance;
@@ -42,18 +53,6 @@ namespace Characteristic.Runtime.Scripts.Manager
         public delegate void CharacteristicEvent(CharacteristicUnit unit);
 
         public CharacteristicEvent onValueUpdate, onValueLess, onValueAdd;
-
-        #endregion
-
-        #region MonoBehaviour
-
-        private void Awake()
-        {
-            if (Instance == this)
-                DontDestroyOnLoad(this.gameObject);
-            if (resetOnAwake && Collection)
-                Collection.ResetAllValue();
-        }
 
         #endregion
 

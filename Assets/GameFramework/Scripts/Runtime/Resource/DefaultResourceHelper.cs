@@ -5,24 +5,28 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource;
 using System;
 using System.Collections;
+using GameFramework.Resource;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 #if UNITY_5_4_OR_NEWER
 using UnityEngine.Networking;
 #endif
-using UnityEngine.SceneManagement;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认资源辅助器。
+    ///     默认资源辅助器。
     /// </summary>
     public class DefaultResourceHelper : ResourceHelperBase
     {
+        private void Start()
+        {
+        }
+
         /// <summary>
-        /// 直接从指定文件路径加载数据流。
+        ///     直接从指定文件路径加载数据流。
         /// </summary>
         /// <param name="fileUri">文件路径。</param>
         /// <param name="loadBytesCallbacks">加载数据流回调函数集。</param>
@@ -33,22 +37,19 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 卸载场景。
+        ///     卸载场景。
         /// </summary>
         /// <param name="sceneAssetName">场景资源名称。</param>
         /// <param name="unloadSceneCallbacks">卸载场景回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public override void UnloadScene(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks, object userData)
+        public override void UnloadScene(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks,
+            object userData)
         {
 #if UNITY_5_5_OR_NEWER
             if (gameObject.activeInHierarchy)
-            {
                 StartCoroutine(UnloadSceneCo(sceneAssetName, unloadSceneCallbacks, userData));
-            }
             else
-            {
                 SceneManager.UnloadSceneAsync(SceneComponent.GetSceneName(sceneAssetName));
-            }
 #else
             if (SceneManager.UnloadScene(SceneComponent.GetSceneName(sceneAssetName)))
             {
@@ -68,16 +69,15 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 释放资源。
+        ///     释放资源。
         /// </summary>
         /// <param name="objectToRelease">要释放的资源。</param>
         public override void Release(object objectToRelease)
         {
-            AssetBundle assetBundle = objectToRelease as AssetBundle;
+            var assetBundle = objectToRelease as AssetBundle;
             if (assetBundle != null)
             {
                 assetBundle.Unload(true);
-                return;
             }
 
             /* Unity 当前 Resources.UnloadAsset 在 iOS 设备上会导致一些诡异问题，先不用这部分
@@ -104,19 +104,15 @@ namespace UnityGameFramework.Runtime
             */
         }
 
-        private void Start()
-        {
-        }
-
         private IEnumerator LoadBytesCo(string fileUri, LoadBytesCallbacks loadBytesCallbacks, object userData)
         {
-            bool isError = false;
+            var isError = false;
             byte[] bytes = null;
             string errorMessage = null;
-            DateTime startTime = DateTime.UtcNow;
+            var startTime = DateTime.UtcNow;
 
 #if UNITY_5_4_OR_NEWER
-            UnityWebRequest unityWebRequest = UnityWebRequest.Get(fileUri);
+            var unityWebRequest = UnityWebRequest.Get(fileUri);
 #if UNITY_2017_2_OR_NEWER
             yield return unityWebRequest.SendWebRequest();
 #else
@@ -145,7 +141,7 @@ namespace UnityGameFramework.Runtime
 
             if (!isError)
             {
-                float elapseSeconds = (float)(DateTime.UtcNow - startTime).TotalSeconds;
+                var elapseSeconds = (float)(DateTime.UtcNow - startTime).TotalSeconds;
                 loadBytesCallbacks.LoadBytesSuccessCallback(fileUri, bytes, elapseSeconds, userData);
             }
             else if (loadBytesCallbacks.LoadBytesFailureCallback != null)
@@ -155,29 +151,23 @@ namespace UnityGameFramework.Runtime
         }
 
 #if UNITY_5_5_OR_NEWER
-        private IEnumerator UnloadSceneCo(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks, object userData)
+        private IEnumerator UnloadSceneCo(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks,
+            object userData)
         {
-            AsyncOperation asyncOperation = SceneManager.UnloadSceneAsync(SceneComponent.GetSceneName(sceneAssetName));
-            if (asyncOperation == null)
-            {
-                yield break;
-            }
+            var asyncOperation = SceneManager.UnloadSceneAsync(SceneComponent.GetSceneName(sceneAssetName));
+            if (asyncOperation == null) yield break;
 
             yield return asyncOperation;
 
             if (asyncOperation.allowSceneActivation)
             {
                 if (unloadSceneCallbacks.UnloadSceneSuccessCallback != null)
-                {
                     unloadSceneCallbacks.UnloadSceneSuccessCallback(sceneAssetName, userData);
-                }
             }
             else
             {
                 if (unloadSceneCallbacks.UnloadSceneFailureCallback != null)
-                {
                     unloadSceneCallbacks.UnloadSceneFailureCallback(sceneAssetName, userData);
-                }
             }
         }
 #endif

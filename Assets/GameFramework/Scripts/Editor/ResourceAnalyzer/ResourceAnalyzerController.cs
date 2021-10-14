@@ -5,10 +5,10 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,12 +16,12 @@ namespace UnityGameFramework.Editor.ResourceTools
 {
     public sealed partial class ResourceAnalyzerController
     {
-        private readonly ResourceCollection m_ResourceCollection;
+        private readonly HashSet<Stamp> m_AnalyzedStamps;
+        private readonly List<string[]> m_CircularDependencyDatas;
 
         private readonly Dictionary<string, DependencyData> m_DependencyDatas;
+        private readonly ResourceCollection m_ResourceCollection;
         private readonly Dictionary<string, List<Asset>> m_ScatteredAssets;
-        private readonly List<string[]> m_CircularDependencyDatas;
-        private readonly HashSet<Stamp> m_AnalyzedStamps;
 
         public ResourceAnalyzerController()
             : this(null)
@@ -32,28 +32,19 @@ namespace UnityGameFramework.Editor.ResourceTools
         {
             m_ResourceCollection = resourceCollection != null ? resourceCollection : new ResourceCollection();
 
-            m_ResourceCollection.OnLoadingResource += delegate (int index, int count)
+            m_ResourceCollection.OnLoadingResource += delegate(int index, int count)
             {
-                if (OnLoadingResource != null)
-                {
-                    OnLoadingResource(index, count);
-                }
+                if (OnLoadingResource != null) OnLoadingResource(index, count);
             };
 
-            m_ResourceCollection.OnLoadingAsset += delegate (int index, int count)
+            m_ResourceCollection.OnLoadingAsset += delegate(int index, int count)
             {
-                if (OnLoadingAsset != null)
-                {
-                    OnLoadingAsset(index, count);
-                }
+                if (OnLoadingAsset != null) OnLoadingAsset(index, count);
             };
 
-            m_ResourceCollection.OnLoadCompleted += delegate ()
+            m_ResourceCollection.OnLoadCompleted += delegate
             {
-                if (OnLoadCompleted != null)
-                {
-                    OnLoadCompleted();
-                }
+                if (OnLoadCompleted != null) OnLoadCompleted();
             };
 
             m_DependencyDatas = new Dictionary<string, DependencyData>(StringComparer.Ordinal);
@@ -62,15 +53,15 @@ namespace UnityGameFramework.Editor.ResourceTools
             m_CircularDependencyDatas = new List<string[]>();
         }
 
-        public event GameFrameworkAction<int, int> OnLoadingResource = null;
+        public event GameFrameworkAction<int, int> OnLoadingResource;
 
-        public event GameFrameworkAction<int, int> OnLoadingAsset = null;
+        public event GameFrameworkAction<int, int> OnLoadingAsset;
 
-        public event GameFrameworkAction OnLoadCompleted = null;
+        public event GameFrameworkAction OnLoadCompleted;
 
-        public event GameFrameworkAction<int, int> OnAnalyzingAsset = null;
+        public event GameFrameworkAction<int, int> OnAnalyzingAsset;
 
-        public event GameFrameworkAction OnAnalyzeCompleted = null;
+        public event GameFrameworkAction OnAnalyzeCompleted;
 
         public void Clear()
         {
@@ -94,79 +85,61 @@ namespace UnityGameFramework.Editor.ResourceTools
             m_CircularDependencyDatas.Clear();
             m_AnalyzedStamps.Clear();
 
-            HashSet<string> scriptAssetNames = GetFilteredAssetNames("t:Script");
-            Asset[] assets = m_ResourceCollection.GetAssets();
-            int count = assets.Length;
-            for (int i = 0; i < count; i++)
+            var scriptAssetNames = GetFilteredAssetNames("t:Script");
+            var assets = m_ResourceCollection.GetAssets();
+            var count = assets.Length;
+            for (var i = 0; i < count; i++)
             {
-                if (OnAnalyzingAsset != null)
-                {
-                    OnAnalyzingAsset(i, count);
-                }
+                if (OnAnalyzingAsset != null) OnAnalyzingAsset(i, count);
 
-                string assetName = assets[i].Name;
+                var assetName = assets[i].Name;
                 if (string.IsNullOrEmpty(assetName))
                 {
                     Debug.LogWarning(Utility.Text.Format("Can not find asset by guid '{0}'.", assets[i].Guid));
                     continue;
                 }
 
-                DependencyData dependencyData = new DependencyData();
+                var dependencyData = new DependencyData();
                 AnalyzeAsset(assetName, assets[i], dependencyData, scriptAssetNames);
                 dependencyData.RefreshData();
                 m_DependencyDatas.Add(assetName, dependencyData);
             }
 
-            foreach (List<Asset> scatteredAsset in m_ScatteredAssets.Values)
-            {
+            foreach (var scatteredAsset in m_ScatteredAssets.Values)
                 scatteredAsset.Sort((a, b) => a.Name.CompareTo(b.Name));
-            }
 
             m_CircularDependencyDatas.AddRange(new CircularDependencyChecker(m_AnalyzedStamps.ToArray()).Check());
 
-            if (OnAnalyzeCompleted != null)
-            {
-                OnAnalyzeCompleted();
-            }
+            if (OnAnalyzeCompleted != null) OnAnalyzeCompleted();
         }
 
-        private void AnalyzeAsset(string assetName, Asset hostAsset, DependencyData dependencyData, HashSet<string> scriptAssetNames)
+        private void AnalyzeAsset(string assetName, Asset hostAsset, DependencyData dependencyData,
+            HashSet<string> scriptAssetNames)
         {
-            string[] dependencyAssetNames = AssetDatabase.GetDependencies(assetName, false);
-            foreach (string dependencyAssetName in dependencyAssetNames)
+            var dependencyAssetNames = AssetDatabase.GetDependencies(assetName, false);
+            foreach (var dependencyAssetName in dependencyAssetNames)
             {
-                if (scriptAssetNames.Contains(dependencyAssetName))
-                {
-                    continue;
-                }
+                if (scriptAssetNames.Contains(dependencyAssetName)) continue;
 
-                if (dependencyAssetName == assetName)
-                {
-                    continue;
-                }
+                if (dependencyAssetName == assetName) continue;
 
                 if (dependencyAssetName.EndsWith(".unity", StringComparison.Ordinal))
-                {
                     // 忽略对场景的依赖
                     continue;
-                }
 
-                Stamp stamp = new Stamp(hostAsset.Name, dependencyAssetName);
-                if (m_AnalyzedStamps.Contains(stamp))
-                {
-                    continue;
-                }
+                var stamp = new Stamp(hostAsset.Name, dependencyAssetName);
+                if (m_AnalyzedStamps.Contains(stamp)) continue;
 
                 m_AnalyzedStamps.Add(stamp);
 
-                string guid = AssetDatabase.AssetPathToGUID(dependencyAssetName);
+                var guid = AssetDatabase.AssetPathToGUID(dependencyAssetName);
                 if (string.IsNullOrEmpty(guid))
                 {
                     Debug.LogWarning(Utility.Text.Format("Can not find guid by asset '{0}'.", dependencyAssetName));
                     continue;
                 }
 
-                Asset asset = m_ResourceCollection.GetAsset(guid);
+                var asset = m_ResourceCollection.GetAsset(guid);
                 if (asset != null)
                 {
                     dependencyData.AddDependencyAsset(asset);
@@ -201,8 +174,8 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public string[] GetAssetNames(AssetsOrder order, string filter)
         {
-            HashSet<string> filteredAssetNames = GetFilteredAssetNames(filter);
-            IEnumerable<KeyValuePair<string, DependencyData>> filteredResult = m_DependencyDatas.Where(pair => filteredAssetNames.Contains(pair.Key));
+            var filteredAssetNames = GetFilteredAssetNames(filter);
+            var filteredResult = m_DependencyDatas.Where(pair => filteredAssetNames.Contains(pair.Key));
             IEnumerable<KeyValuePair<string, DependencyData>> orderedResult = null;
             switch (order)
             {
@@ -249,10 +222,7 @@ namespace UnityGameFramework.Editor.ResourceTools
         public DependencyData GetDependencyData(string assetName)
         {
             DependencyData dependencyData = null;
-            if (m_DependencyDatas.TryGetValue(assetName, out dependencyData))
-            {
-                return dependencyData;
-            }
+            if (m_DependencyDatas.TryGetValue(assetName, out dependencyData)) return dependencyData;
 
             return dependencyData;
         }
@@ -264,8 +234,9 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         public string[] GetScatteredAssetNames(ScatteredAssetsOrder order, string filter)
         {
-            HashSet<string> filterAssetNames = GetFilteredAssetNames(filter);
-            IEnumerable<KeyValuePair<string, List<Asset>>> filteredResult = m_ScatteredAssets.Where(pair => filterAssetNames.Contains(pair.Key) && pair.Value.Count > 1);
+            var filterAssetNames = GetFilteredAssetNames(filter);
+            var filteredResult =
+                m_ScatteredAssets.Where(pair => filterAssetNames.Contains(pair.Key) && pair.Value.Count > 1);
             IEnumerable<KeyValuePair<string, List<Asset>>> orderedResult = null;
             switch (order)
             {
@@ -296,10 +267,7 @@ namespace UnityGameFramework.Editor.ResourceTools
         public Asset[] GetHostAssets(string scatteredAssetName)
         {
             List<Asset> assets = null;
-            if (m_ScatteredAssets.TryGetValue(scatteredAssetName, out assets))
-            {
-                return assets.ToArray();
-            }
+            if (m_ScatteredAssets.TryGetValue(scatteredAssetName, out assets)) return assets.ToArray();
 
             return null;
         }
@@ -311,12 +279,10 @@ namespace UnityGameFramework.Editor.ResourceTools
 
         private HashSet<string> GetFilteredAssetNames(string filter)
         {
-            string[] filterAssetGuids = AssetDatabase.FindAssets(filter);
-            HashSet<string> filterAssetNames = new HashSet<string>();
-            foreach (string filterAssetGuid in filterAssetGuids)
-            {
+            var filterAssetGuids = AssetDatabase.FindAssets(filter);
+            var filterAssetNames = new HashSet<string>();
+            foreach (var filterAssetGuid in filterAssetGuids)
                 filterAssetNames.Add(AssetDatabase.GUIDToAssetPath(filterAssetGuid));
-            }
 
             return filterAssetNames;
         }

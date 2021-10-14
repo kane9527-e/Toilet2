@@ -20,14 +20,8 @@ namespace UnityGameFramework.Runtime
                 {
                     GUILayout.BeginHorizontal();
                     {
-                        if (GUILayout.Button("Enable", GUILayout.Height(30f)))
-                        {
-                            Input.compass.enabled = true;
-                        }
-                        if (GUILayout.Button("Disable", GUILayout.Height(30f)))
-                        {
-                            Input.compass.enabled = false;
-                        }
+                        if (GUILayout.Button("Enable", GUILayout.Height(30f))) Input.compass.enabled = true;
+                        if (GUILayout.Button("Disable", GUILayout.Height(30f))) Input.compass.enabled = false;
                     }
                     GUILayout.EndHorizontal();
 

@@ -11,12 +11,12 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认游戏框架日志辅助器。
+    ///     默认游戏框架日志辅助器。
     /// </summary>
     public class DefaultLogHelper : GameFrameworkLog.ILogHelper
     {
         /// <summary>
-        /// 记录日志。
+        ///     记录日志。
         /// </summary>
         /// <param name="level">日志等级。</param>
         /// <param name="message">日志内容。</param>

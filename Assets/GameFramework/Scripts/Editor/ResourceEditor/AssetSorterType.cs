@@ -11,6 +11,6 @@ namespace UnityGameFramework.Editor.ResourceTools
     {
         Path,
         Name,
-        Guid,
+        Guid
     }
 }

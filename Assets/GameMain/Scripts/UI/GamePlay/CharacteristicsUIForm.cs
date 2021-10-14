@@ -1,12 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Characteristic.Runtime.Scripts.Manager;
 using Characteristic.Runtime.Scripts.ScriptableObject;
 using GameMain.Scripts.Runtime.Message;
 using UnityEngine;
 using UnityGameFramework.Runtime;
-using GameEntry = GameMain.Scripts.Runtime.Base.GameEntry;
 
 public class CharacteristicsUIForm : UIFormLogic
 {
@@ -25,10 +21,7 @@ public class CharacteristicsUIForm : UIFormLogic
         var collection = CharacteristicManager.Collection;
         if (!collection) return;
         if (!root) return;
-        foreach (var unit in collection.CharacteristicUnits)
-        {
-            CreateCharacteristicUI(unit);
-        }
+        foreach (var unit in collection.CharacteristicUnits) CreateCharacteristicUI(unit);
 
         CharacteristicManager.Instance.onValueAdd += OnValueAddedHandler;
         CharacteristicManager.Instance.onValueLess += OnValueLessHandler;
@@ -47,7 +40,7 @@ public class CharacteristicsUIForm : UIFormLogic
     {
         if (unit.CharacteristicType == CharacteristicType.Int || unit.CharacteristicType == CharacteristicType.Float)
         {
-            float addValue = 0f;
+            var addValue = 0f;
 
             if (unit.CharacteristicType == CharacteristicType.Int)
                 addValue = unit.intvalue - unit.IntvalueLast;
@@ -66,7 +59,7 @@ public class CharacteristicsUIForm : UIFormLogic
     {
         if (unit.CharacteristicType == CharacteristicType.Int || unit.CharacteristicType == CharacteristicType.Float)
         {
-            float lessValue = 0f;
+            var lessValue = 0f;
             if (unit.CharacteristicType == CharacteristicType.Int)
                 lessValue = unit.IntvalueLast - unit.intvalue;
             if (unit.CharacteristicType == CharacteristicType.Float)

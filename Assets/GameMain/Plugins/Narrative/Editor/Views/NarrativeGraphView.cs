@@ -2,24 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Narrative.Editor.Views.Nodes.BaseNodeViews;
 using Narrative.Runtime.Scripts.Graph;
+using Narrative.Editor.Views.Nodes.BaseNodeViews;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using Project.NodeSystem.Editor;
-using VisualGraphRuntime;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 using VisualGraphEditor;
-using Button = UnityEngine.UIElements.Button;
+using VisualGraphRuntime;
+using Object = UnityEngine.Object;
 
 public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 {
-    public NarrativeGraph NarrativeGraph => narrativeGraph;
+    public bool activeVisualGraph;
+    private NarrativeGraphEditor editorWindow;
 
-    public MiniMap Minimap { get; private set; }
+    private Vector2 mousePosition;
     // public BlackboardView BlackboardView { get; private set; }
 
     // public Blackboard Blackboard
@@ -28,23 +28,26 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     //     private set { }
     // }
 
-    private NarrativeGraph narrativeGraph;
-    private NarrativeGraphSearchWindow searchWindow;
-    private NarrativeGraphEditor editorWindow;
     private Orientation orientation;
+    private NarrativeGraphSearchWindow searchWindow;
 
     // Runtime Type / Editor Type
-    private Dictionary<Type, Type> visualGraphNodeLookup = new Dictionary<Type, Type>();
-    private Dictionary<Type, Type> visualGraphPortLookup = new Dictionary<Type, Type>();
+    private readonly Dictionary<Type, Type> visualGraphNodeLookup = new Dictionary<Type, Type>();
+    private readonly Dictionary<Type, Type> visualGraphPortLookup = new Dictionary<Type, Type>();
 
-    public bool activeVisualGraph = false;
-    private Vector2 mousePosition;
 
+    private NarrativeNode OutsideConnectNode; //Node连线到外部到Port
+    private NarrativePort OutsideConnectPort;
 
     public NarrativeGraphView(NarrativeGraphEditor editorWindow)
     {
         Initialize(editorWindow);
     }
+
+    public NarrativeGraph NarrativeGraph { get; private set; }
+    public List<NarativeStickyNote> StickyNotes => NarrativeGraph.StickyNotes;
+
+    public MiniMap Minimap { get; private set; }
 
     // ReSharper disable once ParameterHidesMember
     public void Initialize(NarrativeGraphEditor editorWindow)
@@ -68,23 +71,19 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         canPasteSerializedData = CanPasteSerializedDataCallback;
         unserializeAndPaste += OnPaste;
 
-        var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
         foreach (var assembly in assemblies)
         {
             var types = assembly.GetTypes();
             foreach (var type in types)
             {
-                CustomNodeViewAttribute nodeAttrib = type.GetCustomAttribute<CustomNodeViewAttribute>();
+                var nodeAttrib = type.GetCustomAttribute<CustomNodeViewAttribute>();
                 if (nodeAttrib != null && nodeAttrib.type.IsAbstract == false)
-                {
                     visualGraphNodeLookup.Add(nodeAttrib.type, type);
-                }
 
-                CustomPortViewAttribute portAttrib = type.GetCustomAttribute<CustomPortViewAttribute>();
+                var portAttrib = type.GetCustomAttribute<CustomPortViewAttribute>();
                 if (portAttrib != null && portAttrib.type.IsAbstract == false)
-                {
                     visualGraphPortLookup.Add(portAttrib.type, type);
-                }
             }
         }
     }
@@ -95,8 +94,6 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     {
         mousePosition = GetMousePosition(evt);
     }
-
-
 
     #endregion
 
@@ -110,13 +107,35 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         // this.AddManipulator(GraphBuilder.AddStickyNoteContextualMenu(this));
     }
 
+    public void CreateMinimap(float windowWidth)
+    {
+        Minimap = new MiniMap { anchored = true };
+        Minimap.capabilities &= ~Capabilities.Movable;
+        Minimap.SetPosition(new Rect(windowWidth - 210, 30, 200, 140));
+        Add(Minimap);
+    }
+
+    #region PrivateMethod
+
+    public void RefreshGraphAsset()
+    {
+        var assetPath = AssetDatabase.GetAssetPath(NarrativeGraph);
+        if (!string.IsNullOrWhiteSpace(assetPath)) AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+
+        AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+    }
+
+    #endregion
+
     #region CopyAndPaste
 
     public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
     {
+        OutsideConnectPort = null;
+        OutsideConnectNode = null;
         base.BuildContextualMenu(evt);
         mousePosition = GetMousePosition(evt);
-        if (evt.target is UnityEditor.Experimental.GraphView.GraphView && this.nodeCreationRequest != null)
+        if (evt.target is GraphView && nodeCreationRequest != null)
         {
             evt.menu.AppendSeparator();
             evt.menu.AppendAction("Create Group",
@@ -131,9 +150,9 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     private void OnPaste(string operationname, string data)
     {
         //Debug.Log(data);
-        CopyPasteHelper helper = (CopyPasteHelper)JsonUtility.FromJson(data, typeof(CopyPasteHelper));
-        List<NarrativeNode> originNodes = new List<NarrativeNode>();
-        List<NarrativeNode> copyNodes = new List<NarrativeNode>();
+        var helper = (CopyPasteHelper)JsonUtility.FromJson(data, typeof(CopyPasteHelper));
+        var originNodes = new List<NarrativeNode>();
+        var copyNodes = new List<NarrativeNode>();
 
         foreach (var jsonElement in helper.nodeclipboard)
         {
@@ -158,7 +177,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
             {
                 var copyGroup = CopyGroup(group, mousePosition); //group.position.position
                 GraphBuilder.CopyGroupedNodes(group, copyGroup, originNodes, copyNodes);
-                GraphBuilder.AddGroupBlock(this, copyGroup);
+                this.AddGroupBlock(copyGroup);
             }
         }
 
@@ -181,30 +200,24 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     {
         var createNode = CreateNode(position, originNode.GetType());
         GraphBuilder.CopyFields(originNode, createNode);
-        var graview= (NarrativeNodeView)createNode.graphElement;
+        var graview = (NarrativeNodeView)createNode.graphElement;
         graview.NodeDataView.Clear();
         graview.DrawNode();
-        
+
         var inputCount = originNode.Inputs.Count();
         while (createNode.Inputs.Count() < inputCount)
-        {
-            for (int i = 0; i < inputCount; i++)
-            {
+            for (var i = 0; i < inputCount; i++)
                 CreatePort((VisualGraphNodeView)createNode.graphElement, "Input", VisualGraphPort.PortDirection.Input);
-            }
-        }
 
         var outputCount = originNode.Outputs.Count();
         while (createNode.Outputs.Count() < outputCount)
-        {
-            for (int i = 0; i < outputCount; i++)
+            for (var i = 0; i < outputCount; i++)
                 CreatePort((VisualGraphNodeView)createNode.graphElement, "Exit", VisualGraphPort.PortDirection.Output);
-        }
 
 
-        for (int i = 0; i < originNode.Ports.Count; i++)
+        for (var i = 0; i < originNode.Ports.Count; i++)
         {
-            var orginPort = ((NarrativePort)originNode.Ports[i]);
+            var orginPort = (NarrativePort)originNode.Ports[i];
             if (orginPort.conditionConfig)
                 ((NarrativePort)createNode.Ports[i]).conditionConfig = orginPort.conditionConfig;
         }
@@ -215,30 +228,28 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 
     public VisualGraphGroup CopyGroup(VisualGraphGroup graphGroup, Vector2 position)
     {
-        var createGroup = GraphBuilder.JustGetCreateGroupBlock(this, position);
+        var createGroup = this.JustGetCreateGroupBlock(position);
         createGroup.title = graphGroup.title;
         return createGroup;
     }
 
     public void CopyStickyNote(NarativeStickyNote stickyNote, Vector2 position)
     {
-        var createStickyNote = GraphBuilder.JustGetCreateStickyNote(this, position);
+        var createStickyNote = this.JustGetCreateStickyNote(position);
         createStickyNote.contents = stickyNote.contents;
         createStickyNote.title = stickyNote.title;
         createStickyNote.theme = stickyNote.theme;
         createStickyNote.fontSize = stickyNote.fontSize;
-        GraphBuilder.AddStickyNote(this, createStickyNote);
+        this.AddStickyNote(createStickyNote);
     }
 
-    string SerializeGraphElementsCallback(IEnumerable<GraphElement> elements)
+    private string SerializeGraphElementsCallback(IEnumerable<GraphElement> elements)
     {
         var data = new CopyPasteHelper();
 
         foreach (VisualGraphNodeView nodeView in elements.Where(e => e is VisualGraphNodeView))
-        {
             if (nodeView.nodeTarget.GetType() != typeof(VisualGraphStartNode))
                 data.nodeclipboard.Add(JsonSerializer.Serialize(nodeView.nodeTarget));
-        }
 
         // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
         foreach (VisualGraphGroupView groupView in elements.Where(e => e is VisualGraphGroupView))
@@ -253,7 +264,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         return JsonUtility.ToJson(data, true);
     }
 
-    bool CanPasteSerializedDataCallback(string serializedData)
+    private bool CanPasteSerializedDataCallback(string serializedData)
     {
         try
         {
@@ -266,14 +277,6 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     }
 
     #endregion
-
-    public void CreateMinimap(float windowWidth)
-    {
-        Minimap = new MiniMap { anchored = true };
-        Minimap.capabilities &= ~Capabilities.Movable;
-        Minimap.SetPosition(new Rect(windowWidth - 210, 30, 200, 140));
-        Add(Minimap);
-    }
 
     // public void CreateBlackboard()
     // {
@@ -297,17 +300,13 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     {
         nodes.ForEach(nodeView =>
         {
-            VisualGraphNode node = nodeView.userData as VisualGraphNode;
+            var node = nodeView.userData as VisualGraphNode;
             if (node != null)
             {
                 if (node.editor_ActiveNode)
-                {
                     nodeView.AddToClassList("VisualGraphNodeSelected");
-                }
                 else
-                {
                     nodeView.RemoveFromClassList("VisualGraphNodeSelected");
-                }
             }
         });
     }
@@ -318,36 +317,36 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 
     public void OnUndoRedoCallback()
     {
-        SetGraph(narrativeGraph);
+        SetGraph(NarrativeGraph);
     }
 
     /// <summary>
-    /// Load the Visual Graph into the Editor Graph View
+    ///     Load the Visual Graph into the Editor Graph View
     /// </summary>
     /// <param name="_graph"></param>
     public void SetGraph(NarrativeGraph _visualGraph)
     {
         // Set the graph to null and clear the edges and nodes before we get going.
-        narrativeGraph = null;
+        NarrativeGraph = null;
         DeleteElements(graphElements.ToList());
         DeleteElements(nodes.ToList());
         DeleteElements(edges.ToList());
         activeVisualGraph = false;
         //BlackboardView.ClearBlackboard();
 
-        narrativeGraph = _visualGraph;
-        if (narrativeGraph != null)
+        NarrativeGraph = _visualGraph;
+        if (NarrativeGraph != null)
         {
             // When the graph is loaded connections need to be remade
-            narrativeGraph.InitializeGraph();
+            NarrativeGraph.InitializeGraph();
 
             activeVisualGraph = true;
 
-            GraphOrientationAttribute orientationAttrib =
-                narrativeGraph.GetType().GetCustomAttribute<GraphOrientationAttribute>();
+            var orientationAttrib =
+                NarrativeGraph.GetType().GetCustomAttribute<GraphOrientationAttribute>();
             Debug.Assert(orientationAttrib != null,
-                $"Graph node requires a GraphOrientationAttribute {narrativeGraph.GetType().Name}");
-            orientation = (orientationAttrib.GrapOrientation == GraphOrientationAttribute.Orientation.Horizontal)
+                $"Graph node requires a GraphOrientationAttribute {NarrativeGraph.GetType().Name}");
+            orientation = orientationAttrib.GrapOrientation == GraphOrientationAttribute.Orientation.Horizontal
                 ? Orientation.Horizontal
                 : Orientation.Vertical;
 
@@ -360,107 +359,117 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 
             // If the graph doesn't have a start node it's probably the first time we opened it. This means
             // we will create one to get going.
-            if (narrativeGraph.StartingNode == null)
+            if (NarrativeGraph.StartingNode == null)
             {
-                VisualGraphNode startingNode =
+                var startingNode =
                     Activator.CreateInstance(typeof(VisualGraphStartNode)) as VisualGraphNode;
-                narrativeGraph.StartingNode = startingNode;
+                NarrativeGraph.StartingNode = startingNode;
                 startingNode.name = "Start";
                 startingNode.position = new Vector2(270, 30);
 
-                VisualGraphPort graphPort = startingNode.AddPort("Next", VisualGraphPort.PortDirection.Output);
+                var graphPort = startingNode.AddPort("Next", VisualGraphPort.PortDirection.Output);
                 graphPort.CanBeRemoved = false;
-                narrativeGraph.Nodes.Add(startingNode);
+                NarrativeGraph.Nodes.Add(startingNode);
 
                 if (startingNode.name == null || startingNode.name.Trim() == "")
-                    startingNode.name = UnityEditor.ObjectNames.NicifyVariableName(startingNode.name);
-                if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(narrativeGraph)))
-                    AssetDatabase.AddObjectToAsset(startingNode, narrativeGraph);
+                    startingNode.name = ObjectNames.NicifyVariableName(startingNode.name);
+                if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(NarrativeGraph)))
+                    AssetDatabase.AddObjectToAsset(startingNode, NarrativeGraph);
 
                 AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(startingNode));
             }
 
             // Create all other Nodes for the graph
-            foreach (var graphNode in narrativeGraph.Nodes)
+            foreach (var graphNode in NarrativeGraph.Nodes)
             {
-                Node node = AddGraphNode((VisualGraphNode)graphNode);
-                Vector2 pos = new Vector2(node.style.left.value.value, node.style.top.value.value);
+                var node = AddGraphNode(graphNode);
+                var pos = new Vector2(node.style.left.value.value, node.style.top.value.value);
                 ((VisualGraphNode)node.userData).position = pos;
             }
 
-            foreach (VisualGraphNode graphNode in narrativeGraph.Nodes)
-            {
-                foreach (VisualGraphPort graphPort in graphNode.Ports)
+            foreach (var graphNode in NarrativeGraph.Nodes)
+            foreach (var graphPort in graphNode.Ports)
+                if (graphPort.Direction == VisualGraphPort.PortDirection.Output)
                 {
-                    if (graphPort.Direction == VisualGraphPort.PortDirection.Output)
+                    var port = graphPort.editor_port as Port;
+                    foreach (var graph_connection in
+                        graphPort.Connections)
                     {
-                        Port port = graphPort.editor_port as Port;
-                        foreach (VisualGraphPort.VisualGraphPortConnection graph_connection in
-                            graphPort.Connections)
-                        {
-                            VisualGraphPort other_port =
-                                graph_connection.Node.FindPortByGuid(graph_connection.port_guid);
-                            Port other_editor_port = other_port.editor_port as Port;
-                            AddElement(port.ConnectTo(other_editor_port));
-                        }
+                        var other_port =
+                            graph_connection.Node.FindPortByGuid(graph_connection.port_guid);
+                        var other_editor_port = other_port.editor_port as Port;
+                        AddElement(port.ConnectTo(other_editor_port));
                     }
                 }
-            }
 
-            foreach (var group in narrativeGraph.Groups)
-            {
-                GraphBuilder.AddGroupBlock(this, group);
-            }
+            foreach (var group in NarrativeGraph.Groups) this.AddGroupBlock(group);
 
-            foreach (var stickyNote in narrativeGraph.StickyNotes)
-            {
-                GraphBuilder.AddStickyNote(this, stickyNote);
-            }
+            foreach (var stickyNote in StickyNotes) this.AddStickyNote(stickyNote);
         }
     }
-    
 
     #endregion
 
     #region Node Creation
 
     /// <summary>
-    /// Create a node based off the type. Once the node is created it will be added to the Graph and a View
-    /// node will be created and added
+    ///     Create a node based off the type. Once the node is created it will be added to the Graph and a View
+    ///     node will be created and added
     /// </summary>
     /// <param name="position"></param>
     /// <param name="nodeType"></param>
     public NarrativeNode CreateNode(Vector2 position, Type nodeType)
     {
-        Undo.RecordObject(narrativeGraph, "Create Node");
-        NarrativeNode graphNode = (NarrativeNode)narrativeGraph.AddNode(nodeType);
+        Undo.RecordObject(NarrativeGraph, "Create Node");
+        var graphNode = (NarrativeNode)NarrativeGraph.AddNode(nodeType);
         Undo.RegisterCreatedObjectUndo(graphNode, "Create Node");
         graphNode.position = position;
 
         if (graphNode.name == null || graphNode.name.Trim() == "")
-            graphNode.name = UnityEditor.ObjectNames.NicifyVariableName(nodeType.Name);
-        if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(narrativeGraph)))
-            AssetDatabase.AddObjectToAsset(graphNode, narrativeGraph);
-        Node node = AddGraphNode((NarrativeNode)graphNode);
+            graphNode.name = ObjectNames.NicifyVariableName(nodeType.Name);
+        if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(NarrativeGraph)))
+            AssetDatabase.AddObjectToAsset(graphNode, NarrativeGraph);
+        var node = AddGraphNode(graphNode);
+
+
+        if (OutsideConnectNode != null && OutsideConnectPort != null) //如果是从Node的Port中连接出来的
+        {
+            //var connection= OutsideConnectNode.Connect(OutsideConnectPort,graphNode);
+            NarrativeNodeView nodeView = (NarrativeNodeView)OutsideConnectNode.graphElement;
+
+            var canConnect = nodeView.CompatiblePortCondition((Direction)OutsideConnectPort.Direction, graphNode);
+            if (canConnect)
+            {
+                if (OutsideConnectPort.Direction == VisualGraphPort.PortDirection.Input)
+                    CreatePort((Node)graphNode.graphElement, "Exit", VisualGraphPort.PortDirection.Output);
+                var connection = OutsideConnectNode.Connect(OutsideConnectPort, graphNode); //OutSideNode连接到创建的Node
+
+                graphNode.Connect((NarrativePort)connection.port, OutsideConnectNode); //创建的Node连接到OutSideNode
+                
+                var OutsidePortView = (Port)OutsideConnectPort.editor_port ??
+                                      throw new ArgumentNullException("OutsideConnectPort.editor_port");
+                AddElement(OutsidePortView.ConnectTo((Port)connection.port.editor_port)); //DrawConnectEdge
+                EditorUtility.SetDirty(NarrativeGraph);
+            }
+        }
+
         return graphNode;
     }
 
     /// <summary>
-    /// Add the node from the graph to the view based off property and attribute settings
+    ///     Add the node from the graph to the view based off property and attribute settings
     /// </summary>
     /// <param name="graphNode"></param>
     /// <returns></returns>
     private Node AddGraphNode(VisualGraphNode graphNode)
     {
         // By default we will create all nodes from VisualGraphNodeView
-        Type visualNodeType = typeof(VisualGraphNodeView);
-        if (visualGraphNodeLookup.ContainsKey(graphNode.GetType()) == true)
-        {
+        var visualNodeType = typeof(VisualGraphNodeView);
+        if (visualGraphNodeLookup.ContainsKey(graphNode.GetType()))
             visualNodeType = visualGraphNodeLookup[graphNode.GetType()];
-        }
 
         // Create the Node View based off the type, set the class for styling
-        VisualGraphNodeView nodeView = Activator.CreateInstance(visualNodeType) as VisualGraphNodeView;
+        var nodeView = Activator.CreateInstance(visualNodeType) as VisualGraphNodeView;
         nodeView.AddToClassList("VisualGraphNode");
 
         // nodeView.title = string.IsNullOrWhiteSpace(graphNode.NodeTitleName)
@@ -475,19 +484,15 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         graphNode.graphElement = nodeView;
 
         // If there are extra Styles apply them
-        IEnumerable<CustomNodeStyleAttribute> customStyleAttribs =
+        var customStyleAttribs =
             graphNode.GetType().GetCustomAttributes<CustomNodeStyleAttribute>();
         if (customStyleAttribs != null)
-        {
             foreach (var customStyleAttrib in customStyleAttribs)
-            {
                 try
                 {
-                    StyleSheet styleSheet = Resources.Load<StyleSheet>(customStyleAttrib.style);
+                    var styleSheet = Resources.Load<StyleSheet>(customStyleAttrib.style);
                     if (styleSheet != null)
-                    {
                         nodeView.styleSheets.Add(styleSheet);
-                    }
                     else throw new Exception();
                 }
 #pragma warning disable 168
@@ -496,11 +501,9 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
                 {
                     Debug.LogWarning($"Style sheet does not exit: {customStyleAttrib.style}");
                 }
-            }
-        }
 
         // Get the Port Dynamics. Base class type already has the attribute so this should never fail
-        NodePortAggregateAttribute dynamicsAttrib =
+        var dynamicsAttrib =
             graphNode.GetType().GetCustomAttribute<NodePortAggregateAttribute>();
         Debug.Assert(dynamicsAttrib != null,
             $"Graph node requires a NodePortAggregateAttribute {graphNode.GetType().Name}");
@@ -529,10 +532,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         nodeView.SetPosition(new Rect(graphNode.position, nodeView.default_size));
 
         // Add the needed ports
-        foreach (var graphPort in graphNode.Ports)
-        {
-            AddPort(graphPort, nodeView);
-        }
+        foreach (var graphPort in graphNode.Ports) AddPort(graphPort, nodeView);
 
         // If there are custom elements or drawing, let the derived node handle this
 
@@ -540,19 +540,19 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         // If the node wants to hide the properties the user must make a View node and set this to false
         if (nodeView.ShowNodeProperties)
         {
-            VisualElement divider = new VisualElement();
+            var divider = new VisualElement();
             divider.style.borderBottomColor = divider.style.borderTopColor =
                 divider.style.borderLeftColor = divider.style.borderRightColor = Color.black;
             divider.style.borderBottomWidth = divider.style.borderTopWidth =
                 divider.style.borderLeftWidth = divider.style.borderRightWidth = 0.5f;
             nodeView.mainContainer.Add(divider);
 
-            VisualElement node_data = new VisualElement();
+            var node_data = new VisualElement();
             node_data.AddToClassList("node_data");
             nodeView.mainContainer.Add(node_data);
 
-            UnityEditor.Editor editor = UnityEditor.Editor.CreateEditor((VisualGraphNode)nodeView.userData);
-            IMGUIContainer inspectorIMGUI = new IMGUIContainer(() => { editor.OnInspectorGUI(); });
+            var editor = Editor.CreateEditor((VisualGraphNode)nodeView.userData);
+            var inspectorIMGUI = new IMGUIContainer(() => { editor.OnInspectorGUI(); });
             node_data.Add(inspectorIMGUI);
         }
 
@@ -569,15 +569,11 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 
     private string GetGraphNodeName(Type type)
     {
-        string display_name = "";
+        var display_name = "";
         if (type.GetCustomAttribute<NodeNameAttribute>() != null)
-        {
             display_name = type.GetCustomAttribute<NodeNameAttribute>().name;
-        }
         else
-        {
             display_name = type.Name;
-        }
 
         return display_name;
     }
@@ -587,59 +583,55 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     #region Port Connections
 
     /// <summary>
-    /// Create a port for the given node based off the direction. Once the port is created for the node in the graph
-    /// a port will be added to the view node
+    ///     Create a port for the given node based off the direction. Once the port is created for the node in the graph
+    ///     a port will be added to the view node
     /// </summary>
     /// <param name="node"></param>
     /// <param name="name"></param>
     /// <param name="direction"></param>
     public VisualGraphPort CreatePort(Node node, string name, VisualGraphPort.PortDirection direction)
     {
-        VisualGraphNode graphNode = node.userData as VisualGraphNode;
+        var graphNode = node.userData as VisualGraphNode;
         Undo.RecordObject(graphNode, "Add Port to Node");
 
-        VisualGraphPort graphPort = graphNode.AddPort(name, direction);
+        var graphPort = graphNode.AddPort(name, direction);
         AddPort(graphPort, node);
 
-        EditorUtility.SetDirty(narrativeGraph);
+        EditorUtility.SetDirty(NarrativeGraph);
         return graphPort;
     }
 
     /// <summary>
-    /// Add a port to the view node
+    ///     Add a port to the view node
     /// </summary>
     /// <param name="graphPort"></param>
     /// <param name="node"></param>
     private void AddPort(VisualGraphPort graphPort, Node node)
     {
-        VisualGraphNode graphNode = node.userData as VisualGraphNode;
+        var graphNode = node.userData as VisualGraphNode;
 
         // Determine the direction of the port (In/Out)
-        Direction direction = (graphPort.Direction == VisualGraphPort.PortDirection.Input)
+        var direction = graphPort.Direction == VisualGraphPort.PortDirection.Input
             ? Direction.Input
             : Direction.Output;
 
         // Get the capacity of the port (how many connections can this port have)
-        PortCapacityAttribute capacityAttrib = graphNode.GetType().GetCustomAttribute<PortCapacityAttribute>();
+        var capacityAttrib = graphNode.GetType().GetCustomAttribute<PortCapacityAttribute>();
         Debug.Assert(capacityAttrib != null,
             $"Graph node requires a PortCapacityAttribute {graphNode.GetType().Name}");
-        Port.Capacity capacity = Port.Capacity.Single;
+        var capacity = Port.Capacity.Single;
         if (graphPort.Direction == VisualGraphPort.PortDirection.Input)
-        {
-            capacity = (capacityAttrib.InputPortCapacity == PortCapacityAttribute.Capacity.Single)
+            capacity = capacityAttrib.InputPortCapacity == PortCapacityAttribute.Capacity.Single
                 ? Port.Capacity.Single
                 : Port.Capacity.Multi;
-        }
         else
-        {
-            capacity = (capacityAttrib.OutputPortCapacity == PortCapacityAttribute.Capacity.Single)
+            capacity = capacityAttrib.OutputPortCapacity == PortCapacityAttribute.Capacity.Single
                 ? Port.Capacity.Single
                 : Port.Capacity.Multi;
-        }
 
         // Get the data type for the port.
         // TODO: can we optimze/change this to be more dynamic?
-        Type port_type = (graphPort.Direction == VisualGraphPort.PortDirection.Input)
+        var port_type = graphPort.Direction == VisualGraphPort.PortDirection.Input
             ? graphNode.InputType
             : graphNode.OutputType;
 
@@ -651,21 +643,17 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 
 
         // Custom View for ports
-        NodePortAggregateAttribute portAggregateAttrib =
+        var portAggregateAttrib =
             graphNode.GetType().GetCustomAttribute<NodePortAggregateAttribute>();
-        NodePortAggregateAttribute.PortAggregate aggregate = NodePortAggregateAttribute.PortAggregate.None;
+        var aggregate = NodePortAggregateAttribute.PortAggregate.None;
         if (graphPort.Direction == VisualGraphPort.PortDirection.Input)
-        {
-            aggregate = (portAggregateAttrib.InputPortAggregate == NodePortAggregateAttribute.PortAggregate.Single)
+            aggregate = portAggregateAttrib.InputPortAggregate == NodePortAggregateAttribute.PortAggregate.Single
                 ? NodePortAggregateAttribute.PortAggregate.Single
                 : NodePortAggregateAttribute.PortAggregate.Multiple;
-        }
         else
-        {
-            aggregate = (portAggregateAttrib.OutputPortAggregate == NodePortAggregateAttribute.PortAggregate.Single)
+            aggregate = portAggregateAttrib.OutputPortAggregate == NodePortAggregateAttribute.PortAggregate.Single
                 ? NodePortAggregateAttribute.PortAggregate.Single
                 : NodePortAggregateAttribute.PortAggregate.Multiple;
-        }
 
         VisualGraphPortView graphPortView = null;
         if (aggregate == NodePortAggregateAttribute.PortAggregate.Single)
@@ -676,10 +664,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         {
             Type portViewType = null;
             visualGraphPortLookup.TryGetValue(graphPort.GetType(), out portViewType);
-            if (portViewType == null)
-            {
-                portViewType = typeof(VisualGraphPortView);
-            }
+            if (portViewType == null) portViewType = typeof(VisualGraphPortView);
 
             graphPortView = Activator.CreateInstance(portViewType) as VisualGraphPortView;
         }
@@ -701,7 +686,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
 
         port.AddManipulator(new EdgeConnector<Edge>(this));
 
-        PortTypeAttribute portTypeAttribute = graphNode.GetType().GetCustomAttribute<PortTypeAttribute>();
+        var portTypeAttribute = graphNode.GetType().GetCustomAttribute<PortTypeAttribute>();
 
         // Put the port in the proper container for the view
         if (direction == Direction.Input)
@@ -722,21 +707,21 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     }
 
     /// <summary>
-    /// Connect the nodes together through the port Connections
+    ///     Connect the nodes together through the port Connections
     /// </summary>
     /// <param name="graphView"></param>
     /// <param name="edge"></param>
     public void OnDrop(GraphView graphView, Edge edge)
     {
-        VisualGraphNode graph_input_node = edge.input.node.userData as VisualGraphNode;
-        VisualGraphNode graph_output_node = edge.output.node.userData as VisualGraphNode;
+        var graph_input_node = edge.input.node.userData as VisualGraphNode;
+        var graph_output_node = edge.output.node.userData as VisualGraphNode;
 
-        Undo.RecordObjects(new UnityEngine.Object[] { graph_input_node, graph_output_node }, "Add Port to Node");
+        Undo.RecordObjects(new Object[] { graph_input_node, graph_output_node }, "Add Port to Node");
 
-        VisualGraphPort graph_input_port = edge.input.userData as VisualGraphPort;
-        VisualGraphPort graph_output_port = edge.output.userData as VisualGraphPort;
+        var graph_input_port = edge.input.userData as VisualGraphPort;
+        var graph_output_port = edge.output.userData as VisualGraphPort;
 
-        graph_input_port.Connections.Add(new VisualGraphPort.VisualGraphPortConnection()
+        graph_input_port.Connections.Add(new VisualGraphPort.VisualGraphPortConnection
         {
             initialized = true,
             Node = edge.output.node.userData as VisualGraphNode,
@@ -744,7 +729,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
             port_guid = graph_output_port.guid,
             node_guid = graph_output_node.guid
         });
-        graph_output_port.Connections.Add(new VisualGraphPort.VisualGraphPortConnection()
+        graph_output_port.Connections.Add(new VisualGraphPort.VisualGraphPortConnection
         {
             initialized = true,
             Node = edge.input.node.userData as VisualGraphNode,
@@ -753,30 +738,51 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
             node_guid = graph_input_node.guid
         });
 
-        EditorUtility.SetDirty(narrativeGraph);
+        EditorUtility.SetDirty(NarrativeGraph);
     }
 
     /// <summary>
-    /// Not needed for default graphing. May be implemented in future versions
+    ///     Not needed for default graphing. May be implemented in future versions
     /// </summary>
     /// <param name="edge"></param>
     /// <param name="position"></param>
     public void OnDropOutsidePort(Edge edge, Vector2 position)
     {
+        //If the edge was already existing, remove it
+        // if (!edge.isGhostEdge)
+        //     this.Disconnect(edge as EdgeView);
+
+        // when on of the port is null, then the edge was created and dropped outside of a port
+        if (edge.output != null)
+        {
+            OutsideConnectNode = edge.output.node.userData as NarrativeNode;
+            OutsideConnectPort = edge.output.userData as NarrativePort;
+        }
+        else if (edge.input != null)
+        {
+            OutsideConnectNode = edge.input.node.userData as NarrativeNode;
+            OutsideConnectPort = edge.input.userData as NarrativePort;
+        }
+
+        if (edge.input == null || edge.output == null)
+        {
+            SearchWindow.Open(new SearchWindowContext(position + EditorWindow.focusedWindow.position.position),
+                searchWindow);
+        }
     }
 
     /// <summary>
-    /// Remove the given port from the node
+    ///     Remove the given port from the node
     /// </summary>
     /// <param name="node"></param>
     /// <param name="socket"></param>
     private void RemovePort(Node node, Port socket)
     {
-        VisualGraphPort socket_port = socket.userData as VisualGraphPort;
-        List<Edge> edgeList = edges.ToList();
+        var socket_port = socket.userData as VisualGraphPort;
+        var edgeList = edges.ToList();
         foreach (var edge in edgeList)
         {
-            VisualGraphPort graphPort = edge.output.userData as VisualGraphPort;
+            var graphPort = edge.output.userData as VisualGraphPort;
             if (graphPort.guid.Equals(socket_port.guid))
             {
                 RemoveEdge(edge);
@@ -785,25 +791,21 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
             }
         }
 
-        VisualGraphNode graphNode = node.userData as VisualGraphNode;
+        var graphNode = node.userData as VisualGraphNode;
 
         Undo.RecordObject(graphNode, "Remove Port");
 
         graphNode.Ports.Remove(socket_port);
 
         if (socket.direction == Direction.Input)
-        {
             node.inputContainer.Remove(socket);
-        }
         else
-        {
             node.outputContainer.Remove(socket);
-        }
 
         node.RefreshPorts();
         node.RefreshExpandedState();
 
-        EditorUtility.SetDirty(narrativeGraph);
+        EditorUtility.SetDirty(NarrativeGraph);
     }
 
     public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
@@ -811,7 +813,7 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
         var compatiblePorts = new List<Port>();
         var startPortView = startPort;
 
-        ports.ForEach((port) =>
+        ports.ForEach(port =>
         {
             var portView = port;
 
@@ -820,19 +822,23 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
             var hasConnectSamNodeAttribute =
                 startNode.GetType().GetCustomAttribute<CanNotConnectSameNodeAttribute>() != null;
             var connectSameTypeNodeCheck =
-                (hasConnectSamNodeAttribute && portNode.GetType() != startNode.GetType()) ||
+                hasConnectSamNodeAttribute && portNode.GetType() != startNode.GetType() ||
                 !hasConnectSamNodeAttribute;
 
             if (startPortView.direction != portView.direction //Direction is different
                 && startPortView != portView //PortViewDifferent
                 && startPortView.node != portView.node //nodeDifferent
-                && (startPortView.portType == portView.portType) //PortTypeSame
+                && startPortView.portType == portView.portType //PortTypeSame
                 && connectSameTypeNodeCheck) //ConnectSameTypeNodeCheck 
             {
                 if (typeof(NarrativeNode).IsInstanceOfType(startNode))
                 {
-                    if (((NarrativeNode)startNode).CompatiblePortCondition(startPortView.direction, portNode))
-                        compatiblePorts.Add(port);
+                    if (typeof(NarrativeNodeView).IsInstanceOfType(startNode.graphElement))
+                    {
+                        if (((NarrativeNodeView)startNode.graphElement).CompatiblePortCondition(startPortView.direction,
+                            portNode))
+                            compatiblePorts.Add(port);
+                    }
                 }
                 else
                 {
@@ -852,80 +858,67 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     {
         // Return from this if we don't have a Visual Graph. This means we are reseting the
         // graph
-        if (narrativeGraph == null) return change;
+        if (NarrativeGraph == null) return change;
 
         if (change.elementsToRemove != null)
-        {
-            foreach (GraphElement element in change.elementsToRemove)
-            {
-                if (typeof(Edge).IsInstanceOfType(element) == true)
+            foreach (var element in change.elementsToRemove)
+                if (typeof(Edge).IsInstanceOfType(element))
                 {
-                    VisualGraphNode graph_input_node = ((Edge)element).input.node.userData as VisualGraphNode;
-                    VisualGraphNode graph_output_node = ((Edge)element).output.node.userData as VisualGraphNode;
-                    Undo.RecordObjects(new UnityEngine.Object[] { graph_input_node, graph_output_node },
+                    var graph_input_node = ((Edge)element).input.node.userData as VisualGraphNode;
+                    var graph_output_node = ((Edge)element).output.node.userData as VisualGraphNode;
+                    Undo.RecordObjects(new Object[] { graph_input_node, graph_output_node },
                         "Add Port to Node");
 
                     RemoveEdge((Edge)element);
                 }
-                else if (typeof(Node).IsInstanceOfType(element) == true)
+                else if (typeof(Node).IsInstanceOfType(element))
                 {
                     RemoveNode((Node)element);
                 }
-                else if (typeof(Group).IsInstanceOfType(element) == true)
+                else if (typeof(Group).IsInstanceOfType(element))
                 {
-                    VisualGraphGroup block = ((Group)element).userData as VisualGraphGroup;
-                    Undo.RecordObjects(new UnityEngine.Object[] { narrativeGraph }, "Add Port to Node");
-                    narrativeGraph.Groups.Remove(block);
+                    var block = ((Group)element).userData as VisualGraphGroup;
+                    Undo.RecordObjects(new Object[] { NarrativeGraph }, "Add Port to Node");
+                    NarrativeGraph.Groups.Remove(block);
                 }
-                else if (typeof(StickyNote).IsInstanceOfType(element) == true)
+                else if (typeof(StickyNote).IsInstanceOfType(element))
                 {
-                    NarativeStickyNote stickyNote = ((StickyNote)element).userData as NarativeStickyNote;
-                    Undo.RecordObjects(new UnityEngine.Object[] { narrativeGraph }, "Remove StickyNote");
-                    narrativeGraph.StickyNotes.Remove(stickyNote);
+                    var stickyNote = ((StickyNote)element).userData as NarativeStickyNote;
+                    Undo.RecordObjects(new Object[] { NarrativeGraph }, "Remove StickyNote");
+                    StickyNotes.Remove(stickyNote);
                 }
-            }
-        }
 
         if (change.movedElements != null)
         {
-            List<VisualGraphNode> movedNodes = new List<VisualGraphNode>();
-            foreach (GraphElement element in change.movedElements)
-            {
-                if (typeof(Node).IsInstanceOfType(element) == true)
-                {
+            var movedNodes = new List<VisualGraphNode>();
+            foreach (var element in change.movedElements)
+                if (typeof(Node).IsInstanceOfType(element))
                     movedNodes.Add((VisualGraphNode)element.userData);
-                }
-            }
 
             Undo.RecordObjects(movedNodes.ToArray(), "Moved VisualGraphNode");
 
-            foreach (GraphElement element in change.movedElements)
-            {
-                if (typeof(Node).IsInstanceOfType(element) == true)
+            foreach (var element in change.movedElements)
+                if (typeof(Node).IsInstanceOfType(element))
                 {
                     movedNodes.Add((VisualGraphNode)element.userData);
                     ((VisualGraphNode)element.userData).position = new Vector2(element.style.left.value.value,
                         element.style.top.value.value);
                 }
-                else if (typeof(VisualGraphGroupView).IsInstanceOfType(element) == true)
+                else if (typeof(VisualGraphGroupView).IsInstanceOfType(element))
                 {
                     var position = new Vector2(element.style.left.value.value,
                         element.style.top.value.value);
                     var size = element.GetPosition();
                     ((VisualGraphGroup)element.userData).position =
                         new Rect(position, new Vector2(size.width, size.height));
-                    VisualGraphGroupView groupView = (VisualGraphGroupView)element;
+                    var groupView = (VisualGraphGroupView)element;
                     foreach (var graphElement in groupView.containedElements)
-                    {
-                        if (typeof(Node).IsInstanceOfType(graphElement) == true)
-                        {
+                        if (typeof(Node).IsInstanceOfType(graphElement))
                             ((VisualGraphNode)graphElement.userData).position = new Vector2(
                                 graphElement.style.left.value.value,
                                 graphElement.style.top.value.value);
-                        }
-                    }
                 }
-                else if (typeof(StickyNote).IsInstanceOfType(element) == true)
+                else if (typeof(StickyNote).IsInstanceOfType(element))
                 {
                     var position = new Vector2(element.style.left.value.value,
                         element.style.top.value.value);
@@ -934,45 +927,29 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
                         new Rect(position, new Vector2(size.width, size.height));
                 }
 
-                //Undo.RecordObjects(movedGroups.ToArray(), "Moved VisualGraphNode");
-            }
+            //Undo.RecordObjects(movedGroups.ToArray(), "Moved VisualGraphNode");
         }
 
-        EditorUtility.SetDirty(narrativeGraph);
+        EditorUtility.SetDirty(NarrativeGraph);
 
         return change;
     }
 
     private void RemoveNode(Node node)
     {
-        VisualGraphNode graphNode = node.userData as VisualGraphNode;
-        Undo.RecordObjects(new UnityEngine.Object[] { graphNode, narrativeGraph }, "Delete Node");
-        narrativeGraph.RemoveNode(graphNode);
+        var graphNode = node.userData as VisualGraphNode;
+        Undo.RecordObjects(new Object[] { graphNode, NarrativeGraph }, "Delete Node");
+        NarrativeGraph.RemoveNode(graphNode);
         Undo.DestroyObjectImmediate(graphNode);
         //RefreshGraphAsset();
     }
 
     private void RemoveEdge(Edge edge)
     {
-        VisualGraphPort graph_input_port = edge.input.userData as VisualGraphPort;
-        VisualGraphPort graph_output_port = edge.output.userData as VisualGraphPort;
+        var graph_input_port = edge.input.userData as VisualGraphPort;
+        var graph_output_port = edge.output.userData as VisualGraphPort;
         graph_input_port.RemoveConnectionByPortGuid(graph_output_port.guid);
         graph_output_port.RemoveConnectionByPortGuid(graph_input_port.guid);
-    }
-
-    #endregion
-
-    #region PrivateMethod
-
-    public void RefreshGraphAsset()
-    {
-        var assetPath = AssetDatabase.GetAssetPath(narrativeGraph);
-        if (!string.IsNullOrWhiteSpace(assetPath))
-        {
-            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
-        }
-
-        AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
     }
 
     #endregion
@@ -982,18 +959,40 @@ public class NarrativeGraphView : GraphView, IEdgeConnectorListener
     public Vector2 GetLocalMousePosition(Vector2 localMousePosition)
     {
         //Convertit localMousePosition pour l'adapter au Rect de la fen�tre
-        Vector2 graphMousePos = contentViewContainer.WorldToLocal(localMousePosition);
+        var graphMousePos = contentViewContainer.WorldToLocal(localMousePosition);
 
         return graphMousePos;
     }
 
     public Vector2 GetMousePosition(IMouseEvent evt)
     {
-        VisualElement container = ElementAt(1);
+        var container = ElementAt(1);
         Vector3 screenMousePosition = evt.localMousePosition;
         var position = screenMousePosition - container.transform.position;
         position *= 1 / container.transform.scale.x;
         return position;
     }
+
+    public T GetAttributesOfInstanceType<T>(Type type) where T : Attribute
+    {
+        var baseType = type;
+        while (baseType != null)
+        {
+            var attribute = baseType.GetCustomAttribute<T>();
+            if (attribute != null)
+                return attribute;
+            baseType = baseType.BaseType;
+        }
+
+        return default;
+    }
+
+    Type[] GetInheritedClasses(Type MyType)
+    {
+        //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
+        return Assembly.GetAssembly(MyType).GetTypes().Where(TheType =>
+            TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType)) as Type[];
+    }
+
     #endregion
 }

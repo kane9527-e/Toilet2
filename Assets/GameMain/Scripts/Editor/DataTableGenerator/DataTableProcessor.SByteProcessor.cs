@@ -13,25 +13,13 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
     {
         private sealed class SByteProcessor : GenericDataProcessor<sbyte>
         {
-            public override bool IsSystem
-            {
-                get
-                {
-                    return true;
-                }
-            }
+            public override bool IsSystem => true;
 
-            public override string LanguageKeyword
-            {
-                get
-                {
-                    return "sbyte";
-                }
-            }
+            public override string LanguageKeyword => "sbyte";
 
             public override string[] GetTypeStrings()
             {
-                return new string[]
+                return new[]
                 {
                     "sbyte",
                     "system.sbyte"
@@ -43,7 +31,8 @@ namespace GameMain.Scripts.Editor.DataTableGenerator
                 return sbyte.Parse(value);
             }
 
-            public override void WriteToStream(GameMain.Scripts.Editor.DataTableGenerator.DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter, string value)
+            public override void WriteToStream(DataTableProcessor dataTableProcessor, BinaryWriter binaryWriter,
+                string value)
             {
                 binaryWriter.Write(Parse(value));
             }

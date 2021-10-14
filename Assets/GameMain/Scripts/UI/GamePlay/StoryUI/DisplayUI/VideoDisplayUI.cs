@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using Narrative.Runtime.Scripts.Nodes.DisplayNode;
 using UI.GamePlay.StoryUI;
@@ -16,7 +14,7 @@ public class VideoDisplayUI : DisplayUI
     {
         if (!node || !videoPlayer) return;
         var targetNode = (VideoDisplayNode)node;
-        
+
         if (videoPlayer.isPlaying)
             videoPlayer.Stop();
         videoPlayer.clip = targetNode.VideoClip;

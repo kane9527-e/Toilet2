@@ -15,60 +15,31 @@ namespace UnityGameFramework.Editor.ResourceTools
     {
         private sealed class ResourceItem
         {
-            private static Texture s_CachedUnknownIcon = null;
-            private static Texture s_CachedAssetIcon = null;
-            private static Texture s_CachedSceneIcon = null;
+            private static Texture s_CachedUnknownIcon;
+            private static Texture s_CachedAssetIcon;
+            private static Texture s_CachedSceneIcon;
 
             public ResourceItem(string name, Resource resource, ResourceFolder folder)
             {
-                if (resource == null)
-                {
-                    throw new GameFrameworkException("Resource is invalid.");
-                }
+                if (resource == null) throw new GameFrameworkException("Resource is invalid.");
 
-                if (folder == null)
-                {
-                    throw new GameFrameworkException("Resource folder is invalid.");
-                }
+                if (folder == null) throw new GameFrameworkException("Resource folder is invalid.");
 
                 Name = name;
                 Resource = resource;
                 Folder = folder;
             }
 
-            public string Name
-            {
-                get;
-                private set;
-            }
+            public string Name { get; }
 
-            public Resource Resource
-            {
-                get;
-                private set;
-            }
+            public Resource Resource { get; }
 
-            public ResourceFolder Folder
-            {
-                get;
-                private set;
-            }
+            public ResourceFolder Folder { get; }
 
-            public string FromRootPath
-            {
-                get
-                {
-                    return Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name);
-                }
-            }
+            public string FromRootPath =>
+                Folder.Folder == null ? Name : Utility.Text.Format("{0}/{1}", Folder.FromRootPath, Name);
 
-            public int Depth
-            {
-                get
-                {
-                    return Folder != null ? Folder.Depth + 1 : 0;
-                }
-            }
+            public int Depth => Folder != null ? Folder.Depth + 1 : 0;
 
             public Texture Icon
             {
@@ -76,10 +47,10 @@ namespace UnityGameFramework.Editor.ResourceTools
                 {
                     if (Resource.IsLoadFromBinary)
                     {
-                        Asset asset = Resource.GetFirstAsset();
+                        var asset = Resource.GetFirstAsset();
                         if (asset != null)
                         {
-                            Texture texture = AssetDatabase.GetCachedIcon(AssetDatabase.GUIDToAssetPath(asset.Guid));
+                            var texture = AssetDatabase.GetCachedIcon(AssetDatabase.GUIDToAssetPath(asset.Guid));
                             return texture != null ? texture : CachedUnknownIcon;
                         }
                     }
@@ -141,10 +112,7 @@ namespace UnityGameFramework.Editor.ResourceTools
             {
                 get
                 {
-                    if (s_CachedSceneIcon == null)
-                    {
-                        s_CachedSceneIcon = GetIcon("SceneAsset Icon");
-                    }
+                    if (s_CachedSceneIcon == null) s_CachedSceneIcon = GetIcon("SceneAsset Icon");
 
                     return s_CachedSceneIcon;
                 }

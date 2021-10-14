@@ -6,6 +6,7 @@ namespace GameMain.Scripts.Procedure
     public class ProcedureGameLogic : ProcedureBase
     {
         public override bool UseNativeDialog { get; }
+
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             //TODO

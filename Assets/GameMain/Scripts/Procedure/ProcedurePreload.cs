@@ -21,8 +21,8 @@ namespace GameMain.Scripts.Procedure
 {
     public class ProcedurePreload : ProcedureBase
     {
+        private readonly Dictionary<string, bool> m_LoadedFlag = new Dictionary<string, bool>();
         public override bool UseNativeDialog { get; }
-        private Dictionary<string, bool> m_LoadedFlag = new Dictionary<string, bool>();
 
 
         protected override void OnEnter(ProcedureOwner procedureOwner)
@@ -55,16 +55,12 @@ namespace GameMain.Scripts.Procedure
         {
             base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
 
-            foreach (KeyValuePair<string, bool> loadedFlag in m_LoadedFlag)
-            {
+            foreach (var loadedFlag in m_LoadedFlag)
                 if (!loadedFlag.Value)
-                {
                     return;
-                }
-            }
 
 
-            procedureOwner.SetData<VarInt32>("NextSceneId", (int)SceneId.MenuScene);//切换主菜单
+            procedureOwner.SetData<VarInt32>("NextSceneId", (int)SceneId.MenuScene); //切换主菜单
 
 
             ChangeState<ProcedureChangeScene>(procedureOwner);
@@ -75,10 +71,7 @@ namespace GameMain.Scripts.Procedure
             // Preload configs
             //LoadConfig("DefaultConfig");
             // Preload data tables
-            foreach (string dataTableName in Constant.DataTable.DataTableNames)
-            {
-                LoadDataTable(dataTableName);
-            }
+            foreach (var dataTableName in Constant.DataTable.DataTableNames) LoadDataTable(dataTableName);
 
             // Preload dictionaries
             //LoadDictionary("Default");
@@ -96,7 +89,7 @@ namespace GameMain.Scripts.Procedure
 
         private void LoadDataTable(string dataTableName)
         {
-            string dataTableAssetName = AssetUtility.GetDataTableAsset(dataTableName, false);
+            var dataTableAssetName = AssetUtility.GetDataTableAsset(dataTableName, false);
             m_LoadedFlag.Add(dataTableAssetName, false);
             GameEntry.DataTable.LoadDataTable(dataTableName, dataTableAssetName, this);
         }
@@ -104,10 +97,8 @@ namespace GameMain.Scripts.Procedure
         private DRScene GETSceneRowById(IDataTable<DRScene> sceneTables, int id)
         {
             foreach (var drScene in sceneTables)
-            {
                 if (drScene.Id.Equals(id))
                     return drScene;
-            }
 
             return null;
         }
@@ -163,11 +154,8 @@ namespace GameMain.Scripts.Procedure
 
         private void OnLoadDataTableSuccess(object sender, GameEventArgs e)
         {
-            LoadDataTableSuccessEventArgs ne = (LoadDataTableSuccessEventArgs) e;
-            if (ne.UserData != this)
-            {
-                return;
-            }
+            var ne = (LoadDataTableSuccessEventArgs)e;
+            if (ne.UserData != this) return;
 
             m_LoadedFlag[ne.DataTableAssetName] = true;
             Log.Info("Load data table '{0}' OK.", ne.DataTableAssetName);
@@ -175,11 +163,8 @@ namespace GameMain.Scripts.Procedure
 
         private void OnLoadDataTableFailure(object sender, GameEventArgs e)
         {
-            LoadDataTableFailureEventArgs ne = (LoadDataTableFailureEventArgs) e;
-            if (ne.UserData != this)
-            {
-                return;
-            }
+            var ne = (LoadDataTableFailureEventArgs)e;
+            if (ne.UserData != this) return;
 
             Log.Error("Can not load data table '{0}' from '{1}' with error message '{2}'.", ne.DataTableAssetName,
                 ne.DataTableAssetName, ne.ErrorMessage);

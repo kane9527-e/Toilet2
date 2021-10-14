@@ -12,43 +12,28 @@ namespace UnityGameFramework.Runtime
 {
     internal sealed class WWWFormInfo : IReference
     {
-        private WWWForm m_WWWForm;
-        private object m_UserData;
-
         public WWWFormInfo()
         {
-            m_WWWForm = null;
-            m_UserData = null;
+            WWWForm = null;
+            UserData = null;
         }
 
-        public WWWForm WWWForm
-        {
-            get
-            {
-                return m_WWWForm;
-            }
-        }
+        public WWWForm WWWForm { get; private set; }
 
-        public object UserData
+        public object UserData { get; private set; }
+
+        public void Clear()
         {
-            get
-            {
-                return m_UserData;
-            }
+            WWWForm = null;
+            UserData = null;
         }
 
         public static WWWFormInfo Create(WWWForm wwwForm, object userData)
         {
-            WWWFormInfo wwwFormInfo = ReferencePool.Acquire<WWWFormInfo>();
-            wwwFormInfo.m_WWWForm = wwwForm;
-            wwwFormInfo.m_UserData = userData;
+            var wwwFormInfo = ReferencePool.Acquire<WWWFormInfo>();
+            wwwFormInfo.WWWForm = wwwForm;
+            wwwFormInfo.UserData = userData;
             return wwwFormInfo;
-        }
-
-        public void Clear()
-        {
-            m_WWWForm = null;
-            m_UserData = null;
         }
     }
 }

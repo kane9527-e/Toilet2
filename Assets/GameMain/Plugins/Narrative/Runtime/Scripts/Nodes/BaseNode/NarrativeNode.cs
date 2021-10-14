@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Narrative.Runtime.Scripts.Graph;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using VisualGraphEditor;
 using VisualGraphRuntime;
 
 namespace Narrative.Runtime.Scripts.Nodes.BaseNode
@@ -35,7 +32,7 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
             foreach (var branchNode in branchNodes)
             {
                 var resultNodes = branchNode.GetResultNodes();
-                for (int i = resultNodes.Count - 1; i >= 0; i--)
+                for (var i = resultNodes.Count - 1; i >= 0; i--)
                 {
                     var resultNode = resultNodes[i];
                     if (resultNode.GetType().BaseType == typeof(DisplayNode))
@@ -44,7 +41,7 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
                         triggerNodes.Add((TriggerNode)resultNode);
                 }
             }
-            
+
             foreach (var visualGraphPort in Outputs)
             {
                 var output = (NarrativePort)visualGraphPort;
@@ -52,43 +49,37 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
                 {
                     var portConnections = output.Connections;
                     if (portConnections != null && portConnections.Count > 0)
-                    {
-                        for (int i = portConnections.Count - 1; i >= 0; i--)
+                        for (var i = portConnections.Count - 1; i >= 0; i--)
                         {
                             var connection = portConnections[i];
                             var input = (NarrativePort)connection.port;
                             if (connection.Node && connection.Node is DisplayNode) //检测是否为显示节点
-                            {
                                 if (input.conditionConfig == null || input.conditionConfig.Result())
                                 {
                                     narrativeGraph.SwitchNode((DisplayNode)connection.Node);
                                     return;
                                 }
-                            }
                         }
-                    }
                 }
             }
         }
 
         public List<T> GetPortNodesWithCondition<T>() where T : NarrativeNode
         {
-            List<T> nodes = new List<T>();
+            var nodes = new List<T>();
             foreach (var port in Ports)
             {
-                NarrativePort narrativePort = (NarrativePort)port;
+                var narrativePort = (NarrativePort)port;
                 // We assume only one connection based off settings
                 if (narrativePort.Connections.Count >= 0)
-                {
                     foreach (var connection in narrativePort.Connections)
                     {
                         var conditionConfig = narrativePort.conditionConfig;
                         // ReSharper disable once MergeCastWithTypeCheck
                         if (!(connection.Node is T)) continue;
-                        if (!conditionConfig || (conditionConfig && conditionConfig.Result()))
+                        if (!conditionConfig || conditionConfig && conditionConfig.Result())
                             nodes.Add((T)connection.Node);
                     }
-                }
             }
 
             return nodes;
@@ -96,28 +87,24 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
 
         public List<T> GetPortNodesWithCondition<T>(VisualGraphPort.PortDirection direction) where T : NarrativeNode
         {
-            List<T> nodes = new List<T>();
+            var nodes = new List<T>();
             var ports = direction == VisualGraphPort.PortDirection.Output ? Outputs : Inputs;
             var visualGraphPorts = ports.ToList();
             if (visualGraphPorts.Count <= 0) return nodes;
 
             foreach (var port in visualGraphPorts)
             {
-                NarrativePort narrativePort = (NarrativePort)port;
+                var narrativePort = (NarrativePort)port;
                 // We assume only one connection based off settings
                 if (narrativePort.Connections.Count >= 0)
-                {
                     foreach (var connection in narrativePort.Connections)
                     {
                         var conditionConfig = narrativePort.conditionConfig;
                         // ReSharper disable once MergeCastWithTypeCheck
                         if (!(connection.Node is T)) continue;
-                        if (!conditionConfig || (conditionConfig && conditionConfig.Result()))
-                        {
+                        if (!conditionConfig || conditionConfig && conditionConfig.Result())
                             nodes.Add((T)connection.Node);
-                        }
                     }
-                }
             }
 
             return nodes;
@@ -137,11 +124,6 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
             editor_ActiveNode = false;
         }
 
-        public virtual bool CompatiblePortCondition(Direction direction, VisualGraphNode targetPortNode)
-        {
-            return true;
-        }
-
         public VisualGraphPort.VisualGraphPortConnection Connect(NarrativePort port, NarrativeNode targetNode)
         {
             if (Ports.Contains(port))
@@ -157,32 +139,26 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
 
         public VisualGraphPort.PortDirection GetConnectDirection(NarrativeNode node)
         {
-            VisualGraphPort.PortDirection r = VisualGraphPort.PortDirection.Output;
+            var r = VisualGraphPort.PortDirection.Output;
             foreach (var port in Ports)
-            {
                 if (port.Connections.Exists(connection => connection.node_guid == guid))
-                {
                     return port.Direction;
-                }
-            }
 
             return r;
         }
 
         public List<int> GetConnectPortIndexes(NarrativeNode node)
         {
-            List<int> indexes = new List<int>();
-            for (int i = 0; i < Ports.Count; i++)
+            var indexes = new List<int>();
+            for (var i = 0; i < Ports.Count; i++)
             {
                 var port = Ports[i];
                 foreach (var connection in port.Connections)
-                {
                     if (connection.node_guid == node.guid)
                     {
                         indexes.Add(i);
                         break;
                     }
-                }
             }
 
             return indexes;

@@ -13,15 +13,15 @@ namespace UnityGameFramework.Runtime
     {
         private sealed class SettingsWindow : ScrollableDebuggerWindowBase
         {
-            private DebuggerComponent m_DebuggerComponent = null;
-            private SettingComponent m_SettingComponent = null;
-            private float m_LastIconX = 0f;
-            private float m_LastIconY = 0f;
-            private float m_LastWindowX = 0f;
-            private float m_LastWindowY = 0f;
-            private float m_LastWindowWidth = 0f;
-            private float m_LastWindowHeight = 0f;
-            private float m_LastWindowScale = 0f;
+            private DebuggerComponent m_DebuggerComponent;
+            private float m_LastIconX;
+            private float m_LastIconY;
+            private float m_LastWindowHeight;
+            private float m_LastWindowScale;
+            private float m_LastWindowWidth;
+            private float m_LastWindowX;
+            private float m_LastWindowY;
+            private SettingComponent m_SettingComponent;
 
             public override void Initialize(params object[] args)
             {
@@ -45,9 +45,12 @@ namespace UnityGameFramework.Runtime
                 m_LastWindowY = m_SettingComponent.GetFloat("Debugger.Window.Y", DefaultWindowRect.y);
                 m_LastWindowWidth = m_SettingComponent.GetFloat("Debugger.Window.Width", DefaultWindowRect.width);
                 m_LastWindowHeight = m_SettingComponent.GetFloat("Debugger.Window.Height", DefaultWindowRect.height);
-                m_DebuggerComponent.WindowScale = m_LastWindowScale = m_SettingComponent.GetFloat("Debugger.Window.Scale", DefaultWindowScale);
-                m_DebuggerComponent.IconRect = new Rect(m_LastIconX, m_LastIconY, DefaultIconRect.width, DefaultIconRect.height);
-                m_DebuggerComponent.WindowRect = new Rect(m_LastWindowX, m_LastWindowY, m_LastWindowWidth, m_LastWindowHeight);
+                m_DebuggerComponent.WindowScale = m_LastWindowScale =
+                    m_SettingComponent.GetFloat("Debugger.Window.Scale", DefaultWindowScale);
+                m_DebuggerComponent.IconRect =
+                    new Rect(m_LastIconX, m_LastIconY, DefaultIconRect.width, DefaultIconRect.height);
+                m_DebuggerComponent.WindowRect =
+                    new Rect(m_LastWindowX, m_LastWindowY, m_LastWindowWidth, m_LastWindowHeight);
             }
 
             public override void OnUpdate(float elapseSeconds, float realElapseSeconds)
@@ -109,108 +112,58 @@ namespace UnityGameFramework.Runtime
 
                     GUILayout.BeginHorizontal();
                     {
-                        float width = m_DebuggerComponent.WindowRect.width;
+                        var width = m_DebuggerComponent.WindowRect.width;
                         GUILayout.Label("Width:", GUILayout.Width(60f));
-                        if (GUILayout.RepeatButton("-", GUILayout.Width(30f)))
-                        {
-                            width--;
-                        }
+                        if (GUILayout.RepeatButton("-", GUILayout.Width(30f))) width--;
                         width = GUILayout.HorizontalSlider(width, 100f, Screen.width - 20f);
-                        if (GUILayout.RepeatButton("+", GUILayout.Width(30f)))
-                        {
-                            width++;
-                        }
+                        if (GUILayout.RepeatButton("+", GUILayout.Width(30f))) width++;
                         width = Mathf.Clamp(width, 100f, Screen.width - 20f);
                         if (width != m_DebuggerComponent.WindowRect.width)
-                        {
-                            m_DebuggerComponent.WindowRect = new Rect(m_DebuggerComponent.WindowRect.x, m_DebuggerComponent.WindowRect.y, width, m_DebuggerComponent.WindowRect.height);
-                        }
+                            m_DebuggerComponent.WindowRect = new Rect(m_DebuggerComponent.WindowRect.x,
+                                m_DebuggerComponent.WindowRect.y, width, m_DebuggerComponent.WindowRect.height);
                     }
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
                     {
-                        float height = m_DebuggerComponent.WindowRect.height;
+                        var height = m_DebuggerComponent.WindowRect.height;
                         GUILayout.Label("Height:", GUILayout.Width(60f));
-                        if (GUILayout.RepeatButton("-", GUILayout.Width(30f)))
-                        {
-                            height--;
-                        }
+                        if (GUILayout.RepeatButton("-", GUILayout.Width(30f))) height--;
                         height = GUILayout.HorizontalSlider(height, 100f, Screen.height - 20f);
-                        if (GUILayout.RepeatButton("+", GUILayout.Width(30f)))
-                        {
-                            height++;
-                        }
+                        if (GUILayout.RepeatButton("+", GUILayout.Width(30f))) height++;
                         height = Mathf.Clamp(height, 100f, Screen.height - 20f);
                         if (height != m_DebuggerComponent.WindowRect.height)
-                        {
-                            m_DebuggerComponent.WindowRect = new Rect(m_DebuggerComponent.WindowRect.x, m_DebuggerComponent.WindowRect.y, m_DebuggerComponent.WindowRect.width, height);
-                        }
+                            m_DebuggerComponent.WindowRect = new Rect(m_DebuggerComponent.WindowRect.x,
+                                m_DebuggerComponent.WindowRect.y, m_DebuggerComponent.WindowRect.width, height);
                     }
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
                     {
-                        float scale = m_DebuggerComponent.WindowScale;
+                        var scale = m_DebuggerComponent.WindowScale;
                         GUILayout.Label("Scale:", GUILayout.Width(60f));
-                        if (GUILayout.RepeatButton("-", GUILayout.Width(30f)))
-                        {
-                            scale -= 0.01f;
-                        }
+                        if (GUILayout.RepeatButton("-", GUILayout.Width(30f))) scale -= 0.01f;
                         scale = GUILayout.HorizontalSlider(scale, 0.5f, 4f);
-                        if (GUILayout.RepeatButton("+", GUILayout.Width(30f)))
-                        {
-                            scale += 0.01f;
-                        }
+                        if (GUILayout.RepeatButton("+", GUILayout.Width(30f))) scale += 0.01f;
                         scale = Mathf.Clamp(scale, 0.5f, 4f);
-                        if (scale != m_DebuggerComponent.WindowScale)
-                        {
-                            m_DebuggerComponent.WindowScale = scale;
-                        }
+                        if (scale != m_DebuggerComponent.WindowScale) m_DebuggerComponent.WindowScale = scale;
                     }
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
                     {
-                        if (GUILayout.Button("0.5x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 0.5f;
-                        }
-                        if (GUILayout.Button("1.0x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 1f;
-                        }
-                        if (GUILayout.Button("1.5x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 1.5f;
-                        }
-                        if (GUILayout.Button("2.0x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 2f;
-                        }
-                        if (GUILayout.Button("2.5x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 2.5f;
-                        }
-                        if (GUILayout.Button("3.0x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 3f;
-                        }
-                        if (GUILayout.Button("3.5x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 3.5f;
-                        }
-                        if (GUILayout.Button("4.0x", GUILayout.Height(60f)))
-                        {
-                            m_DebuggerComponent.WindowScale = 4f;
-                        }
+                        if (GUILayout.Button("0.5x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 0.5f;
+                        if (GUILayout.Button("1.0x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 1f;
+                        if (GUILayout.Button("1.5x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 1.5f;
+                        if (GUILayout.Button("2.0x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 2f;
+                        if (GUILayout.Button("2.5x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 2.5f;
+                        if (GUILayout.Button("3.0x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 3f;
+                        if (GUILayout.Button("3.5x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 3.5f;
+                        if (GUILayout.Button("4.0x", GUILayout.Height(60f))) m_DebuggerComponent.WindowScale = 4f;
                     }
                     GUILayout.EndHorizontal();
 
-                    if (GUILayout.Button("Reset Layout", GUILayout.Height(30f)))
-                    {
-                        m_DebuggerComponent.ResetLayout();
-                    }
+                    if (GUILayout.Button("Reset Layout", GUILayout.Height(30f))) m_DebuggerComponent.ResetLayout();
                 }
                 GUILayout.EndVertical();
             }

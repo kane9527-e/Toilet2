@@ -13,7 +13,7 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 全局配置组件。
+    ///     全局配置组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Config")]
@@ -21,48 +21,31 @@ namespace UnityGameFramework.Runtime
     {
         private const int DefaultPriority = 0;
 
-        private IConfigManager m_ConfigManager = null;
-        private EventComponent m_EventComponent = null;
+        [SerializeField] private bool m_EnableLoadConfigUpdateEvent;
 
-        [SerializeField]
-        private bool m_EnableLoadConfigUpdateEvent = false;
+        [SerializeField] private bool m_EnableLoadConfigDependencyAssetEvent;
 
-        [SerializeField]
-        private bool m_EnableLoadConfigDependencyAssetEvent = false;
+        [SerializeField] private string m_ConfigHelperTypeName = "UnityGameFramework.Runtime.DefaultConfigHelper";
 
-        [SerializeField]
-        private string m_ConfigHelperTypeName = "UnityGameFramework.Runtime.DefaultConfigHelper";
+        [SerializeField] private ConfigHelperBase m_CustomConfigHelper;
 
-        [SerializeField]
-        private ConfigHelperBase m_CustomConfigHelper = null;
+        [SerializeField] private int m_CachedBytesSize;
 
-        [SerializeField]
-        private int m_CachedBytesSize = 0;
+        private IConfigManager m_ConfigManager;
+        private EventComponent m_EventComponent;
 
         /// <summary>
-        /// 获取全局配置项数量。
+        ///     获取全局配置项数量。
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return m_ConfigManager.Count;
-            }
-        }
+        public int Count => m_ConfigManager.Count;
 
         /// <summary>
-        /// 获取缓冲二进制流的大小。
+        ///     获取缓冲二进制流的大小。
         /// </summary>
-        public int CachedBytesSize
-        {
-            get
-            {
-                return m_ConfigManager.CachedBytesSize;
-            }
-        }
+        public int CachedBytesSize => m_ConfigManager.CachedBytesSize;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -78,20 +61,15 @@ namespace UnityGameFramework.Runtime
             m_ConfigManager.ReadDataSuccess += OnReadDataSuccess;
             m_ConfigManager.ReadDataFailure += OnReadDataFailure;
 
-            if (m_EnableLoadConfigUpdateEvent)
-            {
-                m_ConfigManager.ReadDataUpdate += OnReadDataUpdate;
-            }
+            if (m_EnableLoadConfigUpdateEvent) m_ConfigManager.ReadDataUpdate += OnReadDataUpdate;
 
             if (m_EnableLoadConfigDependencyAssetEvent)
-            {
                 m_ConfigManager.ReadDataDependencyAsset += OnReadDataDependencyAsset;
-            }
         }
 
         private void Start()
         {
-            BaseComponent baseComponent = GameEntry.GetComponent<BaseComponent>();
+            var baseComponent = GameEntry.GetComponent<BaseComponent>();
             if (baseComponent == null)
             {
                 Log.Fatal("Base component is invalid.");
@@ -106,15 +84,11 @@ namespace UnityGameFramework.Runtime
             }
 
             if (baseComponent.EditorResourceMode)
-            {
                 m_ConfigManager.SetResourceManager(baseComponent.EditorResourceHelper);
-            }
             else
-            {
                 m_ConfigManager.SetResourceManager(GameFrameworkEntry.GetModule<IResourceManager>());
-            }
 
-            ConfigHelperBase configHelper = Helper.CreateHelper(m_ConfigHelperTypeName, m_CustomConfigHelper);
+            var configHelper = Helper.CreateHelper(m_ConfigHelperTypeName, m_CustomConfigHelper);
             if (configHelper == null)
             {
                 Log.Error("Can not create config helper.");
@@ -122,20 +96,17 @@ namespace UnityGameFramework.Runtime
             }
 
             configHelper.name = "Config Helper";
-            Transform transform = configHelper.transform;
+            var transform = configHelper.transform;
             transform.SetParent(this.transform);
             transform.localScale = Vector3.one;
 
             m_ConfigManager.SetDataProviderHelper(configHelper);
             m_ConfigManager.SetConfigHelper(configHelper);
-            if (m_CachedBytesSize > 0)
-            {
-                EnsureCachedBytesSize(m_CachedBytesSize);
-            }
+            if (m_CachedBytesSize > 0) EnsureCachedBytesSize(m_CachedBytesSize);
         }
 
         /// <summary>
-        /// 确保二进制流缓存分配足够大小的内存并缓存。
+        ///     确保二进制流缓存分配足够大小的内存并缓存。
         /// </summary>
         /// <param name="ensureSize">要确保二进制流缓存分配内存的大小。</param>
         public void EnsureCachedBytesSize(int ensureSize)
@@ -144,7 +115,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 释放缓存的二进制流。
+        ///     释放缓存的二进制流。
         /// </summary>
         public void FreeCachedBytes()
         {
@@ -152,7 +123,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取全局配置。
+        ///     读取全局配置。
         /// </summary>
         /// <param name="configAssetName">全局配置资源名称。</param>
         public void ReadData(string configAssetName)
@@ -161,7 +132,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取全局配置。
+        ///     读取全局配置。
         /// </summary>
         /// <param name="configAssetName">全局配置资源名称。</param>
         /// <param name="priority">加载全局配置资源的优先级。</param>
@@ -171,7 +142,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取全局配置。
+        ///     读取全局配置。
         /// </summary>
         /// <param name="configAssetName">全局配置资源名称。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -181,7 +152,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 读取全局配置。
+        ///     读取全局配置。
         /// </summary>
         /// <param name="configAssetName">全局配置资源名称。</param>
         /// <param name="priority">加载全局配置资源的优先级。</param>
@@ -192,7 +163,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configString">要解析的全局配置字符串。</param>
         /// <returns>是否解析全局配置成功。</returns>
@@ -202,7 +173,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configString">要解析的全局配置字符串。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -213,7 +184,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configBytes">要解析的全局配置二进制流。</param>
         /// <returns>是否解析全局配置成功。</returns>
@@ -223,7 +194,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configBytes">要解析的全局配置二进制流。</param>
         /// <param name="userData">用户自定义数据。</param>
@@ -234,7 +205,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configBytes">要解析的全局配置二进制流。</param>
         /// <param name="startIndex">全局配置二进制流的起始位置。</param>
@@ -246,7 +217,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解析全局配置。
+        ///     解析全局配置。
         /// </summary>
         /// <param name="configBytes">要解析的全局配置二进制流。</param>
         /// <param name="startIndex">全局配置二进制流的起始位置。</param>
@@ -259,7 +230,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 检查是否存在指定全局配置项。
+        ///     检查是否存在指定全局配置项。
         /// </summary>
         /// <param name="configName">要检查全局配置项的名称。</param>
         /// <returns>指定的全局配置项是否存在。</returns>
@@ -269,7 +240,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取布尔值。
+        ///     从指定全局配置项中读取布尔值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <returns>读取的布尔值。</returns>
@@ -279,7 +250,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取布尔值。
+        ///     从指定全局配置项中读取布尔值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <param name="defaultValue">当指定的全局配置项不存在时，返回此默认值。</param>
@@ -290,7 +261,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取整数值。
+        ///     从指定全局配置项中读取整数值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <returns>读取的整数值。</returns>
@@ -300,7 +271,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取整数值。
+        ///     从指定全局配置项中读取整数值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <param name="defaultValue">当指定的全局配置项不存在时，返回此默认值。</param>
@@ -311,7 +282,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取浮点数值。
+        ///     从指定全局配置项中读取浮点数值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <returns>读取的浮点数值。</returns>
@@ -321,7 +292,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取浮点数值。
+        ///     从指定全局配置项中读取浮点数值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <param name="defaultValue">当指定的全局配置项不存在时，返回此默认值。</param>
@@ -332,7 +303,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取字符串值。
+        ///     从指定全局配置项中读取字符串值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <returns>读取的字符串值。</returns>
@@ -342,7 +313,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 从指定全局配置项中读取字符串值。
+        ///     从指定全局配置项中读取字符串值。
         /// </summary>
         /// <param name="configName">要获取全局配置项的名称。</param>
         /// <param name="defaultValue">当指定的全局配置项不存在时，返回此默认值。</param>
@@ -353,7 +324,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 增加指定全局配置项。
+        ///     增加指定全局配置项。
         /// </summary>
         /// <param name="configName">要增加全局配置项的名称。</param>
         /// <param name="boolValue">全局配置项布尔值。</param>
@@ -367,7 +338,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 移除指定全局配置项。
+        ///     移除指定全局配置项。
         /// </summary>
         /// <param name="configName">要移除全局配置项的名称。</param>
         /// <returns>是否移除全局配置项成功。</returns>
@@ -377,7 +348,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 清空所有全局配置项。
+        ///     清空所有全局配置项。
         /// </summary>
         public void RemoveAllConfigs()
         {

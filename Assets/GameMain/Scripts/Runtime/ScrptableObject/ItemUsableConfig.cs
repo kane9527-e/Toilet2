@@ -3,15 +3,12 @@
 using System;
 using System.Collections.Generic;
 using ConditionSetting;
-using Inventory.Runtime.Scripts.Manager;
+using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace Inventory.Runtime.Scripts.ScriptableObject
 {
-    using UnityEngine;
-
     [CreateAssetMenu(menuName = "Inventory/ItemUsableConfig", fileName = "New ItemUsableConfig")]
     public class ItemUsableConfig : UnityEngine.ScriptableObject
     {

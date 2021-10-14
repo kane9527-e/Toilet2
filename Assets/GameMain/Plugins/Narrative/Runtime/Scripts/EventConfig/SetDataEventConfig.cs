@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using Narrative.Runtime.Scripts.MonoBehaviour;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.Serialization;
 
 // ReSharper disable once CheckNamespace
 namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
@@ -13,14 +11,12 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
     [CreateAssetMenu(menuName = "Narrative/EventConfig/SetDataConfig", fileName = "New SetDataEventConfig")]
     public class SetDataEventConfig : EventConfig.EventConfig
     {
-        [SerializeField] private  List<SetDataEvent> setDataEvents = new List<SetDataEvent>();
+        [SerializeField] private List<SetDataEvent> setDataEvents = new List<SetDataEvent>();
+
         public override void Trigger()
         {
             //base.Trigger();
-            foreach (var @event in setDataEvents)
-            {
-                @event?.ChangeData();
-            }
+            foreach (var @event in setDataEvents) @event?.ChangeData();
         }
     }
 
@@ -30,10 +26,10 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
         [SerializeField] private string keyName;
         [SerializeField] private SetDataActionType actionType;
         [SerializeField] private DataValueType valueType;
-        [HideInInspector] [SerializeField] int intValue;
-        [HideInInspector] [SerializeField] float floatValue;
-        [HideInInspector] [SerializeField] bool boolValue;
-        [HideInInspector] [SerializeField] string stringValue;
+        [HideInInspector] [SerializeField] private int intValue;
+        [HideInInspector] [SerializeField] private float floatValue;
+        [HideInInspector] [SerializeField] private bool boolValue;
+        [HideInInspector] [SerializeField] private string stringValue;
 
         public void ChangeData()
         {
@@ -102,7 +98,7 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
                             dataBase.SetBool(key, Convert.ToBoolean(setValue));
                             break;
                         case DataValueType.String:
-                            dataBase.SetString(key, dataBase.GetString(key).Replace(stringValue, String.Empty));
+                            dataBase.SetString(key, dataBase.GetString(key).Replace(stringValue, string.Empty));
                             break;
                     }
 
@@ -115,7 +111,7 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
     {
         Cover,
         Add,
-        Less,
+        Less
     }
 
     public enum DataValueType
@@ -123,6 +119,6 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
         Int,
         Float,
         Bool,
-        String,
+        String
     }
 }

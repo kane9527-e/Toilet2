@@ -5,98 +5,126 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using System.Collections.Generic;
 using GameFramework;
 using GameFramework.Debugger;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 调试器组件。
+    ///     调试器组件。
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Game Framework/Debugger")]
     public sealed partial class DebuggerComponent : GameFrameworkComponent
     {
         /// <summary>
-        /// 默认调试器漂浮框大小。
+        ///     默认调试器漂浮框大小。
         /// </summary>
         internal static readonly Rect DefaultIconRect = new Rect(10f, 10f, 60f, 60f);
 
         /// <summary>
-        /// 默认调试器窗口大小。
+        ///     默认调试器窗口大小。
         /// </summary>
         internal static readonly Rect DefaultWindowRect = new Rect(10f, 10f, 640f, 480f);
 
         /// <summary>
-        /// 默认调试器窗口缩放比例。
+        ///     默认调试器窗口缩放比例。
         /// </summary>
         internal static readonly float DefaultWindowScale = 1f;
 
         private static readonly TextEditor s_TextEditor = new TextEditor();
-        private IDebuggerManager m_DebuggerManager = null;
-        private Rect m_DragRect = new Rect(0f, 0f, float.MaxValue, 25f);
-        private Rect m_IconRect = DefaultIconRect;
-        private Rect m_WindowRect = DefaultWindowRect;
-        private float m_WindowScale = DefaultWindowScale;
 
-        [SerializeField]
-        private GUISkin m_Skin = null;
+        [SerializeField] private GUISkin m_Skin;
 
-        [SerializeField]
-        private DebuggerActiveWindowType m_ActiveWindow = DebuggerActiveWindowType.AlwaysOpen;
+        [SerializeField] private DebuggerActiveWindowType m_ActiveWindow = DebuggerActiveWindowType.AlwaysOpen;
 
-        [SerializeField]
-        private bool m_ShowFullWindow = false;
+        [SerializeField] private bool m_ShowFullWindow;
 
-        [SerializeField]
-        private ConsoleWindow m_ConsoleWindow = new ConsoleWindow();
+        [SerializeField] private ConsoleWindow m_ConsoleWindow = new ConsoleWindow();
 
-        private SystemInformationWindow m_SystemInformationWindow = new SystemInformationWindow();
-        private EnvironmentInformationWindow m_EnvironmentInformationWindow = new EnvironmentInformationWindow();
-        private ScreenInformationWindow m_ScreenInformationWindow = new ScreenInformationWindow();
-        private GraphicsInformationWindow m_GraphicsInformationWindow = new GraphicsInformationWindow();
-        private InputSummaryInformationWindow m_InputSummaryInformationWindow = new InputSummaryInformationWindow();
-        private InputTouchInformationWindow m_InputTouchInformationWindow = new InputTouchInformationWindow();
-        private InputLocationInformationWindow m_InputLocationInformationWindow = new InputLocationInformationWindow();
-        private InputAccelerationInformationWindow m_InputAccelerationInformationWindow = new InputAccelerationInformationWindow();
-        private InputGyroscopeInformationWindow m_InputGyroscopeInformationWindow = new InputGyroscopeInformationWindow();
-        private InputCompassInformationWindow m_InputCompassInformationWindow = new InputCompassInformationWindow();
-        private PathInformationWindow m_PathInformationWindow = new PathInformationWindow();
-        private SceneInformationWindow m_SceneInformationWindow = new SceneInformationWindow();
-        private TimeInformationWindow m_TimeInformationWindow = new TimeInformationWindow();
-        private QualityInformationWindow m_QualityInformationWindow = new QualityInformationWindow();
-        private ProfilerInformationWindow m_ProfilerInformationWindow = new ProfilerInformationWindow();
-        private WebPlayerInformationWindow m_WebPlayerInformationWindow = new WebPlayerInformationWindow();
-        private RuntimeMemorySummaryWindow m_RuntimeMemorySummaryWindow = new RuntimeMemorySummaryWindow();
-        private RuntimeMemoryInformationWindow<Object> m_RuntimeMemoryAllInformationWindow = new RuntimeMemoryInformationWindow<Object>();
-        private RuntimeMemoryInformationWindow<Texture> m_RuntimeMemoryTextureInformationWindow = new RuntimeMemoryInformationWindow<Texture>();
-        private RuntimeMemoryInformationWindow<Mesh> m_RuntimeMemoryMeshInformationWindow = new RuntimeMemoryInformationWindow<Mesh>();
-        private RuntimeMemoryInformationWindow<Material> m_RuntimeMemoryMaterialInformationWindow = new RuntimeMemoryInformationWindow<Material>();
-        private RuntimeMemoryInformationWindow<Shader> m_RuntimeMemoryShaderInformationWindow = new RuntimeMemoryInformationWindow<Shader>();
-        private RuntimeMemoryInformationWindow<AnimationClip> m_RuntimeMemoryAnimationClipInformationWindow = new RuntimeMemoryInformationWindow<AnimationClip>();
-        private RuntimeMemoryInformationWindow<AudioClip> m_RuntimeMemoryAudioClipInformationWindow = new RuntimeMemoryInformationWindow<AudioClip>();
-        private RuntimeMemoryInformationWindow<Font> m_RuntimeMemoryFontInformationWindow = new RuntimeMemoryInformationWindow<Font>();
-        private RuntimeMemoryInformationWindow<TextAsset> m_RuntimeMemoryTextAssetInformationWindow = new RuntimeMemoryInformationWindow<TextAsset>();
-        private RuntimeMemoryInformationWindow<ScriptableObject> m_RuntimeMemoryScriptableObjectInformationWindow = new RuntimeMemoryInformationWindow<ScriptableObject>();
-        private ObjectPoolInformationWindow m_ObjectPoolInformationWindow = new ObjectPoolInformationWindow();
-        private ReferencePoolInformationWindow m_ReferencePoolInformationWindow = new ReferencePoolInformationWindow();
-        private NetworkInformationWindow m_NetworkInformationWindow = new NetworkInformationWindow();
-        private SettingsWindow m_SettingsWindow = new SettingsWindow();
-        private OperationsWindow m_OperationsWindow = new OperationsWindow();
+        private IDebuggerManager m_DebuggerManager;
+        private readonly Rect m_DragRect = new Rect(0f, 0f, float.MaxValue, 25f);
 
-        private FpsCounter m_FpsCounter = null;
+        private readonly EnvironmentInformationWindow m_EnvironmentInformationWindow =
+            new EnvironmentInformationWindow();
+
+        private FpsCounter m_FpsCounter;
+        private readonly GraphicsInformationWindow m_GraphicsInformationWindow = new GraphicsInformationWindow();
+
+        private readonly InputAccelerationInformationWindow m_InputAccelerationInformationWindow =
+            new InputAccelerationInformationWindow();
+
+        private readonly InputCompassInformationWindow m_InputCompassInformationWindow =
+            new InputCompassInformationWindow();
+
+        private readonly InputGyroscopeInformationWindow m_InputGyroscopeInformationWindow =
+            new InputGyroscopeInformationWindow();
+
+        private readonly InputLocationInformationWindow m_InputLocationInformationWindow =
+            new InputLocationInformationWindow();
+
+        private readonly InputSummaryInformationWindow m_InputSummaryInformationWindow =
+            new InputSummaryInformationWindow();
+
+        private readonly InputTouchInformationWindow m_InputTouchInformationWindow = new InputTouchInformationWindow();
+        private readonly NetworkInformationWindow m_NetworkInformationWindow = new NetworkInformationWindow();
+        private readonly ObjectPoolInformationWindow m_ObjectPoolInformationWindow = new ObjectPoolInformationWindow();
+        private readonly OperationsWindow m_OperationsWindow = new OperationsWindow();
+        private readonly PathInformationWindow m_PathInformationWindow = new PathInformationWindow();
+        private readonly ProfilerInformationWindow m_ProfilerInformationWindow = new ProfilerInformationWindow();
+        private readonly QualityInformationWindow m_QualityInformationWindow = new QualityInformationWindow();
+
+        private readonly ReferencePoolInformationWindow m_ReferencePoolInformationWindow =
+            new ReferencePoolInformationWindow();
+
+        private readonly RuntimeMemoryInformationWindow<Object> m_RuntimeMemoryAllInformationWindow =
+            new RuntimeMemoryInformationWindow<Object>();
+
+        private readonly RuntimeMemoryInformationWindow<AnimationClip> m_RuntimeMemoryAnimationClipInformationWindow =
+            new RuntimeMemoryInformationWindow<AnimationClip>();
+
+        private readonly RuntimeMemoryInformationWindow<AudioClip> m_RuntimeMemoryAudioClipInformationWindow =
+            new RuntimeMemoryInformationWindow<AudioClip>();
+
+        private readonly RuntimeMemoryInformationWindow<Font> m_RuntimeMemoryFontInformationWindow =
+            new RuntimeMemoryInformationWindow<Font>();
+
+        private readonly RuntimeMemoryInformationWindow<Material> m_RuntimeMemoryMaterialInformationWindow =
+            new RuntimeMemoryInformationWindow<Material>();
+
+        private readonly RuntimeMemoryInformationWindow<Mesh> m_RuntimeMemoryMeshInformationWindow =
+            new RuntimeMemoryInformationWindow<Mesh>();
+
+        private readonly RuntimeMemoryInformationWindow<ScriptableObject>
+            m_RuntimeMemoryScriptableObjectInformationWindow = new RuntimeMemoryInformationWindow<ScriptableObject>();
+
+        private readonly RuntimeMemoryInformationWindow<Shader> m_RuntimeMemoryShaderInformationWindow =
+            new RuntimeMemoryInformationWindow<Shader>();
+
+        private readonly RuntimeMemorySummaryWindow m_RuntimeMemorySummaryWindow = new RuntimeMemorySummaryWindow();
+
+        private readonly RuntimeMemoryInformationWindow<TextAsset> m_RuntimeMemoryTextAssetInformationWindow =
+            new RuntimeMemoryInformationWindow<TextAsset>();
+
+        private readonly RuntimeMemoryInformationWindow<Texture> m_RuntimeMemoryTextureInformationWindow =
+            new RuntimeMemoryInformationWindow<Texture>();
+
+        private readonly SceneInformationWindow m_SceneInformationWindow = new SceneInformationWindow();
+        private readonly ScreenInformationWindow m_ScreenInformationWindow = new ScreenInformationWindow();
+        private readonly SettingsWindow m_SettingsWindow = new SettingsWindow();
+
+        private readonly SystemInformationWindow m_SystemInformationWindow = new SystemInformationWindow();
+        private readonly TimeInformationWindow m_TimeInformationWindow = new TimeInformationWindow();
+        private readonly WebPlayerInformationWindow m_WebPlayerInformationWindow = new WebPlayerInformationWindow();
 
         /// <summary>
-        /// 获取或设置调试器窗口是否激活。
+        ///     获取或设置调试器窗口是否激活。
         /// </summary>
         public bool ActiveWindow
         {
-            get
-            {
-                return m_DebuggerManager.ActiveWindow;
-            }
+            get => m_DebuggerManager.ActiveWindow;
             set
             {
                 m_DebuggerManager.ActiveWindow = value;
@@ -105,67 +133,31 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取或设置是否显示完整调试器界面。
+        ///     获取或设置是否显示完整调试器界面。
         /// </summary>
         public bool ShowFullWindow
         {
-            get
-            {
-                return m_ShowFullWindow;
-            }
-            set
-            {
-                m_ShowFullWindow = value;
-            }
+            get => m_ShowFullWindow;
+            set => m_ShowFullWindow = value;
         }
 
         /// <summary>
-        /// 获取或设置调试器漂浮框大小。
+        ///     获取或设置调试器漂浮框大小。
         /// </summary>
-        public Rect IconRect
-        {
-            get
-            {
-                return m_IconRect;
-            }
-            set
-            {
-                m_IconRect = value;
-            }
-        }
+        public Rect IconRect { get; set; } = DefaultIconRect;
 
         /// <summary>
-        /// 获取或设置调试器窗口大小。
+        ///     获取或设置调试器窗口大小。
         /// </summary>
-        public Rect WindowRect
-        {
-            get
-            {
-                return m_WindowRect;
-            }
-            set
-            {
-                m_WindowRect = value;
-            }
-        }
+        public Rect WindowRect { get; set; } = DefaultWindowRect;
 
         /// <summary>
-        /// 获取或设置调试器窗口缩放比例。
+        ///     获取或设置调试器窗口缩放比例。
         /// </summary>
-        public float WindowScale
-        {
-            get
-            {
-                return m_WindowScale;
-            }
-            set
-            {
-                m_WindowScale = value;
-            }
-        }
+        public float WindowScale { get; set; } = DefaultWindowScale;
 
         /// <summary>
-        /// 游戏框架组件初始化。
+        ///     游戏框架组件初始化。
         /// </summary>
         protected override void Awake()
         {
@@ -210,7 +202,8 @@ namespace UnityGameFramework.Runtime
             RegisterDebuggerWindow("Profiler/Memory/AudioClip", m_RuntimeMemoryAudioClipInformationWindow);
             RegisterDebuggerWindow("Profiler/Memory/Font", m_RuntimeMemoryFontInformationWindow);
             RegisterDebuggerWindow("Profiler/Memory/TextAsset", m_RuntimeMemoryTextAssetInformationWindow);
-            RegisterDebuggerWindow("Profiler/Memory/ScriptableObject", m_RuntimeMemoryScriptableObjectInformationWindow);
+            RegisterDebuggerWindow("Profiler/Memory/ScriptableObject",
+                m_RuntimeMemoryScriptableObjectInformationWindow);
             RegisterDebuggerWindow("Profiler/Object Pool", m_ObjectPoolInformationWindow);
             RegisterDebuggerWindow("Profiler/Reference Pool", m_ReferencePoolInformationWindow);
             RegisterDebuggerWindow("Profiler/Network", m_NetworkInformationWindow);
@@ -244,32 +237,25 @@ namespace UnityGameFramework.Runtime
 
         private void OnGUI()
         {
-            if (m_DebuggerManager == null || !m_DebuggerManager.ActiveWindow)
-            {
-                return;
-            }
+            if (m_DebuggerManager == null || !m_DebuggerManager.ActiveWindow) return;
 
-            GUISkin cachedGuiSkin = GUI.skin;
-            Matrix4x4 cachedMatrix = GUI.matrix;
+            var cachedGuiSkin = GUI.skin;
+            var cachedMatrix = GUI.matrix;
 
             GUI.skin = m_Skin;
-            GUI.matrix = Matrix4x4.Scale(new Vector3(m_WindowScale, m_WindowScale, 1f));
+            GUI.matrix = Matrix4x4.Scale(new Vector3(WindowScale, WindowScale, 1f));
 
             if (m_ShowFullWindow)
-            {
-                m_WindowRect = GUILayout.Window(0, m_WindowRect, DrawWindow, "<b>GAME FRAMEWORK DEBUGGER</b>");
-            }
+                WindowRect = GUILayout.Window(0, WindowRect, DrawWindow, "<b>GAME FRAMEWORK DEBUGGER</b>");
             else
-            {
-                m_IconRect = GUILayout.Window(0, m_IconRect, DrawDebuggerWindowIcon, "<b>DEBUGGER</b>");
-            }
+                IconRect = GUILayout.Window(0, IconRect, DrawDebuggerWindowIcon, "<b>DEBUGGER</b>");
 
             GUI.matrix = cachedMatrix;
             GUI.skin = cachedGuiSkin;
         }
 
         /// <summary>
-        /// 注册调试器窗口。
+        ///     注册调试器窗口。
         /// </summary>
         /// <param name="path">调试器窗口路径。</param>
         /// <param name="debuggerWindow">要注册的调试器窗口。</param>
@@ -280,7 +266,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解除注册调试器窗口。
+        ///     解除注册调试器窗口。
         /// </summary>
         /// <param name="path">调试器窗口路径。</param>
         /// <returns>是否解除注册调试器窗口成功。</returns>
@@ -290,7 +276,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取调试器窗口。
+        ///     获取调试器窗口。
         /// </summary>
         /// <param name="path">调试器窗口路径。</param>
         /// <returns>要获取的调试器窗口。</returns>
@@ -300,7 +286,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 选中调试器窗口。
+        ///     选中调试器窗口。
         /// </summary>
         /// <param name="path">调试器窗口路径。</param>
         /// <returns>是否成功选中调试器窗口。</returns>
@@ -310,7 +296,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 还原调试器窗口布局。
+        ///     还原调试器窗口布局。
         /// </summary>
         public void ResetLayout()
         {
@@ -320,7 +306,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取记录的所有日志。
+        ///     获取记录的所有日志。
         /// </summary>
         /// <param name="results">要获取的日志。</param>
         public void GetRecentLogs(List<LogNode> results)
@@ -329,7 +315,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 获取记录的最近日志。
+        ///     获取记录的最近日志。
         /// </summary>
         /// <param name="results">要获取的日志。</param>
         /// <param name="count">要获取最近日志的数量。</param>
@@ -346,34 +332,24 @@ namespace UnityGameFramework.Runtime
 
         private void DrawDebuggerWindowGroup(IDebuggerWindowGroup debuggerWindowGroup)
         {
-            if (debuggerWindowGroup == null)
-            {
-                return;
-            }
+            if (debuggerWindowGroup == null) return;
 
-            List<string> names = new List<string>();
-            string[] debuggerWindowNames = debuggerWindowGroup.GetDebuggerWindowNames();
-            for (int i = 0; i < debuggerWindowNames.Length; i++)
-            {
+            var names = new List<string>();
+            var debuggerWindowNames = debuggerWindowGroup.GetDebuggerWindowNames();
+            for (var i = 0; i < debuggerWindowNames.Length; i++)
                 names.Add(Utility.Text.Format("<b>{0}</b>", debuggerWindowNames[i]));
-            }
 
-            if (debuggerWindowGroup == m_DebuggerManager.DebuggerWindowRoot)
-            {
-                names.Add("<b>Close</b>");
-            }
+            if (debuggerWindowGroup == m_DebuggerManager.DebuggerWindowRoot) names.Add("<b>Close</b>");
 
-            int toolbarIndex = GUILayout.Toolbar(debuggerWindowGroup.SelectedIndex, names.ToArray(), GUILayout.Height(30f), GUILayout.MaxWidth(Screen.width));
+            var toolbarIndex = GUILayout.Toolbar(debuggerWindowGroup.SelectedIndex, names.ToArray(),
+                GUILayout.Height(30f), GUILayout.MaxWidth(Screen.width));
             if (toolbarIndex >= debuggerWindowGroup.DebuggerWindowCount)
             {
                 m_ShowFullWindow = false;
                 return;
             }
 
-            if (debuggerWindowGroup.SelectedWindow == null)
-            {
-                return;
-            }
+            if (debuggerWindowGroup.SelectedWindow == null) return;
 
             if (debuggerWindowGroup.SelectedIndex != toolbarIndex)
             {
@@ -382,11 +358,8 @@ namespace UnityGameFramework.Runtime
                 debuggerWindowGroup.SelectedWindow.OnEnter();
             }
 
-            IDebuggerWindowGroup subDebuggerWindowGroup = debuggerWindowGroup.SelectedWindow as IDebuggerWindowGroup;
-            if (subDebuggerWindowGroup != null)
-            {
-                DrawDebuggerWindowGroup(subDebuggerWindowGroup);
-            }
+            var subDebuggerWindowGroup = debuggerWindowGroup.SelectedWindow as IDebuggerWindowGroup;
+            if (subDebuggerWindowGroup != null) DrawDebuggerWindowGroup(subDebuggerWindowGroup);
 
             debuggerWindowGroup.SelectedWindow.OnDraw();
         }
@@ -398,27 +371,18 @@ namespace UnityGameFramework.Runtime
             Color32 color = Color.white;
             m_ConsoleWindow.RefreshCount();
             if (m_ConsoleWindow.FatalCount > 0)
-            {
                 color = m_ConsoleWindow.GetLogStringColor(LogType.Exception);
-            }
             else if (m_ConsoleWindow.ErrorCount > 0)
-            {
                 color = m_ConsoleWindow.GetLogStringColor(LogType.Error);
-            }
             else if (m_ConsoleWindow.WarningCount > 0)
-            {
                 color = m_ConsoleWindow.GetLogStringColor(LogType.Warning);
-            }
             else
-            {
                 color = m_ConsoleWindow.GetLogStringColor(LogType.Log);
-            }
 
-            string title = Utility.Text.Format("<color=#{0}{1}{2}{3}><b>FPS: {4}</b></color>", color.r.ToString("x2"), color.g.ToString("x2"), color.b.ToString("x2"), color.a.ToString("x2"), m_FpsCounter.CurrentFps.ToString("F2"));
-            if (GUILayout.Button(title, GUILayout.Width(100f), GUILayout.Height(40f)))
-            {
-                m_ShowFullWindow = true;
-            }
+            var title = Utility.Text.Format("<color=#{0}{1}{2}{3}><b>FPS: {4}</b></color>", color.r.ToString("x2"),
+                color.g.ToString("x2"), color.b.ToString("x2"), color.a.ToString("x2"),
+                m_FpsCounter.CurrentFps.ToString("F2"));
+            if (GUILayout.Button(title, GUILayout.Width(100f), GUILayout.Height(40f))) m_ShowFullWindow = true;
         }
 
         private static void CopyToClipboard(string content)

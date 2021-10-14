@@ -13,82 +13,38 @@ namespace UnityGameFramework.Editor.ResourceTools
     {
         private sealed class ResourceData
         {
-            private readonly string m_Name;
-            private readonly string m_Variant;
-            private readonly string m_FileSystem;
-            private readonly LoadType m_LoadType;
-            private readonly bool m_Packed;
-            private readonly string[] m_ResourceGroups;
             private readonly List<AssetData> m_AssetDatas;
             private readonly List<ResourceCode> m_Codes;
+            private readonly string[] m_ResourceGroups;
 
-            public ResourceData(string name, string variant, string fileSystem, LoadType loadType, bool packed, string[] resourceGroups)
+            public ResourceData(string name, string variant, string fileSystem, LoadType loadType, bool packed,
+                string[] resourceGroups)
             {
-                m_Name = name;
-                m_Variant = variant;
-                m_FileSystem = fileSystem;
-                m_LoadType = loadType;
-                m_Packed = packed;
+                Name = name;
+                Variant = variant;
+                FileSystem = fileSystem;
+                LoadType = loadType;
+                Packed = packed;
                 m_ResourceGroups = resourceGroups;
                 m_AssetDatas = new List<AssetData>();
                 m_Codes = new List<ResourceCode>();
             }
 
-            public string Name
-            {
-                get
-                {
-                    return m_Name;
-                }
-            }
+            public string Name { get; }
 
-            public string Variant
-            {
-                get
-                {
-                    return m_Variant;
-                }
-            }
+            public string Variant { get; }
 
-            public string FileSystem
-            {
-                get
-                {
-                    return m_FileSystem;
-                }
-            }
+            public string FileSystem { get; }
 
-            public bool IsLoadFromBinary
-            {
-                get
-                {
-                    return m_LoadType == LoadType.LoadFromBinary || m_LoadType == LoadType.LoadFromBinaryAndQuickDecrypt || m_LoadType == LoadType.LoadFromBinaryAndDecrypt;
-                }
-            }
+            public bool IsLoadFromBinary => LoadType == LoadType.LoadFromBinary ||
+                                            LoadType == LoadType.LoadFromBinaryAndQuickDecrypt ||
+                                            LoadType == LoadType.LoadFromBinaryAndDecrypt;
 
-            public LoadType LoadType
-            {
-                get
-                {
-                    return m_LoadType;
-                }
-            }
+            public LoadType LoadType { get; }
 
-            public bool Packed
-            {
-                get
-                {
-                    return m_Packed;
-                }
-            }
+            public bool Packed { get; }
 
-            public int AssetCount
-            {
-                get
-                {
-                    return m_AssetDatas.Count;
-                }
-            }
+            public int AssetCount => m_AssetDatas.Count;
 
             public string[] GetResourceGroups()
             {
@@ -97,22 +53,16 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             public string[] GetAssetGuids()
             {
-                string[] assetGuids = new string[m_AssetDatas.Count];
-                for (int i = 0; i < m_AssetDatas.Count; i++)
-                {
-                    assetGuids[i] = m_AssetDatas[i].Guid;
-                }
+                var assetGuids = new string[m_AssetDatas.Count];
+                for (var i = 0; i < m_AssetDatas.Count; i++) assetGuids[i] = m_AssetDatas[i].Guid;
 
                 return assetGuids;
             }
 
             public string[] GetAssetNames()
             {
-                string[] assetNames = new string[m_AssetDatas.Count];
-                for (int i = 0; i < m_AssetDatas.Count; i++)
-                {
-                    assetNames[i] = m_AssetDatas[i].Name;
-                }
+                var assetNames = new string[m_AssetDatas.Count];
+                for (var i = 0; i < m_AssetDatas.Count; i++) assetNames[i] = m_AssetDatas[i].Name;
 
                 return assetNames;
             }
@@ -124,13 +74,9 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             public AssetData GetAssetData(string assetName)
             {
-                foreach (AssetData assetData in m_AssetDatas)
-                {
+                foreach (var assetData in m_AssetDatas)
                     if (assetData.Name == assetName)
-                    {
                         return assetData;
-                    }
-                }
 
                 return null;
             }
@@ -142,13 +88,9 @@ namespace UnityGameFramework.Editor.ResourceTools
 
             public ResourceCode GetCode(Platform platform)
             {
-                foreach (ResourceCode code in m_Codes)
-                {
+                foreach (var code in m_Codes)
                     if (code.Platform == platform)
-                    {
                         return code;
-                    }
-                }
 
                 return null;
             }
@@ -158,7 +100,8 @@ namespace UnityGameFramework.Editor.ResourceTools
                 return m_Codes.ToArray();
             }
 
-            public void AddCode(Platform platform, int length, int hashCode, int compressedLength, int compressedHashCode)
+            public void AddCode(Platform platform, int length, int hashCode, int compressedLength,
+                int compressedHashCode)
             {
                 m_Codes.Add(new ResourceCode(platform, length, hashCode, compressedLength, compressedHashCode));
             }

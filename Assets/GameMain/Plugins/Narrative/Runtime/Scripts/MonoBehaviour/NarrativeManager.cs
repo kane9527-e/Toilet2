@@ -1,9 +1,7 @@
 using System;
-using Narrative.Runtime.Scripts.NarrativeDataBase;
 using Narrative.Runtime.Scripts.Graph;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using UnityEngine;
-using VisualGraphRuntime;
 
 // ReSharper disable once CheckNamespace
 namespace Narrative.Runtime.Scripts.MonoBehaviour
@@ -11,9 +9,45 @@ namespace Narrative.Runtime.Scripts.MonoBehaviour
     [DisallowMultipleComponent]
     public class NarrativeManager : NarrativeBehaviour
     {
+        public Action<DisplayNode> OnNarrativeNodeChangeEvent;
+
+        public void SwitchNextDefaultNode()
+        {
+            if (Graph.CurrentNode)
+                Graph.CurrentNode.SwitchNextDefaultNode();
+        }
+
+        public void StartNarrative()
+        {
+            Start();
+        }
+
+        public void StartNarrative(NarrativeGraph graph)
+        {
+            Graph = graph;
+            StartNarrative();
+        }
+
+        public void StartNarrative(NarrativeGraph graph, DisplayNode node)
+        {
+            if (node == null)
+            {
+                StartNarrative(graph);
+                return;
+            }
+
+            Graph = graph;
+            Graph.SwitchNode(node);
+        }
+
+        protected override void OnNarrativeNodeChange(DisplayNode node)
+        {
+            OnNarrativeNodeChangeEvent?.Invoke(node);
+        }
+
         #region Singleton
 
-        private static NarrativeManager _instance = null;
+        private static NarrativeManager _instance;
 
         public static NarrativeManager Instance
         {
@@ -52,49 +86,18 @@ namespace Narrative.Runtime.Scripts.MonoBehaviour
             {
                 Destroy(gameObject);
             }
+
+            if (DataBase)
+            {
+                DataBase.LoadDataKeys();
+                DataBase.ClearAllData();
+            }
         }
 
         protected virtual void OnInstanceInit()
         {
-            if (DataBase)
-                DataBase.ClearAllData();
         }
 
         #endregion
-
-        public Action<DisplayNode> OnNarrativeNodeChangeEvent;
-
-        public void SwitchNextDefaultNode()
-        {
-            if (Graph.CurrentNode)
-                Graph.CurrentNode.SwitchNextDefaultNode();
-        }
-
-        public void StartNarrative()
-        {
-            Start();
-        }
-
-        public void StartNarrative(NarrativeGraph graph)
-        {
-            Graph = graph;
-            StartNarrative();
-        }
-        
-        public void StartNarrative(NarrativeGraph graph, DisplayNode node)
-        {
-            if (node == null)
-            {
-                StartNarrative(graph);
-                return;
-            }
-            Graph = graph;
-            Graph.SwitchNode(node);
-        }
-
-        protected override void OnNarrativeNodeChange(DisplayNode node)
-        {
-            OnNarrativeNodeChangeEvent?.Invoke(node);
-        }
     }
 }

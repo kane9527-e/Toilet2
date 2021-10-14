@@ -37,7 +37,7 @@ MonoBehaviour:
           m_MethodName: ReduceItem
           m_Mode: 2
           m_Arguments:
-            m_ObjectArgument: {fileID: 11400000, guid: a8f6ccbcb05814f608d0531347194bf5, type: 2}
+            m_ObjectArgument: {fileID: 11400000, guid: c72da855ac48f4eb6bc019599e57a6c1, type: 2}
             m_ObjectArgumentAssemblyTypeName: Inventory.Scripts.ScriptableObject.InventoryItem,
               Inventory.Runtime
             m_IntArgument: 0

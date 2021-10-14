@@ -8,20 +8,11 @@
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认声音辅助器。
+    ///     默认声音辅助器。
     /// </summary>
     public class DefaultSoundHelper : SoundHelperBase
     {
-        private ResourceComponent m_ResourceComponent = null;
-
-        /// <summary>
-        /// 释放声音资源。
-        /// </summary>
-        /// <param name="soundAsset">要释放的声音资源。</param>
-        public override void ReleaseSoundAsset(object soundAsset)
-        {
-            m_ResourceComponent.UnloadAsset(soundAsset);
-        }
+        private ResourceComponent m_ResourceComponent;
 
         private void Start()
         {
@@ -29,8 +20,16 @@ namespace UnityGameFramework.Runtime
             if (m_ResourceComponent == null)
             {
                 Log.Fatal("Resource component is invalid.");
-                return;
             }
+        }
+
+        /// <summary>
+        ///     释放声音资源。
+        /// </summary>
+        /// <param name="soundAsset">要释放的声音资源。</param>
+        public override void ReleaseSoundAsset(object soundAsset)
+        {
+            m_ResourceComponent.UnloadAsset(soundAsset);
         }
     }
 }

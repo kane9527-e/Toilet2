@@ -10,48 +10,48 @@ using System;
 namespace UnityGameFramework.Editor.ResourceTools
 {
     [Flags]
-    public enum Platform : int
+    public enum Platform
     {
         Undefined = 0,
 
         /// <summary>
-        /// Windows 32 位。
+        ///     Windows 32 位。
         /// </summary>
         Windows = 1 << 0,
 
         /// <summary>
-        /// Windows 64 位。
+        ///     Windows 64 位。
         /// </summary>
         Windows64 = 1 << 1,
 
         /// <summary>
-        /// macOS。
+        ///     macOS。
         /// </summary>
         MacOS = 1 << 2,
 
         /// <summary>
-        /// Linux。
+        ///     Linux。
         /// </summary>
         Linux = 1 << 3,
 
         /// <summary>
-        /// iOS。
+        ///     iOS。
         /// </summary>
         IOS = 1 << 4,
 
         /// <summary>
-        /// Android。
+        ///     Android。
         /// </summary>
         Android = 1 << 5,
 
         /// <summary>
-        /// Windows Store。
+        ///     Windows Store。
         /// </summary>
         WindowsStore = 1 << 6,
 
         /// <summary>
-        /// WebGL。
+        ///     WebGL。
         /// </summary>
-        WebGL = 1 << 7,
+        WebGL = 1 << 7
     }
 }

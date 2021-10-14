@@ -11,14 +11,23 @@ using UnityEngine;
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认界面辅助器。
+    ///     默认界面辅助器。
     /// </summary>
     public class DefaultUIFormHelper : UIFormHelperBase
     {
-        private ResourceComponent m_ResourceComponent = null;
+        private ResourceComponent m_ResourceComponent;
+
+        private void Start()
+        {
+            m_ResourceComponent = GameEntry.GetComponent<ResourceComponent>();
+            if (m_ResourceComponent == null)
+            {
+                Log.Fatal("Resource component is invalid.");
+            }
+        }
 
         /// <summary>
-        /// 实例化界面。
+        ///     实例化界面。
         /// </summary>
         /// <param name="uiFormAsset">要实例化的界面资源。</param>
         /// <returns>实例化后的界面。</returns>
@@ -28,7 +37,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 创建界面。
+        ///     创建界面。
         /// </summary>
         /// <param name="uiFormInstance">界面实例。</param>
         /// <param name="uiGroup">界面所属的界面组。</param>
@@ -36,14 +45,14 @@ namespace UnityGameFramework.Runtime
         /// <returns>界面。</returns>
         public override IUIForm CreateUIForm(object uiFormInstance, IUIGroup uiGroup, object userData)
         {
-            GameObject gameObject = uiFormInstance as GameObject;
+            var gameObject = uiFormInstance as GameObject;
             if (gameObject == null)
             {
                 Log.Error("UI form instance is invalid.");
                 return null;
             }
 
-            Transform transform = gameObject.transform;
+            var transform = gameObject.transform;
             transform.SetParent(((MonoBehaviour)uiGroup.Helper).transform);
             transform.localScale = Vector3.one;
 
@@ -51,7 +60,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 释放界面。
+        ///     释放界面。
         /// </summary>
         /// <param name="uiFormAsset">要释放的界面资源。</param>
         /// <param name="uiFormInstance">要释放的界面实例。</param>
@@ -59,16 +68,6 @@ namespace UnityGameFramework.Runtime
         {
             m_ResourceComponent.UnloadAsset(uiFormAsset);
             Destroy((Object)uiFormInstance);
-        }
-
-        private void Start()
-        {
-            m_ResourceComponent = GameEntry.GetComponent<ResourceComponent>();
-            if (m_ResourceComponent == null)
-            {
-                Log.Fatal("Resource component is invalid.");
-                return;
-            }
         }
     }
 }

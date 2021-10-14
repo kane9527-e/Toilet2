@@ -5,15 +5,15 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework;
-using ICSharpCode.SharpZipLib.GZip;
 using System;
 using System.IO;
+using GameFramework;
+using ICSharpCode.SharpZipLib.GZip;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 默认压缩解压缩辅助器。
+    ///     默认压缩解压缩辅助器。
     /// </summary>
     public class DefaultCompressionHelper : Utility.Compression.ICompressionHelper
     {
@@ -21,7 +21,7 @@ namespace UnityGameFramework.Runtime
         private readonly byte[] m_CachedBytes = new byte[CachedBytesLength];
 
         /// <summary>
-        /// 压缩数据。
+        ///     压缩数据。
         /// </summary>
         /// <param name="bytes">要压缩的数据的二进制流。</param>
         /// <param name="offset">要压缩的数据的二进制流的偏移。</param>
@@ -30,24 +30,15 @@ namespace UnityGameFramework.Runtime
         /// <returns>是否压缩数据成功。</returns>
         public bool Compress(byte[] bytes, int offset, int length, Stream compressedStream)
         {
-            if (bytes == null)
-            {
-                return false;
-            }
+            if (bytes == null) return false;
 
-            if (offset < 0 || length < 0 || offset + length > bytes.Length)
-            {
-                return false;
-            }
+            if (offset < 0 || length < 0 || offset + length > bytes.Length) return false;
 
-            if (compressedStream == null)
-            {
-                return false;
-            }
+            if (compressedStream == null) return false;
 
             try
             {
-                GZipOutputStream gZipOutputStream = new GZipOutputStream(compressedStream);
+                var gZipOutputStream = new GZipOutputStream(compressedStream);
                 gZipOutputStream.Write(bytes, offset, length);
                 gZipOutputStream.Finish();
                 ProcessHeader(compressedStream);
@@ -60,31 +51,23 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 压缩数据。
+        ///     压缩数据。
         /// </summary>
         /// <param name="stream">要压缩的数据的二进制流。</param>
         /// <param name="compressedStream">压缩后的数据的二进制流。</param>
         /// <returns>是否压缩数据成功。</returns>
         public bool Compress(Stream stream, Stream compressedStream)
         {
-            if (stream == null)
-            {
-                return false;
-            }
+            if (stream == null) return false;
 
-            if (compressedStream == null)
-            {
-                return false;
-            }
+            if (compressedStream == null) return false;
 
             try
             {
-                GZipOutputStream gZipOutputStream = new GZipOutputStream(compressedStream);
-                int bytesRead = 0;
+                var gZipOutputStream = new GZipOutputStream(compressedStream);
+                var bytesRead = 0;
                 while ((bytesRead = stream.Read(m_CachedBytes, 0, CachedBytesLength)) > 0)
-                {
                     gZipOutputStream.Write(m_CachedBytes, 0, bytesRead);
-                }
 
                 gZipOutputStream.Finish();
                 ProcessHeader(compressedStream);
@@ -101,7 +84,7 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解压缩数据。
+        ///     解压缩数据。
         /// </summary>
         /// <param name="bytes">要解压缩的数据的二进制流。</param>
         /// <param name="offset">要解压缩的数据的二进制流的偏移。</param>
@@ -110,32 +93,21 @@ namespace UnityGameFramework.Runtime
         /// <returns>是否解压缩数据成功。</returns>
         public bool Decompress(byte[] bytes, int offset, int length, Stream decompressedStream)
         {
-            if (bytes == null)
-            {
-                return false;
-            }
+            if (bytes == null) return false;
 
-            if (offset < 0 || length < 0 || offset + length > bytes.Length)
-            {
-                return false;
-            }
+            if (offset < 0 || length < 0 || offset + length > bytes.Length) return false;
 
-            if (decompressedStream == null)
-            {
-                return false;
-            }
+            if (decompressedStream == null) return false;
 
             MemoryStream memoryStream = null;
             try
             {
                 memoryStream = new MemoryStream(bytes, offset, length, false);
-                using (GZipInputStream gZipInputStream = new GZipInputStream(memoryStream))
+                using (var gZipInputStream = new GZipInputStream(memoryStream))
                 {
-                    int bytesRead = 0;
+                    var bytesRead = 0;
                     while ((bytesRead = gZipInputStream.Read(m_CachedBytes, 0, CachedBytesLength)) > 0)
-                    {
                         decompressedStream.Write(m_CachedBytes, 0, bytesRead);
-                    }
                 }
 
                 return true;
@@ -157,31 +129,23 @@ namespace UnityGameFramework.Runtime
         }
 
         /// <summary>
-        /// 解压缩数据。
+        ///     解压缩数据。
         /// </summary>
         /// <param name="stream">要解压缩的数据的二进制流。</param>
         /// <param name="decompressedStream">解压缩后的数据的二进制流。</param>
         /// <returns>是否解压缩数据成功。</returns>
         public bool Decompress(Stream stream, Stream decompressedStream)
         {
-            if (stream == null)
-            {
-                return false;
-            }
+            if (stream == null) return false;
 
-            if (decompressedStream == null)
-            {
-                return false;
-            }
+            if (decompressedStream == null) return false;
 
             try
             {
-                GZipInputStream gZipInputStream = new GZipInputStream(stream);
-                int bytesRead = 0;
+                var gZipInputStream = new GZipInputStream(stream);
+                var bytesRead = 0;
                 while ((bytesRead = gZipInputStream.Read(m_CachedBytes, 0, CachedBytesLength)) > 0)
-                {
                     decompressedStream.Write(m_CachedBytes, 0, bytesRead);
-                }
 
                 return true;
             }
@@ -199,7 +163,7 @@ namespace UnityGameFramework.Runtime
         {
             if (compressedStream.Length >= 8L)
             {
-                long current = compressedStream.Position;
+                var current = compressedStream.Position;
                 compressedStream.Position = 4L;
                 compressedStream.WriteByte(25);
                 compressedStream.WriteByte(134);

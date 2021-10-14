@@ -414,6 +414,7 @@ MonoBehaviour:
   position: {x: 5280, y: 607}
   narrativeGraph: {fileID: 0}
   targetGraph: {fileID: 11400000, guid: 8846d56763626451f9acbb23198ae699, type: 2}
+  targetNode: {fileID: 0}
   references:
     version: 1
     00000000:
@@ -541,7 +542,7 @@ MonoBehaviour:
   eventConfig: {fileID: 0}
   storyTexts:
   - conditionConfig: {fileID: 0}
-    storyText: "\u4F60\u62FF\u8D70\u4E86\u591A\u5566\u68A6\u7ED9\u4F60\u7684\u7802\u7EB8\n\u4E0D\u8FC7\u8FD9\u73A9\u610F\u53EF\u4E0D\u5174\u64E6\u554A\u3002\u3002\u3002\u3002\u3002\u3002\n\u63A5\u4E0B\u6765\u4F60\u6253\u7B97"
+    storyText: "\u4F60\u62FF\u8D70\u4E86\u591A\u5566A\u68A6\u7ED9\u4F60\u7684\u7802\u7EB8\n\u4E0D\u8FC7\u8FD9\u73A9\u610F\u53EF\u4E0D\u5174\u64E6\u554A\u3002\u3002\u3002\u3002\u3002\u3002\n\u63A5\u4E0B\u6765\u4F60\u6253\u7B97"
   backgroundImage: {fileID: 0}
   sound: {fileID: 0}
   references:
@@ -1008,17 +1009,6 @@ MonoBehaviour:
     - 6aeb6f82-7dec-4afa-962c-4caefc85cb2e
     - 88b345af-2047-4be5-b3a7-a4ad9854217d
   BlackboardProperties: []
-  StickyNotes:
-  - position:
-      serializedVersion: 2
-      x: 2325
-      y: 992
-      width: 200
-      height: 200
-    title: "\u89E6\u53D1\u7ED3\u5C401"
-    theme: 0
-    contents: "\u88AB\u591A\u5566A\u68A6\u4E00\u67AA\u6253\u6B7B"
-    fontSize: 1
 --- !u!114 &134591336542047322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1568,6 +1558,7 @@ MonoBehaviour:
   position: {x: 5285.9917, y: 162.12816}
   narrativeGraph: {fileID: 0}
   targetGraph: {fileID: 11400000, guid: b410b160d5e594a89a84ae79ee868c70, type: 2}
+  targetNode: {fileID: 0}
   references:
     version: 1
     00000000:

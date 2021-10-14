@@ -16,7 +16,7 @@ namespace UnityGameFramework.Editor.ResourceTools
             Normal,
             Add,
             Rename,
-            Remove,
+            Remove
         }
     }
 }

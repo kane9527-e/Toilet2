@@ -9,8 +9,6 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
     {
         [SerializeField] private CharacteristicUnitUIConfig config;
         [SerializeField] private CharacteristicType type;
-        public CharacteristicType CharacteristicType => type;
-        public CharacteristicUnitUIConfig Config => config;
         [HideInInspector] public int intvalue;
         [HideInInspector] public float floatvalue;
         [HideInInspector] public string stringvalue;
@@ -23,6 +21,8 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
         [HideInInspector] public float floatDefaultValue;
         [HideInInspector] public string stringDefaultValue;
         [HideInInspector] public bool boolDefaultValue;
+        public CharacteristicType CharacteristicType => type;
+        public CharacteristicUnitUIConfig Config => config;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int IntvalueLast { get; private set; }
@@ -35,6 +35,14 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public bool BoolvalueLast { get; private set; }
+
+        public void Reset()
+        {
+            intvalue = intDefaultValue;
+            floatvalue = floatDefaultValue;
+            stringvalue = stringDefaultValue;
+            boolvalue = boolDefaultValue;
+        }
 
         public void SetValue(object value)
         {
@@ -63,7 +71,7 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
-        /// 减少
+        ///     减少
         /// </summary>
         /// <param name="value"></param>
         public void Less(object value)
@@ -95,7 +103,7 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
-        /// 增加
+        ///     增加
         /// </summary>
         /// <param name="value"></param>
         public void Add(object value)
@@ -124,14 +132,6 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
             CharacteristicManager.Instance.AddData(this, value);
             //Add(value);
         }
-
-        public void Reset()
-        {
-            intvalue = intDefaultValue;
-            floatvalue = floatDefaultValue;
-            stringvalue = stringDefaultValue;
-            boolvalue = boolDefaultValue;
-        }
     }
 
 
@@ -140,6 +140,6 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
         Int,
         Float,
         String,
-        Boolean,
+        Boolean
     }
 }

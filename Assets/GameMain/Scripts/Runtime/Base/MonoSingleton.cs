@@ -2,16 +2,16 @@ using UnityEngine;
 
 namespace GameMain.Scripts.Runtime.Base
 {
-    public abstract class MonoSingleton <T>: MonoBehaviour where T:MonoBehaviour
+    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        private static T _instance = null;
- 
+        private static T _instance;
+
         // ReSharper disable once StaticMemberInGenericType
         private static readonly object Locker = new object();
- 
+
         // ReSharper disable once StaticMemberInGenericType
         private static bool _appQuitting;
- 
+
         public static T Instance
         {
             get
@@ -21,7 +21,7 @@ namespace GameMain.Scripts.Runtime.Base
                     _instance = null;
                     return _instance;
                 }
- 
+
                 lock (Locker)
                 {
                     if (_instance == null)
@@ -32,7 +32,7 @@ namespace GameMain.Scripts.Runtime.Base
                             Debug.LogError("不应该存在多个单例！");
                             return _instance;
                         }
- 
+
                         if (_instance == null)
                         {
                             var singleton = new GameObject();
@@ -42,19 +42,22 @@ namespace GameMain.Scripts.Runtime.Base
                             DontDestroyOnLoad(singleton);
                         }
                         else
+                        {
                             DontDestroyOnLoad(_instance.gameObject);
+                        }
                     }
+
                     _instance.hideFlags = HideFlags.None;
                     return _instance;
                 }
             }
         }
- 
+
         private void Awake()
         {
             _appQuitting = false;
         }
- 
+
         private void OnDestroy()
         {
             _appQuitting = true;

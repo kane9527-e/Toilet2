@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEngine;
 using VisualGraphRuntime;
 
 namespace VisualGraphEditor
@@ -11,18 +8,14 @@ namespace VisualGraphEditor
     {
         public VisualGraphGroup group { get; private set; }
 
-        public VisualGraphGroupView()
-        {
-        }
-
         protected override void OnElementsAdded(IEnumerable<GraphElement> elements)
         {
             base.OnElementsAdded(elements);
             group = userData as VisualGraphGroup;
             foreach (var element in elements)
             {
-                VisualGraphNode node = element.userData as VisualGraphNode;
-                if (@group != null && node is { } && !@group.node_guids.Contains(node.guid))
+                var node = element.userData as VisualGraphNode;
+                if (group != null && node is { } && !group.node_guids.Contains(node.guid))
                     group.node_guids.Add(node.guid);
             }
         }
@@ -33,8 +26,8 @@ namespace VisualGraphEditor
             group = userData as VisualGraphGroup;
             foreach (var element in elements)
             {
-                VisualGraphNode node = element.userData as VisualGraphNode;
-                if (@group != null) @group.node_guids.RemoveAll(guid => node is { } && guid == node.guid);
+                var node = element.userData as VisualGraphNode;
+                if (group != null) group.node_guids.RemoveAll(guid => node is { } && guid == node.guid);
             }
         }
 

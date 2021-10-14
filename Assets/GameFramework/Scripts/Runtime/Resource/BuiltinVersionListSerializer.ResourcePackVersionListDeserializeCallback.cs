@@ -5,44 +5,45 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource;
 using System.IO;
 using System.Text;
+using GameFramework.Resource;
 
 namespace UnityGameFramework.Runtime
 {
     /// <summary>
-    /// 内置版本资源列表序列化器。
+    ///     内置版本资源列表序列化器。
     /// </summary>
     public static partial class BuiltinVersionListSerializer
     {
         /// <summary>
-        /// 反序列化资源包版本资源列表（版本 0）回调函数。
+        ///     反序列化资源包版本资源列表（版本 0）回调函数。
         /// </summary>
         /// <param name="stream">指定流。</param>
         /// <returns>反序列化的资源包版本资源列表（版本 0）。</returns>
         public static ResourcePackVersionList ResourcePackVersionListDeserializeCallback_V0(Stream stream)
         {
-            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8))
+            using (var binaryReader = new BinaryReader(stream, Encoding.UTF8))
             {
-                byte[] encryptBytes = binaryReader.ReadBytes(CachedHashBytesLength);
-                int dataOffset = binaryReader.ReadInt32();
-                long dataLength = binaryReader.ReadInt64();
-                int dataHashCode = binaryReader.ReadInt32();
-                int resourceCount = binaryReader.Read7BitEncodedInt32();
-                ResourcePackVersionList.Resource[] resources = resourceCount > 0 ? new ResourcePackVersionList.Resource[resourceCount] : null;
-                for (int i = 0; i < resourceCount; i++)
+                var encryptBytes = binaryReader.ReadBytes(CachedHashBytesLength);
+                var dataOffset = binaryReader.ReadInt32();
+                var dataLength = binaryReader.ReadInt64();
+                var dataHashCode = binaryReader.ReadInt32();
+                var resourceCount = binaryReader.Read7BitEncodedInt32();
+                var resources = resourceCount > 0 ? new ResourcePackVersionList.Resource[resourceCount] : null;
+                for (var i = 0; i < resourceCount; i++)
                 {
-                    string name = binaryReader.ReadEncryptedString(encryptBytes);
-                    string variant = binaryReader.ReadEncryptedString(encryptBytes);
-                    string extension = binaryReader.ReadEncryptedString(encryptBytes) ?? DefaultExtension;
-                    byte loadType = binaryReader.ReadByte();
-                    long offset = binaryReader.Read7BitEncodedInt64();
-                    int length = binaryReader.Read7BitEncodedInt32();
-                    int hashCode = binaryReader.ReadInt32();
-                    int compressedLength = binaryReader.Read7BitEncodedInt32();
-                    int compressedHashCode = binaryReader.ReadInt32();
-                    resources[i] = new ResourcePackVersionList.Resource(name, variant, extension, loadType, offset, length, hashCode, compressedLength, compressedHashCode);
+                    var name = binaryReader.ReadEncryptedString(encryptBytes);
+                    var variant = binaryReader.ReadEncryptedString(encryptBytes);
+                    var extension = binaryReader.ReadEncryptedString(encryptBytes) ?? DefaultExtension;
+                    var loadType = binaryReader.ReadByte();
+                    var offset = binaryReader.Read7BitEncodedInt64();
+                    var length = binaryReader.Read7BitEncodedInt32();
+                    var hashCode = binaryReader.ReadInt32();
+                    var compressedLength = binaryReader.Read7BitEncodedInt32();
+                    var compressedHashCode = binaryReader.ReadInt32();
+                    resources[i] = new ResourcePackVersionList.Resource(name, variant, extension, loadType, offset,
+                        length, hashCode, compressedLength, compressedHashCode);
                 }
 
                 return new ResourcePackVersionList(dataOffset, dataLength, dataHashCode, resources);

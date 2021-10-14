@@ -5,7 +5,6 @@ using Narrative.Runtime.Scripts.Nodes.TriggerNode;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 using VisualGraphEditor;
-using VisualGraphRuntime;
 
 // ReSharper disable once CheckNamespace
 namespace Narrative.Editor.Views.Nodes
@@ -22,8 +21,8 @@ namespace Narrative.Editor.Views.Nodes
             NodeDataView.AddToClassList("node_data");
             mainContainer.Add(NodeDataView);
 
-            EventTriggerNode node = (EventTriggerNode)nodeTarget;
-            ObjectField eventField = new ObjectField();
+            var node = (EventTriggerNode)nodeTarget;
+            var eventField = new ObjectField();
             eventField.objectType = typeof(EventConfig);
             eventField.value = node.Config;
             eventField.RegisterValueChangedCallback(callback =>
@@ -38,10 +37,8 @@ namespace Narrative.Editor.Views.Nodes
         private void RefreshEventInspectorGUI(EventConfig config)
         {
             foreach (var child in NodeDataView.Children().ToArray())
-            {
                 if (child is IMGUIContainer)
                     NodeDataView.Remove(child);
-            }
 
             if (config)
             {
