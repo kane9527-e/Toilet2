@@ -41,6 +41,7 @@ MonoBehaviour:
     - com.freshlybrewedcode.bettersearchwindow
     - VisualGraphEditor
     - Siccity.SerializableCallback.Editor
+    - ToolbarExtensions
     - EditorInternalInspector
     - Analytics
     showAdvancedSettings: 0

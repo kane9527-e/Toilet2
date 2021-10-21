@@ -13,5 +13,4 @@ MonoBehaviour:
   m_Name: MissionConfig
   m_EditorClassIdentifier: 
   typeName: MissionConfig
-  library:
-  - {fileID: 11400000, guid: a83db26c3c9fd41dcab62a1f612fb30d, type: 2}
+  library: []

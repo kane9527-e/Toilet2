@@ -13,9 +13,4 @@ MonoBehaviour:
   m_Name: InventoryItem
   m_EditorClassIdentifier: 
   typeName: InventoryItem
-  library:
-  - {fileID: 11400000, guid: c149c8074ef2e48cbb588ffee6c23c83, type: 2}
-  - {fileID: 11400000, guid: a8f6ccbcb05814f608d0531347194bf5, type: 2}
-  - {fileID: 11400000, guid: 44b1175a460fb435d867b468ff6ff49c, type: 2}
-  - {fileID: 11400000, guid: c72da855ac48f4eb6bc019599e57a6c1, type: 2}
-  - {fileID: 11400000, guid: b1601abdeb935415db6e327f06cb8985, type: 2}
+  library: []
