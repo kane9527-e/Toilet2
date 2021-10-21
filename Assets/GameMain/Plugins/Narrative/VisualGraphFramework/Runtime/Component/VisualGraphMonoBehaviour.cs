@@ -5,6 +5,7 @@
 ///-------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -48,6 +49,11 @@ namespace VisualGraphRuntime
         /// </summary>
         protected virtual void Start()
         {
+            StartCoroutine(WaitForAction(Time.fixedDeltaTime, AutoInitGraph));
+        }
+
+        protected virtual void AutoInitGraph()
+        {
             if (graph == null)
             {
                 Debug.LogWarning($"{name} requires a VisualGraph");
@@ -57,7 +63,7 @@ namespace VisualGraphRuntime
                 internalGraph = (T)graph.Clone();
                 internalGraph.Init();
             }
-
+            
             // Override properties in the internalGraph that have been selected in the this
             for (var i = 0; i < BlackboardProperties.Count; i++)
             {
@@ -70,6 +76,12 @@ namespace VisualGraphRuntime
                         break;
                     }
             }
+        }
+
+        protected void SetGraph(VisualGraph graph)
+        {
+            Graph = (T)graph;
+            internalGraph = (T)graph.Clone();
         }
 
         /// <summary>
@@ -138,6 +150,14 @@ namespace VisualGraphRuntime
                         BlackboardProperties.Add(instance);
                     }
                 }
+        }
+
+        IEnumerator WaitForAction(float delay, Action callBack)
+        {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForSecondsRealtime(delay);
+            callBack?.Invoke();
         }
     }
 }

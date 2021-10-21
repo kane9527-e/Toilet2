@@ -18,7 +18,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         public Action<ItemStack> onItemAdd; //当物品被添加
         public Action<ItemStack> onItemReduce; //当物品减少
         public Action<ItemStack> onItemUse; //当物品使用
-
+        
         #endregion
 
         #region Method
@@ -42,6 +42,17 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
         }
 
         /// <summary>
+        ///     检测是否有物品
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        public bool HasItem(InventoryItem item)
+        {
+            if (items == null || items.Count <= 0) return false;
+            return items.Exists(i => i.Item.Equals(item));
+        }
+        /// <summary>
         ///     减少物品
         /// </summary>
         public void ReduceItem(InventoryItem item)
@@ -56,7 +67,7 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
                 onItemReduce?.Invoke(findResult);
             }
         }
-
+        
         /// <summary>
         ///     增加物品
         /// </summary>
@@ -121,10 +132,10 @@ namespace Inventory.Runtime.Scripts.ScriptableObject
                 amount++;
         }
 
-        public static ItemStack Create([NotNull] InventoryItem item)
+        public static ItemStack Create([NotNull] InventoryItem item,int amount=1)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            var result = new ItemStack(item, 1);
+            var result = new ItemStack(item, amount);
             return result;
         }
 

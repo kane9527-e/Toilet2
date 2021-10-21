@@ -13,6 +13,9 @@ namespace Characteristic.Runtime.Scripts.ScriptableObject
 
         public List<CharacteristicUnit> CharacteristicUnits => collection;
 
+        public CharacteristicUnit FindUnitByName(string unitName) =>
+            CharacteristicUnits.Find(item => item.name.Equals(unitName));
+
         public bool HasUnit(CharacteristicUnit unit)
         {
             if (collection == null || collection.Count <= 0)

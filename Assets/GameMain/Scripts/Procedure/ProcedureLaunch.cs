@@ -9,7 +9,7 @@ namespace GameMain.Scripts.Procedure
 
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
-            ChangeState<ProcedurePreload>(procedureOwner);
+            ChangeState<ProcedureInitResources>(procedureOwner);
         }
     }
 }

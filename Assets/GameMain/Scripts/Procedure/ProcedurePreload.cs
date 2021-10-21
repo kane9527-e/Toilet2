@@ -68,6 +68,7 @@ namespace GameMain.Scripts.Procedure
 
         private void PreloadResources()
         {
+            
             // Preload configs
             //LoadConfig("DefaultConfig");
             // Preload data tables
@@ -78,6 +79,9 @@ namespace GameMain.Scripts.Procedure
 
             // Preload fonts
             // LoadFont("MainFont");
+            
+            GameEntry.Progress.Init();//初始化进度
+            
         }
 
         // private void LoadConfig(string configName)

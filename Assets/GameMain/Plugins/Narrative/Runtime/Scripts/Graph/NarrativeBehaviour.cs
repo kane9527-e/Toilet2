@@ -8,14 +8,38 @@ using VisualGraphRuntime;
 public class NarrativeBehaviour : VisualGraphMonoBehaviour<NarrativeGraph>
 {
     [SerializeField] private NarrativeDataBase dataBase;
-    private DisplayNode lastNode;
     public NarrativeDataBase DataBase => dataBase;
 
-    protected override void Start()
+    public DisplayNode LastNode { get => Graph.LastNode; }
+
+    protected override void AutoInitGraph()
     {
-        base.Start();
+        if (Graph == null)
+        {
+            base.AutoInitGraph();
+            if (Graph)
+            {
+                Graph.OnNodeChangedEvent += OnNarrativeNodeChange;
+                OnNarrativeNodeChange(Graph.CurrentNode);
+            }
+        }
+    }
+
+    public void SetNarrativeGraph(NarrativeGraph graph, DisplayNode node = null)
+    {
+        if (!graph) return;
+        if (Graph && Graph.CurrentNode)
+        {
+            Graph.OnNodeChangedEvent -= OnNarrativeNodeChange;
+            Graph.CurrentNode.OnExit(node);
+        }
+
+        SetGraph(graph);
         Graph.OnNodeChangedEvent += OnNarrativeNodeChange;
-        OnNarrativeNodeChange(Graph.CurrentNode);
+        if (node)
+            Graph.SwitchNode(graph.GetIndexByNode(node));
+
+        Graph.Init();
     }
 
     private void Update()

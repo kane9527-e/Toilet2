@@ -19,14 +19,12 @@ namespace GameMain.Scripts.UI.GamePlay.MessageUIForm
 
         private void Awake()
         {
-            if (!GameEntry.Base)
-                OnInit(this);
+            OnInit(this);
         }
 
         private void OnDestroy()
         {
-            if (!GameEntry.Base)
-                OnRecycle();
+            OnRecycle();
         }
 
         protected override void OnInit(object userData)

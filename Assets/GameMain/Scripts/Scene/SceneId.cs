@@ -8,6 +8,7 @@ namespace GameMain.Scripts.Scene
         /// <summary>
         ///     主菜单场景。
         /// </summary>
-        MenuScene = 1
+        MenuScene = 1,
+        ToiletTextScene = 2,
     }
 }

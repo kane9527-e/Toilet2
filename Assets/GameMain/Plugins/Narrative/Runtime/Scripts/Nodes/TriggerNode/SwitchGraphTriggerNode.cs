@@ -12,14 +12,14 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
         [SerializeField] private NarrativeGraph targetGraph;
         [SerializeField] private BaseNode.DisplayNode targetNode;
 
-        public override void OnEnter()
+        public override void OnEnter(object args)
         {
             Trigger();
         }
 
         public override void Trigger()
         {
-            NarrativeManager.Instance.StartNarrative(targetGraph, targetNode);
+            NarrativeManager.Instance.PlayNarrative(targetGraph, targetNode);
         }
     }
 }

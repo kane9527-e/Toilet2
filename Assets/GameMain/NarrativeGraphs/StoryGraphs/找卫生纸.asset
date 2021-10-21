@@ -19,6 +19,7 @@ MonoBehaviour:
   position: {x: 1987, y: -73}
   narrativeGraph: {fileID: 0}
   targetGraph: {fileID: 11400000, guid: 2e834a60eafda4d2aa20aca5abbd8065, type: 2}
+  targetNode: {fileID: 0}
   references:
     version: 1
     00000000:
@@ -49,7 +50,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 5c219822-6b3a-4dfc-a7cf-e8dc474a502a
   editor_ActiveNode: 0
-  position: {x: 1654.8004, y: -330.99997}
+  position: {x: 1716.0325, y: -330.5}
   narrativeGraph: {fileID: 0}
   once: 1
   eventConfig: {fileID: 0}
@@ -97,6 +98,7 @@ MonoBehaviour:
   position: {x: 1233, y: 555}
   narrativeGraph: {fileID: 0}
   targetGraph: {fileID: 11400000, guid: 8846d56763626451f9acbb23198ae699, type: 2}
+  targetNode: {fileID: 0}
   references:
     version: 1
     00000000:
@@ -246,6 +248,38 @@ MonoBehaviour:
         Connections:
         - node_guid: 68c01576-c4f5-4a1b-89d0-a51eb1c16474
           port_guid: be8fc14c-2451-4038-b7b8-0ac294db6337
+--- !u!114 &-3728065228621588904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcda9dded51964d33ac646ba79f782d4, type: 3}
+  m_Name: Event Trigger Node
+  m_EditorClassIdentifier: 
+  Ports:
+  - id: 0
+  internal_guid: 7b0b5e67-5cc5-45e0-abda-a45598825da5
+  editor_ActiveNode: 0
+  position: {x: 870.5, y: -27}
+  narrativeGraph: {fileID: 0}
+  config: {fileID: 11400000, guid: 1a125f91253d44be99114a6ef08b7cb9, type: 2}
+  references:
+    version: 1
+    00000000:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Input
+        Direction: 0
+        CanBeRemoved: 0
+        guid: 112c05df-618b-419f-82d4-6957e83c60dd
+        Connections:
+        - node_guid: 68c01576-c4f5-4a1b-89d0-a51eb1c16474
+          port_guid: 25f6e235-6908-4cd1-afc8-394f61aacf59
+        conditionConfig: {fileID: 0}
 --- !u!114 &-3374556509582827139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309,7 +343,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 76938001-b46b-4302-9b0d-af70cd1bee67
   editor_ActiveNode: 0
-  position: {x: 1685.0002, y: -547}
+  position: {x: 1716, y: -545.6775}
   narrativeGraph: {fileID: 0}
   once: 0
   eventConfig: {fileID: 0}
@@ -368,6 +402,7 @@ MonoBehaviour:
   - {fileID: 4278647484646401611}
   - {fileID: -8603721496081537465}
   - {fileID: -5950574051509632253}
+  - {fileID: -3728065228621588904}
   Groups:
   - title: "\u53E3\u888B\u91CC\u62FF\u7EB8"
     position:
@@ -1656,6 +1691,7 @@ MonoBehaviour:
   - id: 0
   - id: 1
   - id: 2
+  - id: 3
   internal_guid: 68c01576-c4f5-4a1b-89d0-a51eb1c16474
   editor_ActiveNode: 0
   position: {x: 399, y: -96}
@@ -1701,6 +1737,17 @@ MonoBehaviour:
         - node_guid: 7936e6b1-3546-4d3c-a7d4-315be9ed9048
           port_guid: b70fa1fc-b8d6-48ef-bdb1-18827fe7a575
         conditionConfig: {fileID: 0}
+    00000003:
+      type: {class: NarrativePort, ns: , asm: Assembly-CSharp}
+      data:
+        Name: Exit
+        Direction: 1
+        CanBeRemoved: 1
+        guid: 25f6e235-6908-4cd1-afc8-394f61aacf59
+        Connections:
+        - node_guid: 7b0b5e67-5cc5-45e0-abda-a45598825da5
+          port_guid: 112c05df-618b-419f-82d4-6957e83c60dd
+        conditionConfig: {fileID: 0}
 --- !u!114 &4278647484646401611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1720,6 +1767,7 @@ MonoBehaviour:
   position: {x: 3335.6426, y: -799.00006}
   narrativeGraph: {fileID: 0}
   targetGraph: {fileID: 11400000, guid: b410b160d5e594a89a84ae79ee868c70, type: 2}
+  targetNode: {fileID: 0}
   references:
     version: 1
     00000000:
@@ -1757,8 +1805,6 @@ MonoBehaviour:
   storyTexts:
   - conditionConfig: {fileID: 0}
     storyText: "\u4F60\u638F\u4E86\u4E00\u4E0B\u88E4\u5B50\u53E3\u888B\n\u53E3\u888B\u6709\u70B9\u5C0F\n\u4F46\u662F\u6CA1\u6709\u53D1\u73B0\u7EB8"
-  - conditionConfig: {fileID: 0}
-    storyText: "\u91CC\u9762\u6709\u4E00\u4E2A\u5C0F\u7EB8\u7247"
   backgroundImage: {fileID: 0}
   sound: {fileID: 0}
   references:
@@ -1861,7 +1907,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 45db6b07-e9f9-49c8-bd63-019b3196ea05
   editor_ActiveNode: 0
-  position: {x: 1670.9004, y: -739.0001}
+  position: {x: 1716, y: -748.522}
   narrativeGraph: {fileID: 0}
   once: 0
   eventConfig: {fileID: 0}

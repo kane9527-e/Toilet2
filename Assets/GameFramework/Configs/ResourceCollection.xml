@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<UnityGameFramework>
+  <ResourceCollection>
+    <Resources>
+      <Resource Name="DataTables/Entity" LoadType="0" Packed="True" />
+      <Resource Name="DataTables/Music" LoadType="0" Packed="True" />
+      <Resource Name="DataTables/Scene" LoadType="0" Packed="True" />
+      <Resource Name="DataTables/Sound" LoadType="0" Packed="True" />
+      <Resource Name="DataTables/UIForm" LoadType="0" Packed="True" />
+      <Resource Name="DataTables/UISound" LoadType="0" Packed="True" />
+      <Resource Name="Scenes/Menu" LoadType="0" Packed="True" />
+      <Resource Name="Scenes/Toilet_Text" LoadType="0" Packed="True" />
+    </Resources>
+    <Assets>
+      <Asset Guid="287db9b6811584907bdb1123ecfb05ef" ResourceName="DataTables/Music" />
+      <Asset Guid="392216331d62c471083322b165a047b8" ResourceName="DataTables/UISound" />
+      <Asset Guid="3f8e6b76572954fc29916c0ce366a39e" ResourceName="DataTables/Scene" />
+      <Asset Guid="494b0ab4ca12e4c63967787edfffa0c2" ResourceName="DataTables/Entity" />
+      <Asset Guid="52b6329144b7e4492a9e4725482410d4" ResourceName="Scenes/Menu" />
+      <Asset Guid="72f4fd30d176d4527b38bbdd9d66a60b" ResourceName="DataTables/Sound" />
+      <Asset Guid="7e2b9799c3d6b40ad8eabe4611552e8f" ResourceName="DataTables/UIForm" />
+      <Asset Guid="81d7ca86cc3d24ff2a34088ee9947079" ResourceName="Scenes/Toilet_Text" />
+      <Asset Guid="cc7f50bcd01614733b6e50095a68cc8f" ResourceName="DataTables/Sound" />
+      <Asset Guid="e394e2a7261ad4b5f8c7f2e3809fa1aa" ResourceName="DataTables/UISound" />
+      <Asset Guid="efbfb6c34ff3b4c7e900cb06cd92e7a6" ResourceName="DataTables/UIForm" />
+      <Asset Guid="f348c3cbe2d024943a1e313c4585b191" ResourceName="DataTables/Scene" />
+      <Asset Guid="f3c6b4aab5fc64b8b93928cd713e3b38" ResourceName="DataTables/Music" />
+    </Assets>
+  </ResourceCollection>
+</UnityGameFramework>

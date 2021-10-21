@@ -12,6 +12,11 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
     {
         [HideInInspector] public NarrativeGraph narrativeGraph;
 
+
+        private List<TriggerNode> _inputTriggerNodes;
+
+        private List<TriggerNode> _outputTriggerNodes;
+
         // ReSharper disable once UnusedMember.Global
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         public override void Init()
@@ -19,27 +24,29 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
             base.Init();
         }
 
+
         public virtual void SwitchNextDefaultNode()
         {
             if (FindPortByName("Exit") == null) return;
 
-            var triggerNodes = GetPortNodesWithCondition<TriggerNode>();
-            foreach (var triggerNode in triggerNodes)
-                triggerNode.Trigger();
-
-            var branchNodes = GetPortNodesWithCondition<BranchNode>();
-
+            _outputTriggerNodes = GetPortNodesWithCondition<TriggerNode>(VisualGraphPort.PortDirection.Output);
+            var branchNodes = GetPortNodesWithCondition<BranchNode>(VisualGraphPort.PortDirection.Output);
             foreach (var branchNode in branchNodes)
             {
                 var resultNodes = branchNode.GetResultNodes();
                 for (var i = resultNodes.Count - 1; i >= 0; i--)
                 {
                     var resultNode = resultNodes[i];
-                    if (resultNode.GetType().BaseType == typeof(DisplayNode))
+                    if (typeof(DisplayNode).IsInstanceOfType(resultNode))
                         narrativeGraph.SwitchNode((DisplayNode)resultNode);
-                    if (resultNode.GetType().BaseType == typeof(TriggerNode))
-                        triggerNodes.Add((TriggerNode)resultNode);
+                    if (typeof(TriggerNode).IsInstanceOfType(resultNode))
+                        _outputTriggerNodes.Add((TriggerNode)resultNode);
                 }
+            }
+
+            foreach (var triggerNode in _outputTriggerNodes)
+            {
+                triggerNode.Trigger();
             }
 
             foreach (var visualGraphPort in Outputs)
@@ -76,7 +83,7 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
                     {
                         var conditionConfig = narrativePort.conditionConfig;
                         // ReSharper disable once MergeCastWithTypeCheck
-                        if (!(connection.Node is T)) continue;
+                        if (!(typeof(T).IsInstanceOfType(connection.Node))) continue;
                         if (!conditionConfig || conditionConfig && conditionConfig.Result())
                             nodes.Add((T)connection.Node);
                     }
@@ -84,6 +91,7 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
 
             return nodes;
         }
+
 
         public List<T> GetPortNodesWithCondition<T>(VisualGraphPort.PortDirection direction) where T : NarrativeNode
         {
@@ -101,7 +109,7 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
                     {
                         var conditionConfig = narrativePort.conditionConfig;
                         // ReSharper disable once MergeCastWithTypeCheck
-                        if (!(connection.Node is T)) continue;
+                        if (!(typeof(T).IsInstanceOfType(connection.Node))) continue;
                         if (!conditionConfig || conditionConfig && conditionConfig.Result())
                             nodes.Add((T)connection.Node);
                     }
@@ -110,18 +118,63 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
             return nodes;
         }
 
-        public virtual void OnEnter()
+        public virtual void OnEnter(object args)
         {
             editor_ActiveNode = true;
+
+            if (Application.isEditor || Debug.isDebugBuild)
+                Debug.Log(string.Format("{0}进入-guid:{1}", this.name, guid));
+            
+            //收集所有输入口，并且触发事件
+            _inputTriggerNodes = GetPortNodesWithCondition<TriggerNode>(VisualGraphPort.PortDirection.Input);
+            var branchNodes = GetPortNodesWithCondition<BranchNode>(VisualGraphPort.PortDirection.Input);
+            foreach (var branchNode in branchNodes)
+            {
+                var resultNodes = branchNode.GetResultNodes();
+                for (var i = resultNodes.Count - 1; i >= 0; i--)
+                {
+                    var resultNode = resultNodes[i];
+                    if (typeof(TriggerNode).IsInstanceOfType(resultNode))
+                        _inputTriggerNodes.Add((TriggerNode)resultNode);
+                }
+            }
+
+            foreach (var triggerNode in _inputTriggerNodes)
+            {
+                triggerNode.Trigger();
+            }
         }
 
         public virtual void OnUpdate()
         {
         }
 
-        public virtual void OnExit()
+        public virtual void OnExit(object args)
         {
             editor_ActiveNode = false;
+
+            if (Application.isEditor || Debug.isDebugBuild)
+                Debug.Log(string.Format("{0}退出-guid:{1}", this.name, guid));
+
+            if (_outputTriggerNodes != null) return;
+            //收集所有输出口，并且触发事件
+            _outputTriggerNodes = GetPortNodesWithCondition<TriggerNode>(VisualGraphPort.PortDirection.Output);
+            var branchNodes = GetPortNodesWithCondition<BranchNode>(VisualGraphPort.PortDirection.Output);
+            foreach (var branchNode in branchNodes)
+            {
+                var resultNodes = branchNode.GetResultNodes();
+                for (var i = resultNodes.Count - 1; i >= 0; i--)
+                {
+                    var resultNode = resultNodes[i];
+                    if (typeof(TriggerNode).IsInstanceOfType(resultNode))
+                        _outputTriggerNodes.Add((TriggerNode)resultNode);
+                }
+            }
+
+            foreach (var triggerNode in _outputTriggerNodes)
+            {
+                triggerNode.Trigger();
+            }
         }
 
         public VisualGraphPort.VisualGraphPortConnection Connect(NarrativePort port, NarrativeNode targetNode)

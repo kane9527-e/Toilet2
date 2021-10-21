@@ -17,7 +17,7 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
             set => config = value;
         }
 
-        public override void OnEnter()
+        public override void OnEnter(object args)
         {
             Trigger();
         }

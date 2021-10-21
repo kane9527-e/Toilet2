@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 22
-  productGUID: 14973c2a308a941beb035130e39387db
+  productGUID: db5667c0aa73741fea3b46011912bf68
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -160,7 +160,7 @@ PlayerSettings:
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 21
+  AndroidMinSdkVersion: 19
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
@@ -565,7 +565,7 @@ PlayerSettings:
   ps4GarlicHeapSize: 2048
   ps4ProGarlicHeapSize: 2560
   playerPrefsMaxSize: 32768
-  ps4Passcode: N7HZ5G42NCXvogg5ZDqT7svOhgDv2HSn
+  ps4Passcode: Y2FTo1uGDlCbL0PbMP0rbEoEnZqDvzvb
   ps4pnSessions: 1
   ps4pnPresence: 1
   ps4pnFriends: 1
@@ -620,25 +620,10 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
-  scriptingDefineSymbols:
-    1: CT_RTV;CT_PROC;CT_UI
-    4: CT_RTV;CT_PROC;CT_UI
-    7: CT_RTV;CT_PROC;CT_UI
-    13: CT_RTV;CT_PROC;CT_UI
-    14: CT_RTV;CT_PROC;CT_UI
-    19: CT_RTV;CT_PROC;CT_UI
-    21: CT_RTV;CT_PROC;CT_UI
-    25: CT_RTV;CT_PROC;CT_UI
-    27: CT_RTV;CT_PROC;CT_UI
-    28: CT_RTV;CT_PROC;CT_UI
-    29: CT_RTV;CT_PROC;CT_UI
-    30: CT_RTV;CT_PROC;CT_UI
-    32: CT_RTV;CT_PROC;CT_UI
-    33: CT_RTV;CT_PROC;CT_UI
+  scriptingDefineSymbols: {}
   additionalCompilerArguments: {}
   platformArchitecture: {}
-  scriptingBackend:
-    Android: 0
+  scriptingBackend: {}
   il2cppCompilerConfiguration: {}
   managedStrippingLevel: {}
   incrementalIl2cppBuild: {}
@@ -652,8 +637,7 @@ PlayerSettings:
   gcIncremental: 1
   assemblyVersionValidation: 1
   gcWBarrierValidation: 0
-  apiCompatibilityLevelPerPlatform:
-    Android: 6
+  apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Toilet2

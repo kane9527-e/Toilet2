@@ -13,7 +13,7 @@ namespace Narrative.Editor.Scripts
         {
             var database = (NarrativeDataBase)target;
 
-            foreach (var key in database.SavedKeys) EditorGUILayout.SelectableLabel(key);
+            //foreach (var key in database.SavedKeys) EditorGUILayout.SelectableLabel(key);
 
             if (GUILayout.Button("ClearDataBasePerfs")) database.ClearAllData();
             //

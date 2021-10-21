@@ -1,13 +1,13 @@
 using System;
-using ConditionSetting;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
-using UnityEngine;
 using VisualGraphRuntime;
+
+// ReSharper disable once CheckNamespace
 
 [Serializable]
 public class NarrativePort : VisualGraphPort
 {
-    public ConditionConfig conditionConfig;
+    public ConditionSetting.ConditionConfig conditionConfig;
 
     public VisualGraphPortConnection Connect(NarrativeNode node)
     {

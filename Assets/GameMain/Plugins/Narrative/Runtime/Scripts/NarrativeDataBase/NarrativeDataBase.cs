@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 // ReSharper disable once CheckNamespace
@@ -12,115 +10,109 @@ namespace Narrative.Runtime.Scripts.NarrativeDataBase
     public class NarrativeDataBase : ScriptableObject
     {
         //private DataBaseContainer _dataBaseContainer;
+        //[HideInInspector] [SerializeField] private List<string> savedkeys = new List<string>();
 
-        [HideInInspector] [SerializeField] private List<string> savedkeys = new List<string>();
+        [SerializeField] private List<NarrativeData> datas = new List<NarrativeData>();
 
-        public List<string> SavedKeys => savedkeys;
+        //private readonly string _saveKey = "NarrativeDataBase";
 
-        private readonly string _saveKeysKey = "NarrativeDataBaseKeys";
+        public Action<string> OndatasChanged;
+        //public List<string> SavedKeys => savedkeys;
 
-        public void LoadDataKeys()
+
+        /// <summary>
+        /// 设置数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void SetData(string key, object value)
         {
-            var loadKeys = PlayerPrefs.GetString(_saveKeysKey, String.Empty);
-            loadKeys = loadKeys.TrimStart('\n');
-            loadKeys = loadKeys.TrimEnd('\n');
-            if (!string.IsNullOrWhiteSpace(loadKeys))
-                savedkeys = loadKeys.Split('\n').ToList();
+            var data = (datas.Find(item => item.key == key));
+            if (data == null)
+            {
+                data = NarrativeData.Create(key, value);
+                datas.Add(data);
+            }
+            else
+            {
+                data.value = value.ToString();
+            }
+
+            FireDataChangeEvent();
         }
 
-        public void SaveDataKeys()
+        /// <summary>
+        /// 清除数据
+        /// </summary>
+        /// <param name="key"></param>
+        public void ClearData(string key)
         {
-            StringBuilder builder = new StringBuilder();
-            foreach (var savedkey in savedkeys)
-                builder.AppendLine(savedkey);
-
-            var result = builder.ToString();
-            result = result.TrimStart('\n');
-            result = result.TrimEnd('\n');
-            PlayerPrefs.SetString(_saveKeysKey, result);
+            datas.RemoveAll(item => item.key == key);
+            FireDataChangeEvent();
         }
 
-        public virtual void SetInt(string key, int value)
+        /// <summary>
+        /// 获取数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetData<T>(string key)
         {
-            PlayerPrefs.SetInt(key, value);
-            PlayerPrefs.Save();
-            SaveKey(key);
-        }
-
-        public virtual void SetFloat(string key, float value)
-        {
-            PlayerPrefs.SetFloat(key, value);
-            PlayerPrefs.Save();
-            SaveKey(key);
-        }
-
-        public virtual void SetString(string key, string value)
-        {
-            PlayerPrefs.SetString(key, value);
-            PlayerPrefs.Save();
-            SaveKey(key);
-        }
-
-        public virtual void SetBool(string key, bool value)
-        {
-            PlayerPrefs.SetInt(key, Convert.ToInt32(value));
-            PlayerPrefs.Save();
-            SaveKey(key);
-        }
-
-        public virtual int GetInt(string key, int defaultValue = 0)
-        {
-            return PlayerPrefs.GetInt(key, defaultValue);
-        }
-
-        public virtual float GetFloat(string key, float defaultValue = 0.0f)
-        {
-            return PlayerPrefs.GetFloat(key, defaultValue);
-        }
-
-        public virtual string GetString(string key, string defaultValue = "")
-        {
-            return PlayerPrefs.GetString(key, defaultValue);
-        }
-
-        public virtual bool GetBool(string key, bool defaultValue = false)
-        {
-            return Convert.ToBoolean(PlayerPrefs.GetInt(key, Convert.ToInt32(defaultValue)));
-        }
-
-
-        protected void SaveKey(string key)
-        {
-            if (!savedkeys.Contains(key))
-                savedkeys.Add(key);
-            SaveDataKeys();
+            var findData = datas.Find(item => item.key == key);
+            if (findData == null) return default;
+            return (T)Convert.ChangeType(findData.value, typeof(T));
         }
 
         #region PublicMethod
 
-        public void ClearAllData()
+        /// <summary>
+        /// 初始化所有数据
+        /// </summary>
+        public void InitData(string dataJson)
         {
-            if (savedkeys.Count <= 0)
-                LoadDataKeys();
-            for (var i = SavedKeys.Count - 1; i >= 0; i--) DeleteKey(SavedKeys[i]);
-            PlayerPrefs.DeleteKey(_saveKeysKey);
+            if (!string.IsNullOrWhiteSpace(dataJson))
+                datas = JsonUtil.FromJson<List<NarrativeData>>(dataJson);
         }
 
-        public virtual void DeleteKey(string key)
+        /// <summary>
+        /// 清除所有数据
+        /// </summary>
+        public void ClearAllData()
         {
-            PlayerPrefs.DeleteKey(key);
-            savedkeys.Remove(key);
+            datas.Clear();
+            FireDataChangeEvent();
+        }
+
+        #endregion
+
+        #region PrivateMethod
+
+        private void FireDataChangeEvent()
+        {
+            OndatasChanged?.Invoke(JsonUtil.ToJson(datas));
         }
 
         #endregion
     }
 
-    // [Serializable]
-    // public class DataBaseContainer
-    // {
-    //     public Dictionary<string, int> IntData = new Dictionary<string, int>();
-    //     public Dictionary<string, float> FloatData = new Dictionary<string, float>();
-    //     public Dictionary<string, string> StringData = new Dictionary<string, string>();
-    //     public Dictionary<string, bool> BoolData = new Dictionary<string, bool>();
-    // }
+    [Serializable]
+    public class NarrativeData
+    {
+        public string key;
+        public string type;
+        public string value;
+
+        private NarrativeData(string key, object value)
+        {
+            this.key = key;
+            type = value.GetType().Name;
+            this.value = value.ToString();
+        }
+
+        public static NarrativeData Create(string key, object value)
+        {
+            return new NarrativeData(key, value);
+        }
+    }
 }

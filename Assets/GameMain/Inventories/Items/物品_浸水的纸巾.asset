@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f55281efbfc11483ab7e27b703fbc1b8, type: 3}
+  m_Name: "\u7269\u54C1_\u6D78\u6C34\u7684\u7EB8\u5DFE"
+  m_EditorClassIdentifier: 
+  itemName: "\u6D78\u6C34\u7684\u7EB8\u5DFE"
+  itemType: {fileID: 11400000, guid: b2249d84a5dff43ad9a64a4d799630bd, type: 2}
+  itemPrefab: {fileID: 0}
+  itemIcon: {fileID: 0}
+  itemInfo: "\u6D78\u6C34\u7684\u7EB8\u5DFE\n\u88AB\u5730\u4E0A\u810F\u6C34\u6D78\u6C34\u7684\u7EB8\u5DFE\n\u5982\u679C\u4F60\u60F3\u7528\u5B83\uFF0C\u90A3\u4F1A\u5F88\u4E0D\u536B\u751F"
+  maxAmount: -1
+  onUseEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 697ddf3889f5b4fde95f76915e144266, type: 2}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  userDataObject: {fileID: 0}

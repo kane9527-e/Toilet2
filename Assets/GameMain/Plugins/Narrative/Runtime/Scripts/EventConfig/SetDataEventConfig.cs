@@ -12,7 +12,6 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
     public class SetDataEventConfig : EventConfig.EventConfig
     {
         [SerializeField] private List<SetDataEvent> setDataEvents = new List<SetDataEvent>();
-
         public override void Trigger()
         {
             //base.Trigger();
@@ -47,16 +46,16 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
                     switch (valueType)
                     {
                         case DataValueType.Int:
-                            dataBase.SetInt(key, intValue);
+                            dataBase.SetData(key, intValue);
                             break;
                         case DataValueType.Float:
-                            dataBase.SetFloat(key, floatValue);
+                            dataBase.SetData(key, floatValue);
                             break;
                         case DataValueType.Bool:
-                            dataBase.SetBool(key, boolValue);
+                            dataBase.SetData(key, boolValue);
                             break;
                         case DataValueType.String:
-                            dataBase.SetString(key, stringValue);
+                            dataBase.SetData(key, stringValue);
                             break;
                     }
 
@@ -65,19 +64,19 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
                     switch (valueType)
                     {
                         case DataValueType.Int:
-                            dataBase.SetInt(key, dataBase.GetInt(key) + intValue);
+                            dataBase.SetData(key, dataBase.GetData<int>(key) + intValue);
                             break;
                         case DataValueType.Float:
-                            dataBase.GetFloat(key, dataBase.GetFloat(key) + floatValue);
+                            dataBase.SetData(key, dataBase.GetData<float>(key) + floatValue);
                             break;
                         case DataValueType.Bool:
-                            var boolValue = dataBase.GetBool(key);
-                            var setValue = Convert.ToInt32(boolValue) + Convert.ToInt32(boolValue);
+                            var boolvalue = dataBase.GetData<bool>(key);
+                            var setValue = Convert.ToInt32(boolvalue) + Convert.ToInt32(boolvalue);
                             setValue = setValue > 1 ? 1 : setValue < 0 ? 0 : setValue;
-                            dataBase.SetBool(key, Convert.ToBoolean(setValue));
+                            dataBase.SetData(key, Convert.ToBoolean(setValue));
                             break;
                         case DataValueType.String:
-                            dataBase.SetString(key, dataBase.GetString(key) + stringValue);
+                            dataBase.SetData(key, dataBase.GetData<string>(key) + stringValue);
                             break;
                     }
 
@@ -86,19 +85,19 @@ namespace Narrative.Runtime.Scripts.Nodes.TriggerNode
                     switch (valueType)
                     {
                         case DataValueType.Int:
-                            dataBase.SetInt(key, dataBase.GetInt(key) - intValue);
+                            dataBase.SetData(key, dataBase.GetData<int>(key) - intValue);
                             break;
                         case DataValueType.Float:
-                            dataBase.GetFloat(key, dataBase.GetFloat(key) - floatValue);
+                            dataBase.SetData(key, dataBase.GetData<float>(key) - floatValue);
                             break;
                         case DataValueType.Bool:
-                            var boolValue = dataBase.GetBool(key);
+                            var boolValue = dataBase.GetData<bool>(key);
                             var setValue = Convert.ToInt32(boolValue) - Convert.ToInt32(boolValue);
                             setValue = setValue > 1 ? 1 : setValue < 0 ? 0 : setValue;
-                            dataBase.SetBool(key, Convert.ToBoolean(setValue));
+                            dataBase.SetData(key, Convert.ToBoolean(setValue));
                             break;
                         case DataValueType.String:
-                            dataBase.SetString(key, dataBase.GetString(key).Replace(stringValue, string.Empty));
+                            dataBase.SetData(key, dataBase.GetData<string>(key).Replace(stringValue, string.Empty));
                             break;
                     }
 

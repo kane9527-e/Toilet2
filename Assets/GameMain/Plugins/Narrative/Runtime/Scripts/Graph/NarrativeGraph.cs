@@ -22,6 +22,8 @@ namespace Narrative.Runtime.Scripts.Graph
 
         public Action<DisplayNode> OnNodeChangedEvent;
 
+        public DisplayNode LastNode { get; private set; }
+
         public DisplayNode CurrentNode
         {
             get => _currentNode;
@@ -36,14 +38,18 @@ namespace Narrative.Runtime.Scripts.Graph
         {
             Debug.Assert(StartingNode.Outputs.First().Connections.Count != 0, "Starting node needs a connection");
             if (!(StartingNode.Outputs.First().Connections[0].Node is DisplayNode)) return; //检测是否为显示节点
-            CurrentNode = (DisplayNode)StartingNode.Outputs.First().Connections[0].Node;
+
             foreach (var state in Nodes)
             {
                 var node = state as NarrativeNode;
                 if (node != null) node.narrativeGraph = this;
             }
 
-            CurrentNode.OnEnter();
+            if (CurrentNode == null)
+            {
+                CurrentNode = (DisplayNode)StartingNode.Outputs.First().Connections[0].Node;
+                CurrentNode.OnEnter(CurrentNode);
+            }
         }
 
         public void Update()
@@ -58,10 +64,21 @@ namespace Narrative.Runtime.Scripts.Graph
         /// <param name="node"></param>
         public void SwitchNode(DisplayNode node)
         {
+            if (!node) return;
             if (!Nodes.Contains(node)) return;
-            CurrentNode.OnExit();
+
+            LastNode = CurrentNode;
+            if (CurrentNode) //如果上一个有节点
+                CurrentNode.OnExit(node);
             CurrentNode = node;
-            CurrentNode.OnEnter();
+            CurrentNode.OnEnter(LastNode);
+        }
+
+
+        public void SwitchNode(int index)
+        {
+            if (index < 0 || index >= Nodes.Count) return;
+            SwitchNode(GetNodeByIndex(index));
         }
 
         // public void GoToState(NarrativePort state)
@@ -81,5 +98,13 @@ namespace Narrative.Runtime.Scripts.Graph
         //         }
         //     }
         // }
+
+        public int GetIndexByNode(DisplayNode node) => Nodes.FindIndex(item => item == node);
+
+        public DisplayNode GetNodeByIndex(int index)
+        {
+            if (index < 0 || index >= Nodes.Count) return null;
+            return Nodes[index] as DisplayNode;
+        }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Narrative.Runtime.Scripts.MonoBehaviour;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
 using UI.GamePlay.StoryUI;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using VisualGraphRuntime;
@@ -40,7 +39,6 @@ public class StoryUIForm : MonoBehaviour
 
     private IEnumerator UpdateStoryUI(DisplayNode node)
     {
-        yield return new WaitForNextFrameUnit();
         yield return new WaitForEndOfFrame();
         var manager = NarrativeManager.Instance;
         if (optionNodes != null)

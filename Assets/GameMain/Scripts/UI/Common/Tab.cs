@@ -7,6 +7,7 @@ using UnityEngine.UI;
 // ReSharper disable once CheckNamespace
 namespace UnityEngine.UI
 {
+    [ExecuteAlways]
     public class Tab : Toggle
     {
         [SerializeField] private Button tabBarButton;

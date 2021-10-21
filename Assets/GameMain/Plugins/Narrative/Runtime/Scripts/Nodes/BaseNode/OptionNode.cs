@@ -23,7 +23,7 @@ public abstract class OptionNode : NarrativeNode
             if (!ins || !ins.DataBase)
                 return false;
             var key = string.Format("OptionNode.Triggered.{0}", guid);
-            return ins.DataBase.GetBool(key);
+            return ins.DataBase.GetData<bool>(key);
         }
         private set
         {
@@ -31,7 +31,7 @@ public abstract class OptionNode : NarrativeNode
             if (!ins || !ins.DataBase)
                 return;
             var key = string.Format("OptionNode.Triggered.{0}", guid);
-            ins.DataBase.SetBool(key, value);
+            ins.DataBase.SetData(key, value);
         }
     }
 
@@ -55,6 +55,7 @@ public abstract class OptionNode : NarrativeNode
 
         if (once && Triggered)
             return;
+        
 
         if (eventConfig)
             eventConfig.Trigger();

@@ -1,3 +1,4 @@
+using GameMain.Scripts.Component.GameFramework;
 using UnityGameFramework.Runtime;
 
 namespace GameMain.Scripts.Runtime.Base
@@ -107,6 +108,8 @@ namespace GameMain.Scripts.Runtime.Base
         /// </summary>
         public static WebRequestComponent WebRequest { get; private set; }
 
+
+
         private static void InitBuiltinComponents()
         {
             Base = UnityGameFramework.Runtime.GameEntry.GetComponent<BaseComponent>();
@@ -129,6 +132,7 @@ namespace GameMain.Scripts.Runtime.Base
             Sound = UnityGameFramework.Runtime.GameEntry.GetComponent<SoundComponent>();
             UI = UnityGameFramework.Runtime.GameEntry.GetComponent<UIComponent>();
             WebRequest = UnityGameFramework.Runtime.GameEntry.GetComponent<WebRequestComponent>();
+            
         }
     }
 }

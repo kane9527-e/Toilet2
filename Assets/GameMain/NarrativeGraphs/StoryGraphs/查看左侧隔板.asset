@@ -261,7 +261,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: c01170ad-289c-4b15-a82d-159d9bdcbd3e
   editor_ActiveNode: 0
-  position: {x: 1021.5, y: -546}
+  position: {x: 1024.5417, y: -871.5}
   narrativeGraph: {fileID: 0}
   once: 0
   eventConfig: {fileID: 11400000, guid: a553145687af94dbda5bc86558d854da, type: 2}
@@ -734,7 +734,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 4bcceb92-157f-4e02-9e8f-509465291328
   editor_ActiveNode: 0
-  position: {x: 2298.5, y: -1288}
+  position: {x: 2236, y: -1229}
   narrativeGraph: {fileID: 0}
   eventConfig: {fileID: 11400000, guid: 4fa1d01d97dbf4eb088dab63bf604b5e, type: 2}
   storyTexts:
@@ -1239,11 +1239,11 @@ MonoBehaviour:
   eventConfig: {fileID: 11400000, guid: f7ca06f00a98747c8b68f070917383f3, type: 2}
   storyTexts:
   - conditionConfig: {fileID: 11400000, guid: 0652ad5b5f36f4455bc9c152b041b0e1, type: 2}
-    storyText: "\u4F60\u6572\u4E86\u4E00\u4E0B\n\u5DE6\u4FA7\u9694\u677F"
+    storyText: "\u4F60\u521A\u624D\u6572\u4E86\u4E00\u4E0B\n\u5DE6\u4FA7\u9694\u677F\n\u63A5\u4E0B\u6765\u4F60\u6253\u7B97"
   - conditionConfig: {fileID: 11400000, guid: 67c9d302189674619b03095bf21b1252, type: 2}
-    storyText: "\u4F60\u975E\u5E38\u7528\u529B\u7684\u6572\u6253\u7740\n\u5305\u95F4\u5DE6\u4FA7\u7684\u9694\u677F\n\u677F\u4E0A\u7684\u7070\u7070\u5C18\n\u88AB\u4F60\u6253\u4E0B\u4E86\u8BB8\u591A\n\u9694\u677F\u53D8\u5E72\u51C0\u4E86"
+    storyText: "\u4F60\u521A\u624D\u975E\u5E38\u7528\u529B\u7684\u6572\u6253\u7740\n\u5305\u95F4\u5DE6\u4FA7\u7684\u9694\u677F\n\u677F\u4E0A\u7684\u7070\u7070\u5C18\n\u88AB\u4F60\u6253\u4E0B\u4E86\u8BB8\u591A\n\u9694\u677F\u53D8\u5E72\u51C0\u4E86\n\u63A5\u4E0B\u6765\u4F60\u6253\u7B97"
   - conditionConfig: {fileID: 11400000, guid: 7b578c570fbf240f1b005a7d60a32ae8, type: 2}
-    storyText: "\u4F60\u7684\u624B\u91CD\u91CD\u5730\n\u6572\u5728\u4E86\u5DE6\u4FA7\u9694\u677F\u4E0A\n\u9694\u677F\u4F9D\u65E7\u575A\u56FA\n\u4F46\u4F60\u7684\u624B\u5DF2\u7ECF\u5F88\u75DB\u4E86"
+    storyText: "\u521A\u624D\u4F60\u7684\u624B\u91CD\u91CD\u5730\n\u6572\u5728\u4E86\u5DE6\u4FA7\u9694\u677F\u4E0A\n\u9694\u677F\u4F9D\u65E7\u575A\u56FA\n\u4F46\u4F60\u7684\u624B\u5DF2\u7ECF\u5F88\u75DB\u4E86\n\u90A3\u4E48\u63A5\u4E0B\u6765\u4F60\u6253\u7B97"
   - conditionConfig: {fileID: 11400000, guid: fcf49a1b4394444eba844cceb92faf67, type: 2}
     storyText: "\u4F60\u4F7F\u51FA\u5403\u5976\u7684\u529B\u6C14\n\u6572\u5728\u4E86\u5305\u95F4\u5DE6\u4FA7\u9694\u677F\u4E0A\n\u4F60\u7684\u624B\u53D7\u4F24\u4E86"
   backgroundImage: {fileID: 0}

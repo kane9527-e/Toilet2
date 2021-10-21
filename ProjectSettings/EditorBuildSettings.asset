@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/GameMain/Scenes/Toilet_Text.unity
-    guid: 81d7ca86cc3d24ff2a34088ee9947079
+    path: Assets/GameEntry.unity
+    guid: 764ce47ee4d004b18abf3aff602d3528
   m_configObjects: {}

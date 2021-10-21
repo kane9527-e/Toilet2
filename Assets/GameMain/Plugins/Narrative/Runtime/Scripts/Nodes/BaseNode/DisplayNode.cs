@@ -14,9 +14,9 @@ namespace Narrative.Runtime.Scripts.Nodes.BaseNode
             set => eventConfig = value;
         }
 
-        public override void OnEnter()
+        public override void OnEnter(object args)
         {
-            base.OnEnter();
+            base.OnEnter(args);
             TriggerEvent();
         }
 

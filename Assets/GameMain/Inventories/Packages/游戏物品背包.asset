@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: "\u6E38\u620F\u7269\u54C1\u80CC\u5305"
   m_EditorClassIdentifier: 
   items:
-  - item: {fileID: 11400000, guid: b1601abdeb935415db6e327f06cb8985, type: 2}
-    amount: 5
+  - item: {fileID: 11400000, guid: a8f6ccbcb05814f608d0531347194bf5, type: 2}
+    amount: 1
+  - item: {fileID: 11400000, guid: c72da855ac48f4eb6bc019599e57a6c1, type: 2}
+    amount: 1

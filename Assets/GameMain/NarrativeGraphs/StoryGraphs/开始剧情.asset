@@ -17,7 +17,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: b612c28e-75be-41a4-9bf9-d714d4c61293
   editor_ActiveNode: 0
-  position: {x: 1207.45, y: -82.99998}
+  position: {x: 1300.5, y: -83}
   narrativeGraph: {fileID: 0}
   once: 0
   eventConfig: {fileID: 0}
@@ -114,7 +114,7 @@ MonoBehaviour:
   - id: 1
   internal_guid: 5d761704-5983-4d5e-bf62-caca55eb16af
   editor_ActiveNode: 0
-  position: {x: 816, y: -83}
+  position: {x: 878, y: -83}
   narrativeGraph: {fileID: 0}
   eventConfig: {fileID: 0}
   storyTexts:
@@ -211,9 +211,10 @@ MonoBehaviour:
   - id: 0
   internal_guid: 2b0756e0-c9fb-4529-98e3-91385fc62e94
   editor_ActiveNode: 0
-  position: {x: 1415.3003, y: -83}
+  position: {x: 1508.5, y: -83}
   narrativeGraph: {fileID: 0}
   targetGraph: {fileID: 11400000, guid: 22c20f39a130047298926d237bc05104, type: 2}
+  targetNode: {fileID: 0}
   references:
     version: 1
     00000000:

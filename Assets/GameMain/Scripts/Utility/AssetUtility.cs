@@ -63,5 +63,19 @@ namespace GameMain.Scripts.Runtime.Utility
         {
             return GameFramework.Utility.Text.Format("Assets/GameMain/UI/UISounds/{0}.wav", assetName);
         }
+
+        public static string GetMissionConfigAsset(string assetName)
+        {
+            return GameFramework.Utility.Text.Format("Assets/GameMain/MissionConfigs/{0}.asset", assetName);
+        }
+        
+        public static string GetInventoryItemAsset(string assetName)
+        {
+            return GameFramework.Utility.Text.Format("Assets/GameMain/Inventories/Items/{0}.asset", assetName);
+        }
+        public static string GetNarrativeGraphAsset(string assetName)
+        {
+            return GameFramework.Utility.Text.Format("Assets/GameMain/NarrativeGraphs/StoryGraphs/{0}.asset", assetName);
+        }
     }
 }

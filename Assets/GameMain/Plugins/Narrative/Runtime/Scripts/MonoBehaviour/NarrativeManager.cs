@@ -1,6 +1,8 @@
 using System;
 using Narrative.Runtime.Scripts.Graph;
 using Narrative.Runtime.Scripts.Nodes.BaseNode;
+using Narrative.Runtime.Scripts.Nodes.DisplayNode;
+using UnityEditor;
 using UnityEngine;
 
 // ReSharper disable once CheckNamespace
@@ -10,34 +12,27 @@ namespace Narrative.Runtime.Scripts.MonoBehaviour
     public class NarrativeManager : NarrativeBehaviour
     {
         public Action<DisplayNode> OnNarrativeNodeChangeEvent;
-
+        
         public void SwitchNextDefaultNode()
         {
             if (Graph.CurrentNode)
                 Graph.CurrentNode.SwitchNextDefaultNode();
         }
 
-        public void StartNarrative()
+        
+        public void PlayNarrative(NarrativeGraph graph)
         {
-            Start();
+            SetNarrativeGraph(graph);
         }
 
-        public void StartNarrative(NarrativeGraph graph)
+        public void PlayNarrative(NarrativeGraph graph, DisplayNode node)
         {
-            Graph = graph;
-            StartNarrative();
+            SetNarrativeGraph(graph,node);
         }
-
-        public void StartNarrative(NarrativeGraph graph, DisplayNode node)
+        
+        public void PlayNarrative(NarrativeGraph graph, int index)
         {
-            if (node == null)
-            {
-                StartNarrative(graph);
-                return;
-            }
-
-            Graph = graph;
-            Graph.SwitchNode(node);
+            PlayNarrative(graph, graph.GetNodeByIndex(index));
         }
 
         protected override void OnNarrativeNodeChange(DisplayNode node)
@@ -86,13 +81,8 @@ namespace Narrative.Runtime.Scripts.MonoBehaviour
             {
                 Destroy(gameObject);
             }
-
-            if (DataBase)
-            {
-                DataBase.LoadDataKeys();
-                DataBase.ClearAllData();
-            }
         }
+
 
         protected virtual void OnInstanceInit()
         {

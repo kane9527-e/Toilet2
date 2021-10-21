@@ -33,7 +33,8 @@ public class InventoryUIForm : UIFormLogic
 
     private void Awake()
     {
-        if (!GameEntry.Base) OnInit(this);
+        //if (!GameEntry.Base) OnInit(this);
+        OnInit(this);
     }
 
     // private void OnEnable()
@@ -60,9 +61,14 @@ public class InventoryUIForm : UIFormLogic
         base.OnOpen(userData);
         if (rootPanel)
             rootPanel.gameObject.SetActive(true);
-        UpdateItemPanelStatus();
-        if (usableOptionsPanel)
-            usableOptionsPanel.gameObject.SetActive(false);
+        
+        ForceUpdateAllUIGrid();
+        
+        UnUseCurrentItem();
+        DisCurrentSelectGrid();
+        
+        // if (usableOptionsPanel)
+        //     usableOptionsPanel.gameObject.SetActive(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -71,7 +77,8 @@ public class InventoryUIForm : UIFormLogic
         if (!GameEntry.Base)
             if (rootPanel)
                 rootPanel.gameObject.SetActive(false);
-
+        
+        UnUseCurrentItem();
         DisCurrentSelectGrid();
     }
 
@@ -90,9 +97,9 @@ public class InventoryUIForm : UIFormLogic
     {
         if (InventoryManager.Instance)
         {
-            InventoryManager.Instance.ONItemAdd = OnItemAddedHandler;
-            InventoryManager.Instance.ONItemReduce = OnItemReducedHandler;
-            InventoryManager.Instance.ONItemUse = OnItemUsedHandler;
+            InventoryManager.Instance.ONItemAdd += OnItemAddedHandler;
+            InventoryManager.Instance.ONItemReduce += OnItemReducedHandler;
+            InventoryManager.Instance.ONItemUse += OnItemUsedHandler;
         }
 
         if (closeButton)
@@ -184,34 +191,38 @@ public class InventoryUIForm : UIFormLogic
     /// </summary>
     private void UpdateItemPanelStatus()
     {
+        if (CurrentSelectGrid)
+        {
+            var item = CurrentSelectGrid.Stack.Item;
+            useButton.gameObject.SetActive(item.ItemType.CanUse);
+            try
+            {
+                var text = (Text)useButton.targetGraphic;
+                text.text = IsUsing ? "取消使用" : "使用物品";
+            }
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable 168
+            catch (Exception e)
+#pragma warning restore 168
+            {
+                //ignore
+            }
+
+            discardButton.gameObject.SetActive(item.ItemType.CanDiscard);
+            if (item.ItemIcon)
+                itemImage.sprite = Sprite.Create(item.ItemIcon, new Rect(0, 0, item.ItemIcon.width, item.ItemIcon.height),
+                    Vector2.zero);
+            itemInfoText.text = item.ItemInfo;
+        }
+ 
+
+        discardButton.gameObject.SetActive(!IsUsing);
+        disSelectButton.gameObject.SetActive(!IsUsing); //取消选择按钮
+        
         if (itemPanel)
             itemPanel.gameObject.SetActive(CurrentSelectGrid != null);
         if (usableOptionsPanel && itemPanel && !itemPanel.gameObject.activeSelf)
             usableOptionsPanel.gameObject.SetActive(false);
-
-        if (!CurrentSelectGrid) return;
-        var item = CurrentSelectGrid.Stack.Item;
-        useButton.gameObject.SetActive(item.ItemType.CanUse);
-        try
-        {
-            var text = (Text)useButton.targetGraphic;
-            text.text = IsUsing ? "取消使用" : "使用物品";
-        }
-        // ReSharper disable once EmptyGeneralCatchClause
-#pragma warning disable 168
-        catch (Exception e)
-#pragma warning restore 168
-        {
-            //ignore
-        }
-
-        discardButton.gameObject.SetActive(item.ItemType.CanDiscard);
-        if (item.ItemIcon)
-            itemImage.sprite = Sprite.Create(item.ItemIcon, new Rect(0, 0, item.ItemIcon.width, item.ItemIcon.height),
-                Vector2.zero);
-        itemInfoText.text = item.ItemInfo;
-        discardButton.gameObject.SetActive(!IsUsing);
-        disSelectButton.gameObject.SetActive(!IsUsing); //取消选择按钮
     }
 
     private void ForceUpdateAllUIGrid()
@@ -250,7 +261,6 @@ public class InventoryUIForm : UIFormLogic
     public void UnOrUseCurrentItem()
     {
         if (!CurrentSelectGrid) return;
-
 
         IsUsing = !IsUsing;
 
@@ -305,6 +315,7 @@ public class InventoryUIForm : UIFormLogic
         // ReSharper disable once Unity.NoNullPropagation
         if (usableOptionsPanel && usableOptionsPanel.gameObject.activeSelf)
             usableOptionsPanel.gameObject?.SetActive(false);
+        
         UpdateItemPanelStatus();
     }
 
